@@ -70,20 +70,20 @@ public sealed partial class LegendaryNightOverlay
             if (TryGetStarburstWarning(head, out LegendStarburstVisuals.Burst warning))
             {
                 // 预告星保留固定像素光晕，不跟随爆区放大。
-                BloomSettings settings = LegendStarburstVisuals.WithBody(BloomSettings.Default, Main.dayTime);
+                BloomSettings settings = LegendStarburstVisuals.WithBody(BloomSettings.SoftGlow with { Threshold = 0f }, Main.dayTime);
                 StarburstLayer layer = new(null, 0, warning, false, view, blend, textures, default, null);
                 LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
             if (circleRadius > 0f)
             {
-                BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(circleRadius, view, Main.dayTime, false);
+                BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(false);
                 StarburstLayer layer = new(frames, count, default, false, view, blend, textures, default, null);
                 LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
         }
         if (ringRadius > 0f && LegendStarburstRingAssets.IsLoaded)
         {
-            BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(ringRadius, view, Main.dayTime, true);
+            BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(true);
             StarburstLayer layer = new(frames, count, default, true, view, blend, default,
                 LegendStarburstRingAssets.Textures, AnomalyEffects.Overlays.LegendStarburstRingMark.Asset.Value);
             LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);

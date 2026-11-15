@@ -39,6 +39,9 @@ public sealed partial class LegendaryNightOverlay : CustomOverlay
         if (intensity <= 0f || !phase2 && (Arena is null || !Arena.Projectile.active))
         {
             DrawImpactFlame(spriteBatch, phase2 ? Phase2Arena : null);
+            DrawCoinCircleImpacts(spriteBatch);
+            DrawCoinCrossImpacts(spriteBatch);
+
             return;
         }
 
@@ -62,6 +65,9 @@ public sealed partial class LegendaryNightOverlay : CustomOverlay
             DrawImpactFlame(spriteBatch, null);
             SkeletronArenaDrawing.DrawBoundary(spriteBatch, Arena.VisualPolygon, intensity);
         }
+        DrawCoinCircleImpacts(spriteBatch);
+        DrawCoinCrossImpacts(spriteBatch);
+
     }
 
 }

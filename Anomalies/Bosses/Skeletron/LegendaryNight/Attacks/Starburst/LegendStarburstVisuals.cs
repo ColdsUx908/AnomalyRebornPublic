@@ -9,6 +9,8 @@ internal static class LegendStarburstVisuals
 {
     public const int BlurDuration = 20;
     public const int ShakeDuration = 14;
+    internal static float CircleEmissionIntensity => 1f;
+    internal static float RingEmissionIntensity => 1f;
 
     /// <summary>Age 以伤害起始帧为零；InnerRadius 为零表示实心圆，SigilRadius 为交汇小法阵半径。</summary>
     public readonly record struct Burst(Vector2 Center, float OuterRadius, float InnerRadius, float SigilRadius, float Age);
@@ -34,20 +36,13 @@ internal static class LegendStarburstVisuals
     public static float Bell(float ratio, float rise) => ratio <= 0f || ratio >= 1f ? 0f
         : ratio < rise ? Smooth(ratio / rise) : MathF.Pow(1f - (ratio - rise) / (1f - rise), 1.6f);
 
-    public static BloomSettings GetBloomSettings(float outerRadius, in WorldView2D view, bool dayTime, bool ring)
+    public static BloomSettings GetBloomSettings(bool ring)
     {
-        // 保留两种设计半径和各自的运算顺序，避免提取公共逻辑时改变光晕校准。
-        const float OutputScale = 1.5f;
-        const float CircleCalibration = 1.1f;
-        float haloScale = ring
-            ? OutputScale * view.Scale * outerRadius / LegendStarburstRingVisuals.ReferenceRadius
-            : OutputScale * view.Scale * (outerRadius / LegendStarburstCircleVisuals.ReferenceRadius) / CircleCalibration;
-        BloomSettings defaults = BloomSettings.Default;
-        return WithBody(defaults with
+        // 三种爆炸共用屏幕像素核及一次本体合成；颜色光能由各自配方提供。
+        return BloomSettings.Default with
         {
-            NearRadius = defaults.NearRadius * haloScale,
-            FarRadius = defaults.FarRadius * haloScale
-        }, dayTime);
+            SourceIntensity = ring ? RingEmissionIntensity : CircleEmissionIntensity
+        };
     }
 
     public static BloomSettings WithBody(BloomSettings settings, bool dayTime) => settings with

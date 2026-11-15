@@ -25,7 +25,7 @@ public static partial class LightweightBloom
     /// <summary>
     /// 使用值类型图层避免逐帧闭包。Effect 为 null 时不租用目标，仍恢复设备状态。
     /// 按当前视口大小捕获并合成回原视口，支持非零视口原点；零尺寸视口不执行图层。
-    /// 原 RT 的保留策略会持久设为 PreserveContents。恢复目标、视口、裁剪、混合/深度/光栅状态及纹理/采样槽 0；
+    /// 原 RT 的保留策略会持久设为 PreserveContents。恢复目标、视口、裁剪、混合/深度/光栅状态及纹理/采样槽 0、1；
     /// 其他槽、顶点和索引绑定由调用者负责。不得在回调内更改目标绑定。
     /// </summary>
     public static void Draw<TLayer>(SpriteBatch spriteBatch, Effect effect, in BloomSettings settings, TLayer layer)
@@ -46,6 +46,8 @@ public static partial class LightweightBloom
         RasterizerState rasterizer = device.RasterizerState;
         SamplerState sampler = device.SamplerStates[0];
         Texture texture = device.Textures[0];
+        SamplerState auxiliarySampler = device.SamplerStates[1];
+        Texture auxiliaryTexture = device.Textures[1];
         try
         {
             using SpriteBatchScope batchScope = new(spriteBatch, false);
@@ -56,13 +58,19 @@ public static partial class LightweightBloom
                     throw new InvalidOperationException("Bloom layers must end their SpriteBatch.");
                 return;
             }
-            using RenderTargetLease source = RenderTargetPool.Shared.Rent(device, viewport.Width, viewport.Height, RenderTargetDescriptor.Default);
-            using RenderTargetLease nearScratch = RenderTargetPool.Shared.Rent(device, Math.Max(1, viewport.Width / 2), Math.Max(1, viewport.Height / 2), RenderTargetDescriptor.Default);
-            using RenderTargetLease near = RenderTargetPool.Shared.Rent(device, nearScratch.Target.Width, nearScratch.Target.Height, RenderTargetDescriptor.Default);
+            if (settings.PyramidLevels != 0)
+            {
+                DrawPyramid(spriteBatch, effect, settings, layer, previous, viewport);
+                return;
+            }
+            RenderTargetDescriptor descriptor = RenderTargetDescriptor.Default with { Format = SurfaceFormat.HalfVector4 };
+            using RenderTargetLease source = RenderTargetPool.Shared.Rent(device, viewport.Width, viewport.Height, descriptor);
+            using RenderTargetLease nearScratch = RenderTargetPool.Shared.Rent(device, Math.Max(1, viewport.Width / 2), Math.Max(1, viewport.Height / 2), descriptor);
+            using RenderTargetLease near = RenderTargetPool.Shared.Rent(device, nearScratch.Target.Width, nearScratch.Target.Height, descriptor);
             using RenderTargetLease farScratch = settings.WideHalo
-                ? RenderTargetPool.Shared.Rent(device, Math.Max(1, viewport.Width / 4), Math.Max(1, viewport.Height / 4), RenderTargetDescriptor.Default) : null;
+                ? RenderTargetPool.Shared.Rent(device, Math.Max(1, viewport.Width / 4), Math.Max(1, viewport.Height / 4), descriptor) : null;
             using RenderTargetLease far = settings.WideHalo
-                ? RenderTargetPool.Shared.Rent(device, farScratch.Target.Width, farScratch.Target.Height, RenderTargetDescriptor.Default) : null;
+                ? RenderTargetPool.Shared.Rent(device, farScratch.Target.Width, farScratch.Target.Height, descriptor) : null;
             RenderTargetPreserver.PreserveBindings(previous);
             if (previous.Length == 0)
                 device.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
@@ -73,9 +81,9 @@ public static partial class LightweightBloom
                 layer.Draw(spriteBatch);
                 if (new SpriteBatch_Publicizer(spriteBatch).beginCalled)
                     throw new InvalidOperationException("Bloom layers must end their SpriteBatch.");
-                Blur(spriteBatch, effect, source.Target, nearScratch.Target, near.Target, settings.NearRadius);
+                BlurEmission(spriteBatch, effect, source.Target, nearScratch.Target, near.Target, settings.NearRadius, settings);
                 if (settings.WideHalo)
-                    Blur(spriteBatch, effect, source.Target, farScratch.Target, far.Target, settings.FarRadius);
+                    BlurEmission(spriteBatch, effect, source.Target, farScratch.Target, far.Target, settings.FarRadius, settings);
                 device.SetRenderTargets(previous);
                 device.Viewport = viewport;
                 device.ScissorRectangle = scissor;
@@ -107,6 +115,8 @@ public static partial class LightweightBloom
             device.RasterizerState = rasterizer;
             device.SamplerStates[0] = sampler;
             device.Textures[0] = texture;
+            device.SamplerStates[1] = auxiliarySampler;
+            device.Textures[1] = auxiliaryTexture;
         }
     }
 

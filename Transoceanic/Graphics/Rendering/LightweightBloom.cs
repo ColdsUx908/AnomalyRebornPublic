@@ -1,6 +1,6 @@
 namespace Transoceanic.Graphics.Rendering;
 
-/// <summary>按最终屏幕像素配置的双尺度辉光；关闭宽光晕可减少一组滤波。</summary>
+/// <summary>默认使用 HDR 金字塔 Bloom；位置构造参数保留给旧版双尺度柔光。</summary>
 /// <param name="NearRadius">紧密光晕的高斯标准差，单位为最终画面像素。</param>
 /// <param name="FarRadius">扩散光晕的高斯标准差。</param>
 /// <param name="NearStrength">紧密光晕强度。</param>
@@ -11,13 +11,34 @@ namespace Transoceanic.Graphics.Rendering;
 public readonly record struct BloomSettings(float NearRadius, float FarRadius, float NearStrength,
     float FarStrength, bool WideHalo = true, bool AdditiveBody = false, int BodyPasses = 1)
 {
+    /// <summary>创建标准五级 HDR Bloom，使用一次 AlphaBlend 本体合成。</summary>
+    public BloomSettings() : this(0f, 0f, 0f, 0f)
+    {
+        PyramidLevels = 5;
+    }
+
+    /// <summary>KL 同源金字塔层数，范围 2～7；0 显式使用旧版双尺度柔光。默认配置使用 5 层。</summary>
+    public int PyramidLevels { get; init; }
+
+    /// <summary>金字塔光能在线性累加后、一次 Screen 合成前的倍率，默认 1。</summary>
+    public float Strength { get; init; } = 1f;
+
+    /// <summary>源图层的线性光能倍率，默认 1；在提取和本体合成时应用，不重复乘到已提取的光晕。</summary>
+    public float SourceIntensity { get; init; } = 1f;
+
+    /// <summary>发光亮度阈值，默认 1；仅严格超过阈值的像素参与光晕。0 可用于整层柔光。</summary>
+    public float Threshold { get; init; } = 1f;
+
     /// <summary>近光晕 Screen 合成次数，限制为 1～3。</summary>
     public int NearPasses { get; init; } = 1;
     /// <summary>远光晕 Screen 合成次数，限制为 1～3。</summary>
     public int FarPasses { get; init; } = 1;
 
-    /// <summary>对应两层 8px/26px 光晕的默认设置。</summary>
-    public static BloomSettings Default => new(8f, 26f, 0.85f, 0.9f);
+    /// <summary>与 KL 默认五级金字塔相同的提取、滤波权重和合成；不按特效尺寸修改核。</summary>
+    public static BloomSettings Default => new();
+
+    /// <summary>旧版双尺度柔光，只供已校准的装饰效果兼容使用；不是标准 HDR Bloom。</summary>
+    public static BloomSettings SoftGlow => new(8f, 26f, 0.85f, 0.9f);
 }
 
 /// <summary>主动提交图层的轻量 Bloom。滤波核心只依赖 FNA，可在独立预览中复用。</summary>
@@ -63,6 +84,18 @@ public static partial class LightweightBloom
     /// </summary>
     public static void Blur(SpriteBatch spriteBatch, Effect effect, Texture2D source,
         RenderTarget2D scratch, RenderTarget2D result, float radius)
+        => BlurCore(spriteBatch, effect, source, scratch, result, radius, false, 0f, 1f);
+
+    /// <summary>
+    /// 提取超过阈值的 HDR 光能，再执行双向高斯模糊。提取发生在降采样每次取样之前，避免细亮线被平均到阈值以下。
+    /// 源与工作目标应使用浮点格式；目标绑定和异常恢复契约与 <see cref="Blur"/> 相同。
+    /// </summary>
+    public static void BlurEmission(SpriteBatch spriteBatch, Effect effect, Texture2D source,
+        RenderTarget2D scratch, RenderTarget2D result, float radius, in BloomSettings settings)
+        => BlurCore(spriteBatch, effect, source, scratch, result, radius, true, settings.Threshold, settings.SourceIntensity);
+
+    private static void BlurCore(SpriteBatch spriteBatch, Effect effect, Texture2D source,
+        RenderTarget2D scratch, RenderTarget2D result, float radius, bool extract, float threshold, float intensity)
     {
         ValidateBatch(spriteBatch);
         GraphicsDevice device = spriteBatch.GraphicsDevice;
@@ -78,7 +111,9 @@ public static partial class LightweightBloom
         effect.Parameters["uDownsampleStep"].SetValue(new Vector2(
             source.Width > result.Width ? 0.25f / result.Width : 0f,
             source.Height > result.Height ? 0.25f / result.Height : 0f));
-        Filter(source, result, Vector2.Zero, "Downsample");
+        effect.Parameters["uThreshold"].SetValue(PositiveFinite(threshold));
+        effect.Parameters["uSourceIntensity"].SetValue(PositiveFinite(intensity));
+        Filter(source, result, Vector2.Zero, extract ? "ExtractDownsample" : "Downsample");
 
         // 每轮方差相加。首轮相邻采样不超过一个工作像素，之后只在已经平滑的
         // 图层上扩大核，避免大半径将十字星复制成横纵网格。复用原有两个目标。
@@ -112,7 +147,7 @@ public static partial class LightweightBloom
     }
 
     /// <summary>
-    /// 在当前目标上先 Screen 合成光晕、再合成清晰本体。纹理必须为预乘颜色。
+    /// 在当前目标上合成保留 HDR 光能的清晰本体，再 Screen 合成光晕。纹理必须为预乘颜色。
     /// 目标不得与任一输入相同，调用前后 SpriteBatch 均未开始；不会切换目标。
     /// </summary>
     public static void Composite(SpriteBatch spriteBatch, Effect effect, Texture2D source,
@@ -132,17 +167,19 @@ public static partial class LightweightBloom
                 throw new ArgumentException("Bloom cannot composite a texture into itself.");
         if (destination.Width <= 0 || destination.Height <= 0)
             return;
+        effect.Parameters["uSourceIntensity"].SetValue(PositiveFinite(settings.SourceIntensity));
+        spriteBatch.Begin(SpriteSortMode.Immediate, settings.AdditiveBody ? AdditiveBlend : BlendState.AlphaBlend,
+            SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
+        effect.CurrentTechnique.Passes["Body"].Apply();
+        for (int i = 0; i < Math.Clamp(settings.BodyPasses, 0, 2); i++)
+            spriteBatch.Draw(source, destination, Color.White);
+        spriteBatch.End();
         if (far is not null && settings.WideHalo)
             for (int i = 0; i < Math.Clamp(settings.FarPasses, 1, 3); i++)
                 DrawHalo(far, settings.FarStrength);
         if (near is not null)
             for (int i = 0; i < Math.Clamp(settings.NearPasses, 1, 3); i++)
                 DrawHalo(near, settings.NearStrength);
-        spriteBatch.Begin(SpriteSortMode.Deferred, settings.AdditiveBody ? AdditiveBlend : BlendState.AlphaBlend,
-            SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
-        for (int i = 0; i < Math.Clamp(settings.BodyPasses, 0, 2); i++)
-            spriteBatch.Draw(source, destination, Color.White);
-        spriteBatch.End();
 
         void DrawHalo(Texture2D texture, float strength)
         {
@@ -156,6 +193,8 @@ public static partial class LightweightBloom
             spriteBatch.End();
         }
     }
+
+    private static float PositiveFinite(float value) => float.IsFinite(value) ? Math.Max(value, 0f) : 0f;
 
     /// <summary>释放工具自己持有的混合状态；游戏卸载时自动调用，独立宿主退出时可调用。</summary>
     public static void ReleaseResources()
