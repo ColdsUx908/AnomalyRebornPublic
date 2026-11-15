@@ -70,7 +70,6 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer LegendStellarLightOrb;
 #if SPECIAL_CONTENTS
         public static MiscShaderContainer MeguminCircle;
-        public static MiscShaderContainer MeguminInferno;
         public static MiscShaderContainer MeguminLaser;
 #endif
         public static MiscShaderContainer SkeletronForwardBeam;

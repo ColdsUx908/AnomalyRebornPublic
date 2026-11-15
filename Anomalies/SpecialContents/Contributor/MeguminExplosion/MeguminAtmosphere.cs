@@ -14,7 +14,8 @@ public sealed class MeguminAtmosphere : ModSystem
 
     private static bool DrawAtmosphere()
     {
-        if (Main.gameMenu) return true;
+        if (Main.gameMenu)
+            return true;
         float darkness = 0f;
         float flash = 0f;
         foreach (Projectile projectile in Main.ActiveProjectiles)
@@ -29,7 +30,8 @@ public sealed class MeguminAtmosphere : ModSystem
                     0f, 1f) * 0.16f * blast.Opacity * distanceFade);
             }
         }
-        if (darkness <= 0f && flash <= 0f) return true;
+        if (darkness <= 0f && flash <= 0f)
+            return true;
         using (Main.spriteBatch.Scope(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
             DepthStencilState.None, RasterizerState.CullNone, transformMatrix: Matrix.Identity, effectIsNull: true))
         {

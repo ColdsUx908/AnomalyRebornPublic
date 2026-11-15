@@ -2,6 +2,8 @@ using Terraria.Graphics.CameraModifiers;
 
 namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
 
+/// <summary>慧慧法杖的持续爆炎光束；所属客户端更新位置、支付魔力并同步停止状态。</summary>
+/// <remarks>ai[0] 为存续帧数，ai[1] 为停止后的淡出帧数，ai[2] 未使用。位置由实体包同步；发包位置缓存不进入快照。</remarks>
 public sealed class MeguminBlast : AnomalyModProjectile
 {
     public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
@@ -31,6 +33,7 @@ public sealed class MeguminBlast : AnomalyModProjectile
         Projectile.tileCollide = false;
         Projectile.ignoreWater = true;
         Projectile.penetrate = -1;
+        Projectile.netImportant = true;
         Projectile.timeLeft = 2;
         Projectile.hide = true;
         Projectile.usesLocalNPCImmunity = true;

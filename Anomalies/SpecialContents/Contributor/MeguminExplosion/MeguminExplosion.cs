@@ -13,6 +13,8 @@ public sealed class MeguminExplosion : AnomalyModItem, IContributorItem, ILegend
     public override string LocalizationCategory => "SpecialContents.Contributor";
     public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory + ".MeguminExplosion";
 
+    public override void Load() => ExplosionDrawing.Load(Mod);
+
     public override void SetStaticDefaults() => Item.staff[Type] = true;
 
     public override void SetDefaults()
@@ -136,6 +138,8 @@ public sealed class MeguminExhaustion : ModBuff
 
     public override string Texture => $"Terraria/Images/Buff_{BuffID.ManaSickness}";
     public override string LocalizationCategory => "SpecialContents.Contributor";
+
+    public override void Load() => ExplosionDrawing.Load(Mod);
 
     public override void SetStaticDefaults()
     {

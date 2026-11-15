@@ -1,5 +1,7 @@
 namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
 
+/// <summary>慧慧法杖的蓄力持有弹幕；鼠标目标由所属客户端更新。</summary>
+/// <remarks>ai[0] 为蓄力帧数，ai[1..2] 为目标世界坐标。同步阈值缓存仅用于所属客户端发包，不进入快照。</remarks>
 public sealed class MeguminCasting : AnomalyModProjectile
 {
     public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
@@ -19,6 +21,7 @@ public sealed class MeguminCasting : AnomalyModProjectile
         Projectile.tileCollide = false;
         Projectile.ignoreWater = true;
         Projectile.penetrate = -1;
+        Projectile.netImportant = true;
         Projectile.timeLeft = 2;
         Projectile.DamageType = DamageClass.Magic;
     }

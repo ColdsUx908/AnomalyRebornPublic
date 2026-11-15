@@ -6,9 +6,21 @@ internal static class ExplosionDrawing
 {
     internal const int CircleBrightness = 5;
 
+    private static Asset<Texture2D> _Bloom;
+
+    // 由法杖的 Load 初始化；资产归 tML 所有，只清理借用引用。
+    internal static void Load(Mod mod)
+    {
+        if (Main.dedServ)
+            return;
+        TOCleanup.Register(() => _Bloom = null);
+        _Bloom = mod.Assets.Request<Texture2D>("SpecialContents/Contributor/MeguminExplosion/MeguminBloom");
+    }
+
     internal static void Circle(Vector2 center, Vector2 size, float time, float opacity, float rotation, Color color)
     {
-        if (opacity <= 0f) return;
+        if (opacity <= 0f)
+            return;
         Texture2D noise = AnomalyTextures.Noise.Turbulence;
         if (AnomalyClientConfig.Instance.EnableShaders && AnomalyEffects.Primitives.MeguminCircle is not null)
         {
@@ -47,7 +59,8 @@ internal static class ExplosionDrawing
     internal static void Laser(Vector2 focus, Vector2 top, Vector2 bottom, float age, float power, float opacity)
     {
         float time = age / 60f;
-        if (opacity <= 0f) return;
+        if (opacity <= 0f)
+            return;
         float width = 540f * (0.16f + power * 0.84f);
         float length = bottom.Y - top.Y;
         Texture2D noise = AnomalyTextures.Noise.Turbulence;
@@ -73,10 +86,11 @@ internal static class ExplosionDrawing
         {
             if (!useShader)
             {
-                Texture2D bloom = ModContent.Request<Texture2D>("Anomalies/SpecialContents/Contributor/MeguminExplosion/MeguminBloom").Value;
-                Main.spriteBatch.Draw(bloom, (top + bottom) * 0.5f - Main.screenPosition, null,
-                    Color.OrangeRed * (opacity * 0.7f), 0f, bloom.Size() * 0.5f,
-                    new Vector2(width, length * 1.15f) / bloom.Size(), SpriteEffects.None, 0f);
+                Texture2D bloom = _Bloom?.Value;
+                if (bloom is not null)
+                    Main.spriteBatch.Draw(bloom, (top + bottom) * 0.5f - Main.screenPosition, null,
+                        Color.OrangeRed * (opacity * 0.7f), 0f, bloom.Size() * 0.5f,
+                        new Vector2(width, length * 1.15f) / bloom.Size(), SpriteEffects.None, 0f);
                 Line(top, bottom, width * 0.38f, Color.OrangeRed * (opacity * 0.32f));
                 Line(top, bottom, width * 0.21f, Color.Orange * (opacity * 0.55f));
                 Line(top, bottom, width * 0.065f, Color.LightGoldenrodYellow * opacity);
@@ -141,45 +155,6 @@ internal static class ExplosionDrawing
         Glow(focus, new Vector2(300f, 140f) * (0.5f + power), Color.Gold * (opacity * 0.45f));
     }
 
-    internal static void Inferno(Vector2 center, Vector2 size, int mode, float time, float opacity, float rotation = 0f)
-    {
-        if (opacity <= 0f) return;
-        Texture2D noise = AnomalyTextures.Noise.Turbulence;
-        if (AnomalyClientConfig.Instance.EnableShaders && AnomalyEffects.Primitives.MeguminInferno is not null)
-        {
-            using (Main.spriteBatch.Scope(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap,
-                DepthStencilState.None, RasterizerState.CullNone, transformMatrix: Main.GameViewMatrix.TransformationMatrix, effectIsNull: true))
-            {
-                AnomalyEffects.Primitives.MeguminInferno.Data.UseImage1(AnomalyTextures.Noise._Perlin)
-                    .SetCustomParameter("uFlowTime", time).SetCustomParameter("uMode", (float)mode).Apply();
-                Main.spriteBatch.Draw(noise, center - Main.screenPosition, null, Color.White * opacity, rotation,
-                    noise.Size() * 0.5f, size / noise.Size(), SpriteEffects.None, 0f);
-            }
-        }
-        else
-        {
-            Texture2D bloom = ModContent.Request<Texture2D>("Anomalies/SpecialContents/Contributor/MeguminExplosion/MeguminBloom").Value;
-            using (Main.spriteBatch.Scope(SpriteSortMode.Deferred, mode == 2 ? BlendState.AlphaBlend : BlendState.Additive,
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
-                transformMatrix: Main.GameViewMatrix.TransformationMatrix, effectIsNull: true))
-            {
-                if (mode == 2)
-                    Main.spriteBatch.Draw(bloom, center - Main.screenPosition, null, new Color(45, 30, 38) * opacity,
-                        rotation, bloom.Size() * 0.5f, size / bloom.Size(), SpriteEffects.None, 0f);
-                else
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Color color = i switch { 0 => Color.OrangeRed, 1 => Color.Orange, _ => Color.LightGoldenrodYellow };
-                        Vector2 layerSize = size * (1f - i * 0.22f);
-                        Main.spriteBatch.Draw(bloom, center - Main.screenPosition, null, color * (opacity * 0.85f),
-                            rotation, bloom.Size() * 0.5f, layerSize / bloom.Size(), SpriteEffects.None, 0f);
-                    }
-                }
-            }
-        }
-    }
-
     internal static void Glow(Vector2 center, Vector2 size, Color color)
     {
         Texture2D circle = AnomalyTextures.Extra.BasicCircle;
@@ -202,10 +177,10 @@ internal static class ExplosionDrawing
     internal static void Ring(Vector2 center, Vector2 radius, Color color, float width, float rotation = 0f)
     {
         Vector2 previous = center + new Vector2(radius.X, 0f).RotatedBy(rotation);
-        const int segments = 96;
-        for (int i = 1; i <= segments; i++)
+        const int Segments = 96;
+        for (int i = 1; i <= Segments; i++)
         {
-            Vector2 point = center + (MathHelper.TwoPi * i / segments).ToRotationVector2() * radius;
+            Vector2 point = center + (MathHelper.TwoPi * i / Segments).ToRotationVector2() * radius;
             point = center + (point - center).RotatedBy(rotation);
             Line(previous, point, width, color);
             previous = point;

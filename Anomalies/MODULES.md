@@ -25,7 +25,7 @@ C# 检查可以追加 `-p:BuildMod=false`，实际进入游戏前须完成正常
 
 `AnomaliesModules.props` 只按目录筛选整组源码，不列举单文件例外；单文件归属和跨模块接入统一使用源码 `#if`。SpecialContents 普通内容按整个目录由 props 筛选，无需逐文件包裹 `#if SPECIAL_CONTENTS`。所有受模块筛选的目录只容纳该模块的内容，不设置子目录恢复例外；共享基类位于 `BaseContents/`，测试物品位于 `Testing/` 并仅使用 `#if DEBUG`。目录外的公共接入继续使用 `SPECIAL_CONTENTS` 条件编译。新增模块内容应放入对应目录；新增公共接入时应显式处理模块关闭的情况。四个模块互不要求对方开启。菜单、星空和血条为默认内容，不另设模块；公共层原则上不自行产生可见副作用。除明确的默认内容和测试物品外，所有额外内容必须归属现有模块。新增模块只能由项目所有者 ColdsUx 最终决定并提交，代理不得自行新增或代为提交。
 
-特殊内容另有逐项常量开关，集中于 `Anomalies/SpecialContents/AnomalySpecialContentToggler.cs`（`EventideReunion`、`ImmaculateWhite`、`VacuousBlack`）。它们使用 `const bool`，默认均为 `true`；改为 `false` 后重新构建并打包，对应物品、专属弹幕和 Buff 不再加载，出生赠送也跳过关闭的物品。落日遗逢的专属行为与绘制接入同时停止加载。这些开关仍受 `SPECIAL_CONTENTS` 总模块约束；测试物品仍仅由 `DEBUG` 控制。
+特殊内容另有逐项常量开关，集中于 `Anomalies/SpecialContents/AnomalySpecialContentToggler.cs`（`EventideReunion`、`ImmaculateWhite`、`MeguminExplosion`、`VacuousBlack`）。它们使用带私有 setter 的静态布尔属性；落日遗逢默认值取 `EnableUnfinishedContents`（Debug 开启、Release 关闭），其余默认 `true`。将对应初始值改为 `false` 后重新构建并打包，对应物品、专属弹幕和 Buff 不再加载，出生赠送也跳过关闭的物品。落日遗逢的专属行为与绘制接入同时停止加载。这些开关仍受 `SPECIAL_CONTENTS` 总模块约束；测试物品仍仅由 `DEBUG` 控制。
 
 跨模块内容的归属：
 
