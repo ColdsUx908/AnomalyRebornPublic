@@ -22,7 +22,7 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizati
     {
         Item.width = 64;
         Item.height = 88;
-        Item.damage = 200;
+        Item.damage = 400;
         Item.DamageType = DamageClass.Magic;
         Item.mana = 160;
         Item.useTime = Item.useAnimation = 30;
