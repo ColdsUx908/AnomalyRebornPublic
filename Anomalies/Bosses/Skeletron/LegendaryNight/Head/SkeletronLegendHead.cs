@@ -30,7 +30,7 @@ public sealed partial class SkeletronLegendHead : AnomalyNPCBehavior<SkeletronLe
     public override int ApplyingType => NPCID.SkeletronHead;
 
     public override bool CanHitPlayer(Player target, ref int cooldownSlot) => CurrentPhase != Phase.PhaseChange_1To2 && !Mechanic2InBackground
-        && !ReturningToPosition
+        && !Mechanic6Active && !ReturningToPosition
         && !(CurrentPhase == Phase.Phase1 && CurrentBehavior == Behavior.Normal && CurrentSpell == Spell.Star);
 
     private bool ReturningToPosition => CurrentPhase switch

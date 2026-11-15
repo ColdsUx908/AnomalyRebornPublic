@@ -19,6 +19,22 @@ public sealed class SkeletronLoot : AnomalyGlobalNPCBehavior
     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
     {
         if (npc.type == NPCID.SkeletronHead)
-            npcLoot.Add(ItemDropRule.ByCondition(AnomalyLootConditions.AnomalyUltramundaneItemLootRule.Instance, ModContent.ItemType<FallenStarEssence>()));
+        {
+            npcLoot.Add(ItemDropRule.ByCondition(new SkeletronLootCondition(false), ModContent.ItemType<FallenStarEssence>()));
+#if GAME_CONTENTS
+            npcLoot.Add(ItemDropRule.ByCondition(new SkeletronLootCondition(true), ModContent.ItemType<GameContents.AnomalyItems.CoinBag>()));
+#endif
+        }
+    }
+
+    private sealed class SkeletronLootCondition(bool legendaryNight) : IItemDropRuleCondition
+    {
+        public bool CanDrop(DropAttemptInfo info) => Ultra
+            && (AnomalyBossChangeToggler.LegendaryNight && info.npc.Anomaly?.CustomAIType == 1) == legendaryNight;
+
+        public bool CanShowItemDropInUI() => true;
+
+        public string GetConditionDescription() => Language.GetTextValue(AnomalySharedData.ModLocalizationPrefix
+            + "GameContents.AnomalyItems." + (legendaryNight ? "LegendaryNightLoot" : "AnomalyUltramundaneLoot"));
     }
 }

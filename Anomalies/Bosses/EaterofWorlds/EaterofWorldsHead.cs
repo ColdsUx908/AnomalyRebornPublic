@@ -14,7 +14,6 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
     {
         Initialize,
         Phase1,
-        Phase1_2,
     }
 
     public enum Behavior : byte
@@ -23,12 +22,9 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
 
         None = 0,
 
-        Phase1_Hunt,
-        Phase1_BurrowCharge,
-        Phase1_Split,
-        Phase1_TripleHunt,
-        Phase1_CrossSweep,
-        Phase1_Combine,
+        Phase1_Hunt = 1,
+        Phase1_Split = 3,
+        Phase1_Combine = 6,
     }
 
     public const string AnomalyEaterofWorldsPath = AnomalySharedData.ModPath + "Bosses/EaterofWorlds/";
@@ -37,13 +33,6 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
 
     public static int BodyCount => Ultra ? 88 : 58;
     public static int TotalSegmentCount => BodyCount + 2;
-
-    public const float Phase12LifeRatioAnomaly = 0.5f;
-    public const float Phase12LifeRatioUltra = Phase12LifeRatioAnomaly;
-    public static float Phase1_2LifeRatio => Phase12LifeRatioAnomaly;
-
-    private static readonly ProjectileDamageContainer _CursedFireBallDamage = new(50, 80, 120, 150, 108, 180);
-    public static int CursedFireballDamage => _CursedFireBallDamage.Value;
 
     public List<EaterofWorldsSegmentContainer> AllSegments => AnomalyNPC.EaterOfWorlds_Segments;
 
@@ -59,8 +48,6 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
             AI_Union_2 = union;
         }
     }
-
-    public bool Phase1_2 => CurrentPhase == Phase.Phase1_2;
 
     public Behavior CurrentBehavior
     {
@@ -143,7 +130,6 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
         NPC.lifeMax = CalamityEnabled ? 12000 : 9000;
         BridgeUtils.ApplyCalamityHealthBoost(NPC);
         NPC.defense = 8;
-        NPC.AddAnomalyHPIndicator(Phase12LifeRatioAnomaly, Phase12LifeRatioUltra, true);
     }
 
     public override void ApplyDifficultyAndPlayerScaling(int numPlayers, float balance, float bossAdjustment) =>

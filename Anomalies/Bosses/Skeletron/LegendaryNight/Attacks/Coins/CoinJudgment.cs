@@ -35,9 +35,9 @@ public sealed class CoinJudgment : AnomalyModProjectile
     /// <summary>十字半宽，单位为世界像素。</summary>
     public const float NormalCrossHalfWidth = 320f;
     private const float Phase2CrossHalfWidth = 240f;
-    private float CrossScreenshakeStrength => 67f;
-    private int CrossScreenshakeDuration => 16;
-    private float CrossScreenshakeFrequency => 38f;
+    private const float CrossScreenshakeStrength = 67f;
+    private const int CrossScreenshakeDuration = 16;
+    private const float CrossScreenshakeFrequency = 38f;
     /// <summary>金币外层半径，单位为世界像素。</summary>
     public const float GoldOuterRadius = 3200f;
     internal static float CrossRotation(int coinType) => coinType == 3 ? MathHelper.PiOver4 : 0f;
@@ -126,7 +126,7 @@ public sealed class CoinJudgment : AnomalyModProjectile
         Projectile.penetrate = -1;
         Projectile.netImportant = true;
         Projectile.timeLeft = WarningDuration + Math.Max(OverlayHoldDuration + OverlayFadeOutDuration,
-            CoinCrossVisuals.EndAge - CoinCrossVisuals.PeakAge) + 2;
+            Math.Max(CoinCrossVisuals.EndAge - CoinCrossVisuals.PeakAge, LegendStarburstCircleVisuals.EndAge)) + 2;
     }
 
     // 伤害由本机玩家的 Hurt 路径结算，避免常规敌对弹幕检测提前被无敌帧拦截或重复命中。

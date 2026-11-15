@@ -126,7 +126,7 @@ public sealed class MeguminBeam : AnomalyModProjectile
     public override void OnKill(int timeLeft)
     {
         if (Projectile.owner == Main.myPlayer && Main.player[Projectile.owner] is Player { active: true, dead: false } player)
-            player.AddBuff(ModContent.BuffType<MeguminExhaustion>(), 480);
+            player.AddBuff<MeguminExhaustion>(900);
     }
 
     public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => target.AddBuff(BuffID.OnFire3, 300);

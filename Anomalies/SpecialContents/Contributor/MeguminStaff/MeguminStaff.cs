@@ -4,7 +4,7 @@ using Anomalies.GameContents;
 namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
 [LegacyName("MeguminExplosion")]
-public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryItem, ILocalizationPrefix
+public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizationPrefix
 {
     public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
@@ -22,7 +22,7 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryI
     {
         Item.width = 64;
         Item.height = 88;
-        Item.damage = 300;
+        Item.damage = 200;
         Item.DamageType = DamageClass.Magic;
         Item.mana = 160;
         Item.useTime = Item.useAnimation = 30;
@@ -83,17 +83,11 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryI
         IContributorItem.AddContributorItemIdentifier(Mod, tooltips, ++index);
         if (shift)
             IContributorItem.AddContributorItemOwnerIdentifier(Mod, tooltips, ++index, "Korvath");
-        ILegendaryItem.AddLegendaryItemIdentifier(Mod, tooltips, ++index);
 
         modifier.Update();
         if (!shift)
             modifier.AddExpendedDisplayLine();
     }
-
-    // This endgame legendary keeps its fixed 4500 base damage; equipment and prefixes still apply normally.
-    public void LegendaryUpdate() { }
-    public void LegendaryUpdate(Player player) => LegendaryUpdate();
-    public override void UpdateInventory(Player player) => LegendaryUpdate(player);
 
     private static bool IsLoreLine(string name) => name is "Tooltip0" or "Tooltip1" or "Tooltip2";
 
@@ -101,11 +95,6 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryI
     {
         if (!AnomalyClientConfig.Instance.EnableShaders || AnomalyEffects.Texts.MeguminStaff is null)
             return true;
-
-        void ApplyGradient(DrawableTooltipLine text, float palette) => AnomalyEffects.Texts.MeguminStaff.Data
-            .SetCustomParameter("uTextOrigin", new Vector2(text.X, text.Y) * Main.UIScale)
-            .SetCustomParameter("uTextScale", Main.UIScale)
-            .SetCustomParameter("uPalette", palette).Apply();
 
         if (TODrawUtils.TryDrawItemNameWithCustomShader(line, text => ApplyGradient(text, 0f)))
             return false;
@@ -123,6 +112,12 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryI
                 line.Origin, line.BaseScale, SpriteEffects.None, 0f);
         }
         return false;
+
+        void ApplyGradient(DrawableTooltipLine text, float palette) => AnomalyEffects.Texts.MeguminStaff.Data
+            .SetCustomParameter("uTextOrigin", new Vector2(text.X, text.Y) * Main.UIScale)
+            .SetCustomParameter("uTextScale", Main.UIScale)
+            .SetCustomParameter("uPalette", palette)
+            .Apply();
     }
 
     public override void AddRecipes()

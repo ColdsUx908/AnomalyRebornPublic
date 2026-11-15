@@ -4,7 +4,6 @@ public sealed class MeguminExhaustion : ModBuff
 {
     public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
-    public override string Texture => $"Terraria/Images/Buff_{BuffID.ManaSickness}";
     public override string LocalizationCategory => MeguminStaff.LocalizationCategoryForMeguminStaff;
 
     public override void SetStaticDefaults()

@@ -29,6 +29,7 @@ C# 检查可以追加 `-p:BuildMod=false`，实际进入游戏前须完成正常
 
 跨模块内容的归属：
 
+- CoinBag 钱币袋由 `GAME_CONTENTS` 控制；传说之夜骷髅王的专属掉落入口留在骷髅王模块，同时要求 `ANOMALY_MODE`、`GAME_CONTENTS` 和超凡难度。关闭异象难度或移除骷髅王模块后，已持有的钱币袋仍可开启。普通超凡骷髅王继续掉落坠星精华，传说之夜不再掉落坠星精华。
 - HoneyedWildbloom、宠物弹幕与 Buff 由 `GAME_CONTENTS` 控制；蜂后掉落入口同时要求 `GAME_CONTENTS` 和 `ANOMALY_MODE`，并保留世界已开启异象模式的运行时条件。仅关闭难度时，物品仍存在，原有物品仍可使用，但不会注册其掉落。
 - 异象掉落条件位于 `Common/AnomalyLootConditions.cs`，由 `ANOMALY_MODE` 控制。传奇骷髅王不依赖普通游戏内容的掉落入口。
 - `BaseContents/` 存放共享抽象基类，不受内容模块目录筛选控制，不包含独立加载的具体内容。跨模块的物品标识契约、稀有度和提示绘制支持位于 `Common/Items/`，保留原命名空间；具体稀有度与提示行为只在至少一个内容模块开启时编译，单独开启 `TWEAK` 不会引入它们。

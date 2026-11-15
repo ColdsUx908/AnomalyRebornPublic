@@ -172,3 +172,9 @@ Overlay 在原层次调用中心星的完整绘制入口，由中心星组合蓝
 ## 共用运动与发射
 
 普通骷髅王与传说之夜直接调用父目录的 `SkeletronKinematics`（悬停、旋转、手部待机和蓄势）及 `SkeletronCombat`（头骨与加速扇形发射）。运动实现不再由 `SkeletronHand` 或 `SkeletronHandler` 转发。
+
+## 钱币审判特效与 HDR 边界
+
+银币与铂金币使用 CoinCrossVisuals 的确定性十字光流和星尘，最大束宽对齐单帧审判，余光不追加伤害。机制五铜币复用圆形星爆及径向模糊，仍保留蓝圈倒计时。CoinJudgment 的视觉寿命覆盖圆形星爆的 84 帧尾效；碰撞形状、结算帧和伤害路径保持原有规则。
+
+LegendaryNightBloom 仅服务传说之夜的十字、圆心审判与普通星爆；它借用框架的目标池、IBloomLayer 与混合状态，用专用 Overlays/LegendaryNightBloom 着色器进行五级 HDR 提取和合成。通用 Transoceanic LightweightBloom、默认参数及通用着色器不变。预告星继续使用通用柔光，不进入 HDR 金字塔。关闭着色器时保留纹理回退；专用服务器不访问视觉资源。

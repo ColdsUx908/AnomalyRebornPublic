@@ -45,7 +45,7 @@ internal static class LegendStarburstVisuals
         };
     }
 
-    public static LegendaryNightBloomSettings WithBody(LegendaryNightBloomSettings settings, bool dayTime) => settings with
+    public static BloomSettings WithBody(BloomSettings settings, bool dayTime) => settings with
     {
         AdditiveBody = !dayTime,
         BodyPasses = dayTime ? 2 : 1

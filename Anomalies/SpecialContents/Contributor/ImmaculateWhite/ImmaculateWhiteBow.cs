@@ -46,7 +46,7 @@ public sealed class ImmaculateWhiteBow : AnomalyModProjectile
 
     public override void AI()
     {
-        ShootSpeed = 20f * (int)(ShootSpeed * ShootSpeedMultiplier); //应用修饰语加成
+        ShootSpeed = Math.Max(1, (int)(20f * ShootSpeedMultiplier)); //从基础射击间隔应用修饰语加成，避免逐帧累乘
 
         Lighting.AddLight(Projectile.Center, 1f, 1f, 1f);
         Player player = Projectile.Owner;

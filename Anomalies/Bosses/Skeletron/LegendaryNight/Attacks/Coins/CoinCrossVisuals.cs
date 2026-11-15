@@ -64,7 +64,6 @@ internal static class CoinCrossVisuals
     {
         if (!IsVisible(frame.Age) || frame.Width <= 0f || frame.Length <= 0f)
             return;
-        using DrawingBindings bindings = new(batch.GraphicsDevice);
         float scale = frame.Width / ReferenceWidth;
         float referenceLength = frame.Length / scale;
         float length = referenceLength * Expansion(frame.Age);

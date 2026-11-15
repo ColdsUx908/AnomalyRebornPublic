@@ -3,7 +3,7 @@ using Transoceanic.Graphics.Rendering;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>十字的光能脉冲；Bloom 使用与其他爆炸相同的框架默认设置。</summary>
+/// <summary>十字的光能脉冲；Bloom 使用传说之夜专用 HDR 设置。</summary>
 internal static class CoinCrossBloom
 {
     internal static float EmissionIntensity => 1f;

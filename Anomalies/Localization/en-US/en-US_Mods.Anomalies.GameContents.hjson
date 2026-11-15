@@ -1,11 +1,22 @@
 AnomalyItems: {
 	AnomalyLoot: Anomaly Mode Loot
 	AnomalyUltramundaneLoot: Anomaly Ultramundane Loot
+	LegendaryNightLoot: Anomaly Ultramundane Legendary Night Skeletron Loot
+
+	CoinBag: {
+		DisplayName: Coin Bag
+		Tooltip:
+			'''
+			{$CommonItemTooltip.RightClickToOpen}
+			Grants a large sum of coins
+			“You didn't let history repeat itself”
+			'''
+	}
 
 	HoneyedWildbloom: {
 		DisplayName: Honeyed Wildbloom
 		Tooltip: A wildbloom that has been infused with honey, stickier and more resilient
-		BuffDescription: ""
+		BuffDescription: A friendly bee carrying the jungle's wildness and warmth
 	}
 }
 

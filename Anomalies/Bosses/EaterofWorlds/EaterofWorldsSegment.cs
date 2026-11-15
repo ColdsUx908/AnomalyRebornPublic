@@ -114,20 +114,6 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
             return 0;
         if (IsUnderCoilMask)
             return 0;
-        if (owner.CurrentBehavior == EaterofWorldsHead.Behavior.Phase1_CrossSweep)
-        {
-            if (owner.CurrentLocalPhase < 2 || !ValidLocalHead)
-                return 0;
-            int group = (EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex - 1) / (EaterofWorldsHead.TotalSegmentCount / 3);
-            if (group == 2 || group == 1 && owner.CurrentLocalPhase == 2 && owner.Timer1 <= 24)
-                return 0;
-        }
-        if (owner.CurrentBehavior == EaterofWorldsHead.Behavior.Phase1_TripleHunt && ValidLocalHead)
-        {
-            int group = (EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex - 1) / (EaterofWorldsHead.TotalSegmentCount / 3);
-            if (owner.CurrentLocalPhase < 2 || group != owner.AttackIndex % 3)
-                return 0;
-        }
         if (PortalOpacity < 1f)
             return 0;
         return SegmentType switch

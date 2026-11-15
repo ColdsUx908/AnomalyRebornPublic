@@ -1,208 +1,23 @@
 using Transoceanic.Graphics.Rendering;
+
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>默认使用 HDR 金字塔 Bloom；位置构造参数保留给旧版双尺度柔光。</summary>
-/// <param name="NearRadius">紧密光晕的高斯标准差，单位为最终画面像素。</param>
-/// <param name="FarRadius">扩散光晕的高斯标准差。</param>
-/// <param name="NearStrength">紧密光晕强度。</param>
-/// <param name="FarStrength">扩散光晕强度。</param>
-/// <param name="WideHalo">是否计算扩散光晕。</param>
-/// <param name="AdditiveBody">是否以预乘加色合成清晰本体，否则使用 AlphaBlend。</param>
-/// <param name="BodyPasses">清晰本体合成次数，0 表示只合成光晕，最大为 2。</param>
-internal readonly record struct LegendaryNightBloomSettings(float NearRadius, float FarRadius, float NearStrength,
-    float FarStrength, bool WideHalo = true, bool AdditiveBody = false, int BodyPasses = 1)
+/// <summary>仅用于传说之夜爆炸的五级 HDR 光能配置。</summary>
+internal readonly record struct LegendaryNightBloomSettings
 {
-    /// <summary>创建标准五级 HDR Bloom，使用一次 AlphaBlend 本体合成。</summary>
-    public LegendaryNightBloomSettings() : this(0f, 0f, 0f, 0f)
-    {
-        PyramidLevels = 5;
-    }
-
-    /// <summary>KL 同源金字塔层数，范围 2～7；0 显式使用旧版双尺度柔光。默认配置使用 5 层。</summary>
-    public int PyramidLevels { get; init; }
-
-    /// <summary>金字塔光能在线性累加后、一次 Screen 合成前的倍率，默认 1。</summary>
-    public float Strength { get; init; } = 1f;
-
-    /// <summary>源图层的线性光能倍率，默认 1；在提取和本体合成时应用，不重复乘到已提取的光晕。</summary>
+    public LegendaryNightBloomSettings() { }
     public float SourceIntensity { get; init; } = 1f;
-
-    /// <summary>发光亮度阈值，默认 1；仅严格超过阈值的像素参与光晕。0 可用于整层柔光。</summary>
+    public float Strength { get; init; } = 1f;
     public float Threshold { get; init; } = 1f;
-
-    /// <summary>近光晕 Screen 合成次数，限制为 1～3。</summary>
-    public int NearPasses { get; init; } = 1;
-    /// <summary>远光晕 Screen 合成次数，限制为 1～3。</summary>
-    public int FarPasses { get; init; } = 1;
-
-    /// <summary>与 KL 默认五级金字塔相同的提取、滤波权重和合成；不按特效尺寸修改核。</summary>
     public static LegendaryNightBloomSettings Default => new();
-
-    /// <summary>旧版双尺度柔光，只供已校准的装饰效果兼容使用；不是标准 HDR Bloom。</summary>
-    public static LegendaryNightBloomSettings SoftGlow => new(8f, 26f, 0.85f, 0.9f);
 }
 
-/// <summary>主动提交图层的轻量 Bloom。滤波核心只依赖 FNA，可在独立预览中复用。</summary>
+/// <summary>传说之夜专用 HDR 合成；借用框架目标池与混合状态，不改变公共 Bloom。</summary>
 internal static partial class LegendaryNightBloom
 {
-    /// <summary>预乘颜色的加色混合，同时累加覆盖度；适用于透明特效层的捕获。</summary>
-    public static BlendState AdditiveBlend
-    {
-        get => field ??= new BlendState
-        {
-            ColorSourceBlend = Blend.One,
-            ColorDestinationBlend = Blend.One,
-            AlphaSourceBlend = Blend.One,
-            AlphaDestinationBlend = Blend.One
-        };
-        private set
-        {
-            field?.Dispose();
-            field = value;
-        }
-    }
-
-    private static BlendState ScreenBlend
-    {
-        get => field ??= new BlendState
-        {
-            ColorSourceBlend = Blend.One,
-            ColorDestinationBlend = Blend.InverseSourceColor,
-            AlphaSourceBlend = Blend.Zero,
-            AlphaDestinationBlend = Blend.One
-        };
-        set
-        {
-            field?.Dispose();
-            field = value;
-        }
-    }
-
-    /// <summary>
-    /// 将源图层滤波到 caller-owned 的 scratch/result；结果不与场景混合。
-    /// 两个目标须等尺寸且与 source 不同。调用前后 SpriteBatch 均未开始，返回时 result 为当前目标。
-    /// 半径始终按 source 的像素尺寸解释，低分辨率滤波不会改变最终光晕大小。
-    /// </summary>
-    public static void Blur(SpriteBatch spriteBatch, Effect effect, Texture2D source,
-        RenderTarget2D scratch, RenderTarget2D result, float radius)
-        => BlurCore(spriteBatch, effect, source, scratch, result, radius, false, 0f, 1f);
-
-    /// <summary>
-    /// 提取超过阈值的 HDR 光能，再执行双向高斯模糊。提取发生在降采样每次取样之前，避免细亮线被平均到阈值以下。
-    /// 源与工作目标应使用浮点格式；目标绑定和异常恢复契约与 <see cref="Blur"/> 相同。
-    /// </summary>
-    public static void BlurEmission(SpriteBatch spriteBatch, Effect effect, Texture2D source,
-        RenderTarget2D scratch, RenderTarget2D result, float radius, in LegendaryNightBloomSettings settings)
-        => BlurCore(spriteBatch, effect, source, scratch, result, radius, true, settings.Threshold, settings.SourceIntensity);
-
-    private static void BlurCore(SpriteBatch spriteBatch, Effect effect, Texture2D source,
-        RenderTarget2D scratch, RenderTarget2D result, float radius, bool extract, float threshold, float intensity)
-    {
-        ValidateBatch(spriteBatch);
-        GraphicsDevice device = spriteBatch.GraphicsDevice;
-        ValidateResource(device, effect, nameof(effect));
-        ValidateResource(device, source, nameof(source));
-        ValidateResource(device, scratch, nameof(scratch));
-        ValidateResource(device, result, nameof(result));
-        if (ReferenceEquals(source, scratch) || ReferenceEquals(source, result) || ReferenceEquals(scratch, result)
-            || scratch.Width != result.Width || scratch.Height != result.Height)
-            throw new ArgumentException("Bloom requires distinct, equally sized scratch/result targets.");
-        float sigma = float.IsFinite(radius) ? Math.Max(radius, 0f) : 0f;
-        // 先覆盖降采样的像素足迹，不能直接从原图稀疏抽取细星芒。
-        effect.Parameters["uDownsampleStep"].SetValue(new Vector2(
-            source.Width > result.Width ? 0.25f / result.Width : 0f,
-            source.Height > result.Height ? 0.25f / result.Height : 0f));
-        effect.Parameters["uThreshold"].SetValue(PositiveFinite(threshold));
-        effect.Parameters["uSourceIntensity"].SetValue(PositiveFinite(intensity));
-        Filter(source, result, Vector2.Zero, extract ? "ExtractDownsample" : "Downsample");
-
-        // 每轮方差相加。首轮相邻采样不超过一个工作像素，之后只在已经平滑的
-        // 图层上扩大核，避免大半径将十字星复制成横纵网格。复用原有两个目标。
-        const float KernelVariance = 3.9512626f;
-        double remainingVariance = (double)sigma * sigma;
-        double accumulatedVariance = 0;
-        double firstStep = Math.Min((double)source.Width / result.Width, (double)source.Height / result.Height);
-        double firstVariance = KernelVariance * firstStep * firstStep;
-        while (remainingVariance > 0.0001)
-        {
-            double passVariance = Math.Min(remainingVariance,
-                Math.Max(firstVariance, accumulatedVariance * 3));
-            float step = (float)Math.Sqrt(passVariance / KernelVariance);
-            Filter(result, scratch, new Vector2(step / source.Width, 0f));
-            Filter(scratch, result, new Vector2(0f, step / source.Height));
-            accumulatedVariance += passVariance;
-            remainingVariance = Math.Max(0f, remainingVariance - passVariance);
-        }
-
-        void Filter(Texture2D input, RenderTarget2D output, Vector2 step, string pass = "Pass0")
-        {
-            spriteBatch.GraphicsDevice.SetRenderTarget(output);
-            spriteBatch.GraphicsDevice.Clear(Color.Transparent);
-            effect.Parameters["uBlurStep"].SetValue(step);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone);
-            effect.CurrentTechnique.Passes[pass].Apply();
-            spriteBatch.Draw(input, new Rectangle(0, 0, output.Width, output.Height), Color.White);
-            spriteBatch.End();
-        }
-    }
-
-    /// <summary>
-    /// 在当前目标上合成保留 HDR 光能的清晰本体，再 Screen 合成光晕。纹理必须为预乘颜色。
-    /// 目标不得与任一输入相同，调用前后 SpriteBatch 均未开始；不会切换目标。
-    /// </summary>
-    public static void Composite(SpriteBatch spriteBatch, Effect effect, Texture2D source,
-        Texture2D near, Texture2D far, Rectangle destination, in LegendaryNightBloomSettings settings)
-    {
-        ValidateBatch(spriteBatch);
-        GraphicsDevice device = spriteBatch.GraphicsDevice;
-        ValidateResource(device, effect, nameof(effect));
-        ValidateResource(device, source, nameof(source));
-        if (near is not null)
-            ValidateResource(device, near, nameof(near));
-        if (far is not null && settings.WideHalo)
-            ValidateResource(device, far, nameof(far));
-        foreach (RenderTargetBinding binding in device.GetRenderTargets())
-            if (ReferenceEquals(binding.RenderTarget, source) || ReferenceEquals(binding.RenderTarget, near)
-                || settings.WideHalo && ReferenceEquals(binding.RenderTarget, far))
-                throw new ArgumentException("Bloom cannot composite a texture into itself.");
-        if (destination.Width <= 0 || destination.Height <= 0)
-            return;
-        effect.Parameters["uSourceIntensity"].SetValue(PositiveFinite(settings.SourceIntensity));
-        spriteBatch.Begin(SpriteSortMode.Immediate, settings.AdditiveBody ? AdditiveBlend : BlendState.AlphaBlend,
-            SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
-        effect.CurrentTechnique.Passes["Body"].Apply();
-        for (int i = 0; i < Math.Clamp(settings.BodyPasses, 0, 2); i++)
-            spriteBatch.Draw(source, destination, Color.White);
-        spriteBatch.End();
-        if (far is not null && settings.WideHalo)
-            for (int i = 0; i < Math.Clamp(settings.FarPasses, 1, 3); i++)
-                DrawHalo(far, settings.FarStrength);
-        if (near is not null)
-            for (int i = 0; i < Math.Clamp(settings.NearPasses, 1, 3); i++)
-                DrawHalo(near, settings.NearStrength);
-
-        void DrawHalo(Texture2D texture, float strength)
-        {
-            if (!float.IsFinite(strength) || strength <= 0f)
-                return;
-            effect.Parameters["uStrength"].SetValue(strength);
-            spriteBatch.Begin(SpriteSortMode.Immediate, ScreenBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone);
-            effect.CurrentTechnique.Passes["Halo"].Apply();
-            spriteBatch.Draw(texture, destination, Color.White);
-            spriteBatch.End();
-        }
-    }
+    public static BlendState AdditiveBlend => LightweightBloom.AdditiveBlend;
 
     private static float PositiveFinite(float value) => float.IsFinite(value) ? Math.Max(value, 0f) : 0f;
-
-    /// <summary>释放工具自己持有的混合状态；游戏卸载时自动调用，独立宿主退出时可调用。</summary>
-    public static void ReleaseResources()
-    {
-        ScreenBlend = null;
-        AdditiveBlend = null;
-    }
 
     private static void ValidateResource(GraphicsDevice device, GraphicsResource resource, string parameterName)
     {

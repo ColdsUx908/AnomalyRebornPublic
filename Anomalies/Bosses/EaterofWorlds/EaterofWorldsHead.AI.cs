@@ -8,6 +8,8 @@ public sealed partial class EaterofWorldsHead
     {
         using BossNetUpdateScope netUpdate = new(NPC);
         NPC.alpha = 0;
+        NPC.noGravity = true;
+        NPC.noTileCollide = true;
         NPC.boss = IsFirstSegment;
         if (!IsFirstSegment)
         {
@@ -58,7 +60,6 @@ public sealed partial class EaterofWorldsHead
                 InitializeEncounter();
                 break;
             case Phase.Phase1:
-            case Phase.Phase1_2:
                 Phase1CombatAI();
                 break;
         }
@@ -66,11 +67,6 @@ public sealed partial class EaterofWorldsHead
         UpdateCoilDR();
         SpawnCoilDust();
         SmoothHeadRotation(NPC);
-        if (!Main.dedServ && NPC.soundDelay == 0 && Collision.SolidCollision(NPC.position, NPC.width, NPC.height))
-        {
-            SoundEngine.PlaySound(SoundID.WormDig, NPC.Center);
-            NPC.soundDelay = 20;
-        }
         OnRunningPreAI?.Invoke(this);
         return false;
 

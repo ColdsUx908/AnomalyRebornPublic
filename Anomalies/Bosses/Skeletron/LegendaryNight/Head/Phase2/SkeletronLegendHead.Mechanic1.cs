@@ -215,8 +215,8 @@ public sealed partial class SkeletronLegendHead
 
                     Vector2 ritualCenter = ritual.RitualCenter;
                     Vector2 arenaCenter = ritualCenter - Vector2.UnitY * ArenaHeightAboveRitual;
-                    if (Vector2.DistanceSquared(Target.Center, ritualCenter) <= RitualSelectionDistance * RitualSelectionDistance
-                        || Vector2.DistanceSquared(Target.Center, arenaCenter) <= ArenaSelectionDistance * ArenaSelectionDistance)
+                    if (Vector2.Distance(Target.Center, ritualCenter) <= RitualSelectionDistance
+                        || Vector2.Distance(Target.Center, arenaCenter) <= ArenaSelectionDistance)
                     {
                         ArenaApproachDestination = arenaCenter;
                         ArenaApproachState = RitualDestinationSelected;

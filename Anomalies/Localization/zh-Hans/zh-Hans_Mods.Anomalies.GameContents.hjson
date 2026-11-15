@@ -1,11 +1,22 @@
 AnomalyItems: {
 	AnomalyLoot: 异象模式掉落
 	AnomalyUltramundaneLoot: 异象超凡掉落
+	LegendaryNightLoot: 异象超凡传说之夜骷髅王掉落
+
+	CoinBag: {
+		DisplayName: 钱币袋
+		Tooltip:
+			'''
+			{$CommonItemTooltip.RightClickToOpen}
+			获得大量钱币
+			“你没有让历史重演”
+			'''
+	}
 
 	HoneyedWildbloom: {
 		DisplayName: 蜜渍野花
 		Tooltip: 一朵被蜂蜜浸渍的野花，更粘稠，更有韧性
-		BuffDescription: ""
+		BuffDescription: 一只友好的蜜蜂，它携带着丛林的野性与温存
 	}
 }
 

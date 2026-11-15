@@ -70,9 +70,9 @@ public sealed partial class LegendaryNightOverlay
             if (TryGetStarburstWarning(head, out LegendStarburstVisuals.Burst warning))
             {
                 // 预告星保留固定像素光晕，不跟随爆区放大。
-                LegendaryNightBloomSettings settings = LegendStarburstVisuals.WithBody(LegendaryNightBloomSettings.SoftGlow with { Threshold = 0f }, Main.dayTime);
+                BloomSettings settings = LegendStarburstVisuals.WithBody(BloomSettings.Default, Main.dayTime);
                 StarburstLayer layer = new(null, 0, warning, false, view, blend, textures, default, null);
-                LegendaryNightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
+                LightweightBloom.Draw(spriteBatch, bloom ? AnomalyEffects.Overlays.LightweightBloom?.Asset.Value : null, settings, layer);
             }
             if (circleRadius > 0f)
             {

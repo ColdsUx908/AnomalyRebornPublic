@@ -11,13 +11,13 @@ internal static partial class LegendaryNightBloom
         TLayer layer, RenderTargetBinding[] previous, Viewport viewport) where TLayer : struct, IBloomLayer
     {
         GraphicsDevice device = batch.GraphicsDevice;
-        int levels = Math.Clamp(settings.PyramidLevels, 2, 7);
+        const int Levels = 5;
         RenderTargetDescriptor full = RenderTargetDescriptor.Default with { Format = SurfaceFormat.Vector4 };
         RenderTargetDescriptor half = full with { Format = SurfaceFormat.HalfVector4 };
         using RenderTargetLease source = RenderTargetPool.Shared.Rent(device, viewport.Width, viewport.Height, full);
         // Full-resolution extraction is reused for the floating scene composite after filtering.
         using RenderTargetLease scene = RenderTargetPool.Shared.Rent(device, viewport.Width, viewport.Height, full);
-        RenderTargetLease[] down = new RenderTargetLease[levels];
+        RenderTargetLease[] down = new RenderTargetLease[Levels];
         RenderTargetLease up = null;
         RenderTargetPreserver.PreserveBindings(previous);
         if (previous.Length == 0)
@@ -34,15 +34,15 @@ internal static partial class LegendaryNightBloom
             effect.Parameters["uThreshold"].SetValue(PositiveFinite(settings.Threshold));
             Filter(source.Target, scene.Target, "Extract");
             Texture2D input = scene.Target;
-            for (int i = 0; i < levels; i++)
+            for (int i = 0; i < Levels; i++)
             {
                 down[i] = RenderTargetPool.Shared.Rent(device, Math.Max(1, viewport.Width >> i),
                     Math.Max(1, viewport.Height >> i), half);
                 effect.Parameters["uStrength"].SetValue(i == 0 ? 1.2f : 1f);
-                Filter(input, down[i].Target, "PyramidDown");
+                Filter(input, down[i].Target, "Pass0");
                 input = down[i].Target;
             }
-            for (int i = levels - 2; i >= 0; i--)
+            for (int i = Levels - 2; i >= 0; i--)
             {
                 RenderTargetLease next = RenderTargetPool.Shared.Rent(device, down[i].Target.Width, down[i].Target.Height, half);
                 try
@@ -77,11 +77,10 @@ internal static partial class LegendaryNightBloom
                 batch.End();
             }
             effect.Parameters["uSourceIntensity"].SetValue(PositiveFinite(settings.SourceIntensity));
-            batch.Begin(SpriteSortMode.Immediate, settings.AdditiveBody ? AdditiveBlend : BlendState.AlphaBlend,
+            batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
             effect.CurrentTechnique.Passes["Body"].Apply();
-            for (int i = 0; i < Math.Clamp(settings.BodyPasses, 0, 2); i++)
-                batch.Draw(source.Target, Vector2.Zero, Color.White);
+            batch.Draw(source.Target, Vector2.Zero, Color.White);
             batch.End();
 
             device.SetRenderTargets(previous);

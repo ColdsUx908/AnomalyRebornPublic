@@ -6,10 +6,11 @@ public sealed partial class EaterofWorldsHead
     {
         get
         {
-            // The first hunt starts immediately; its lingering birth cloud is visual cover, not an intro state.
+            // Keep the original birth cloud duration independent of the teleport interval.
+            const int BirthCloudDuration = 270;
             if (CurrentBehavior == Behavior.Phase1_Hunt && CycleIndex == 0)
                 return MathHelper.SmoothStep(0f, 1f, Math.Clamp(Timer1 / 18f, 0f, 1f))
-                    * MathHelper.SmoothStep(0f, 1f, Math.Clamp((HuntDuration - Timer1) / 30f, 0f, 1f));
+                    * MathHelper.SmoothStep(0f, 1f, Math.Clamp((BirthCloudDuration - Timer1) / 30f, 0f, 1f));
             return 0f;
         }
     }
@@ -63,32 +64,6 @@ public sealed partial class EaterofWorldsHead
         Color color = new(128, 78, 159);
         switch (CurrentBehavior)
         {
-            case Behavior.Phase1_Hunt when Timer1 % 110 is >= 50 and < 86:
-                Warning(NPC.Center, WarningDirection(NPC), Timer1 % 110 - 50, 36, 280f);
-                break;
-            case Behavior.Phase1_BurrowCharge when CurrentLocalPhase == 1:
-                Warning(NPC.Center, WarningDirection(NPC), Timer1, ChargeWarningTime);
-                break;
-            case Behavior.Phase1_TripleHunt when CurrentLocalPhase == 1:
-                List<NPC> hunters = GetEncounterHeads();
-                if (hunters.Count > 0)
-                {
-                    NPC hunter = hunters[AttackIndex % hunters.Count];
-                    Warning(hunter.Center, WarningDirection(hunter), Timer1, TripleWarningTime);
-                    Ring(hunter.Center, 42f, color * Envelope(Timer1, TripleWarningTime));
-                    if (Timer1 < 30 && hunters.Count == 3)
-                        Ring(hunters[(AttackIndex + 1) % 3].Center, 28f, color * Envelope(Timer1, 30));
-                }
-                break;
-            case Behavior.Phase1_CrossSweep when CurrentLocalPhase is 1 or 2:
-                List<NPC> sweepers = GetEncounterHeads();
-                if (sweepers.Count != 3)
-                    break;
-                if (CurrentLocalPhase == 1)
-                    Warning(sweepers[0].Center, WarningDirection(sweepers[0], new Vector2(0f, -SweepHalfGap)), Timer1, SweepWarningTime);
-                Warning(sweepers[1].Center, WarningDirection(sweepers[1], new Vector2(0f, SweepHalfGap)),
-                    CurrentLocalPhase == 1 ? Timer1 : SweepWarningTime + Timer1, SweepWarningTime + 24);
-                break;
             case Behavior.Phase1_Split:
             case Behavior.Phase1_Combine:
                 bool combine = CurrentBehavior == Behavior.Phase1_Combine;
@@ -119,18 +94,5 @@ public sealed partial class EaterofWorldsHead
 
         static float Envelope(float elapsed, float duration) => Smooth(elapsed / 10f) * Smooth((duration - elapsed) / 8f);
 
-        void Line(Vector2 start, Vector2 end, Color tint)
-        {
-            Vector2 delta = end - start;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, start - screenPos, new Rectangle(0, 0, 1, 1), tint,
-                delta.ToRotation(), new Vector2(0f, 0.5f), new Vector2(delta.Length(), 2f), SpriteEffects.None, 0f);
-        }
-
-        void Ring(Vector2 center, float radius, Color tint)
-        {
-            for (int i = 0; i < 48; i++)
-                Line(center + new Vector2(radius, 0f).RotatedBy(i * MathHelper.TwoPi / 48f),
-                    center + new Vector2(radius, 0f).RotatedBy((i + 1) * MathHelper.TwoPi / 48f), tint);
-        }
     }
 }

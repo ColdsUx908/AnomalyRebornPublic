@@ -1,8 +1,6 @@
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
 float2 uImageSize;
-float2 uBlurStep;
-float2 uDownsampleStep;
 float uStrength;
 float uThreshold;
 float uSourceIntensity;
@@ -51,39 +49,7 @@ float4 Main(float2 uv : TEXCOORD0, uniform float mode) : COLOR0
         // 光能倍率不改变几何覆盖度，零光能则不覆盖背景。
         return float4(energy, uSourceIntensity > 0.0 ? source.a : 0.0);
     }
-    if (mode > 1.5)
-    {
-        float4 downsample = 0;
-        [unroll]
-        for (int y = 0; y < 4; y++)
-        {
-            [unroll]
-            for (int x = 0; x < 4; x++)
-            {
-                float4 sampleColor = tex2D(uImage0, uv + (float2(x, y) - 1.5) * uDownsampleStep);
-                if (mode > 2.5)
-                {
-                    float3 energy = sampleColor.rgb * uSourceIntensity;
-                    float brightness = dot(energy, float3(0.3, 0.59, 0.11));
-                    sampleColor = float4(brightness > uThreshold ? energy : float3(0, 0, 0), 0);
-                }
-                downsample += sampleColor;
-            }
-        }
-        return downsample / 16.0;
-    }
-    if (mode > 0.5)
-        return float4(saturate(tex2D(uImage0, uv).rgb * uStrength), 0.0);
-    float4 sum = 0;
-    float weightSum = 0;
-    [unroll]
-    for (int i = -6; i <= 6; i++)
-    {
-        float weight = exp(-float(i * i) / 8.0);
-        sum += tex2D(uImage0, uv + uBlurStep * i) * weight;
-        weightSum += weight;
-    }
-    return sum / weightSum;
+    return GaussianLinear(uv) * uStrength;
 }
 
 technique Technique1
@@ -91,10 +57,6 @@ technique Technique1
     pass Extract
     {
         PixelShader = compile ps_3_0 Main(5.0);
-    }
-    pass PyramidDown
-    {
-        PixelShader = compile ps_3_0 Main(6.0);
     }
     pass PyramidUp
     {
@@ -106,19 +68,7 @@ technique Technique1
     }
     pass Pass0
     {
-        PixelShader = compile ps_3_0 Main(0.0);
-    }
-    pass Halo
-    {
-        PixelShader = compile ps_3_0 Main(1.0);
-    }
-    pass Downsample
-    {
-        PixelShader = compile ps_3_0 Main(2.0);
-    }
-    pass ExtractDownsample
-    {
-        PixelShader = compile ps_3_0 Main(3.0);
+        PixelShader = compile ps_3_0 Main(6.0);
     }
     pass Body
     {
