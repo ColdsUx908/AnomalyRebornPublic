@@ -45,22 +45,21 @@ Developer: {
 }
 
 Contributor: {
-	MeguminExplosion: {
-		DisplayName: 慧慧的法杖
+	MeguminStaff: {
+		DisplayName: 惠惠的法杖
 		Tooltip:
 			'''
 			以红魔之名咏唱，让赤金之光贯穿天地
 			按住施放爆裂魔法，移动鼠标引导光束与多重法阵
-			吾名慧慧！Explosion！
+			吾名惠惠！Explosion！
 			'''
-	}
+		MeguminChant.DisplayName: 爆裂魔法·吟唱
+		MeguminBeam.DisplayName: 爆裂魔法
 
-	MeguminCasting.DisplayName: 爆裂魔法·吟唱
-	MeguminBlast.DisplayName: 爆裂魔法
-
-	MeguminExhaustion: {
-		DisplayName: 魔力耗竭
-		Description: 爆裂魔法耗尽了你的力量，暂时无法再次施放，移动速度降低
+		MeguminExhaustion: {
+			DisplayName: 魔力耗竭
+			Description: 爆裂魔法耗尽了你的力量，暂时无法再次施放，移动速度降低
+		}
 	}
 
 	ImmaculateWhite: {
@@ -68,15 +67,14 @@ Contributor: {
 		Tooltip: 发射纯白之光，高速追踪敌人
 		Tooltip1: 纯白之光会分裂为更多的纯白之光
 		Tooltip2: 右键点击发射可穿透的纯白之光
+		ImmaculateBolt.DisplayName: 纯白之光
 	}
 
 	VacuousBlack: {
 		DisplayName: 纯黑
 		Tooltip: 召唤纯黑之暗，吞噬一切
+		VacuousBlackBuff.Description: 它渴望吞噬一切，甚至连你也不例外。
 	}
-
-	VacuousBlackBuff.Description: 它渴望吞噬一切，甚至连你也不例外。
-	ImmaculateBolt.DisplayName: 纯白之光
 }
 
 DeveloperItemIdentifier: - 开发者物品 -

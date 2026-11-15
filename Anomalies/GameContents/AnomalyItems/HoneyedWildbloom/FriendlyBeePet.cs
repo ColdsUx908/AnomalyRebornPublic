@@ -37,7 +37,6 @@ public sealed class FriendlyBeePet : AnomalyModProjectile
                 Projectile.frame = 0;
         }
 
-        Player player = Owner;
         if (!Owner.Alive)
         {
             Projectile.timeLeft = 2;
@@ -46,8 +45,6 @@ public sealed class FriendlyBeePet : AnomalyModProjectile
 
         Projectile.FloatingPetAI(false, 0.03f);
         Projectile.timeLeft = 300;
-
-        Projectile.spriteDirection = (Projectile.velocity.X >= 0f).ToDirectionInt();
     }
 
     public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) => behindNPCs.Add(index);

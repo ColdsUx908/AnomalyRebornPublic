@@ -1,21 +1,10 @@
 using Anomalies.Assets.Effects;
 
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-internal static class ExplosionDrawing
+internal static class MeguminDrawing
 {
     internal const int CircleBrightness = 5;
-
-    private static Asset<Texture2D> _Bloom;
-
-    // 由法杖的 Load 初始化；资产归 tML 所有，只清理借用引用。
-    internal static void Load(Mod mod)
-    {
-        if (Main.dedServ)
-            return;
-        TOCleanup.Register(() => _Bloom = null);
-        _Bloom = mod.Assets.Request<Texture2D>("SpecialContents/Contributor/MeguminExplosion/MeguminBloom");
-    }
 
     internal static void Circle(Vector2 center, Vector2 size, float time, float opacity, float rotation, Color color)
     {
@@ -86,11 +75,12 @@ internal static class ExplosionDrawing
         {
             if (!useShader)
             {
-                Texture2D bloom = _Bloom?.Value;
+                // The old 128px texture contained a centered 64px circle; preserve its half-size footprint.
+                Texture2D bloom = TOTextures.Extra.BasicCircle;
                 if (bloom is not null)
                     Main.spriteBatch.Draw(bloom, (top + bottom) * 0.5f - Main.screenPosition, null,
                         Color.OrangeRed * (opacity * 0.7f), 0f, bloom.Size() * 0.5f,
-                        new Vector2(width, length * 1.15f) / bloom.Size(), SpriteEffects.None, 0f);
+                        new Vector2(width, length * 1.15f) * 0.5f / bloom.Size(), SpriteEffects.None, 0f);
                 Line(top, bottom, width * 0.38f, Color.OrangeRed * (opacity * 0.32f));
                 Line(top, bottom, width * 0.21f, Color.Orange * (opacity * 0.55f));
                 Line(top, bottom, width * 0.065f, Color.LightGoldenrodYellow * opacity);

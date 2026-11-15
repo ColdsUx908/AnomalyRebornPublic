@@ -1,19 +1,20 @@
 using Anomalies.Assets.Effects;
 using Anomalies.GameContents;
 
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-public sealed class MeguminExplosion : AnomalyModItem, IContributorItem, ILegendaryItem, ILocalizationPrefix
+[LegacyName("MeguminExplosion")]
+public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILegendaryItem, ILocalizationPrefix
 {
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
+    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
     public const int ChargeDuration = 180;
     public const float CastRange = 1200f;
 
-    public override string LocalizationCategory => "SpecialContents.Contributor";
-    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory + ".MeguminExplosion";
+    public const string LocalizationCategoryForMeguminStaff = "SpecialContents.Contributor.MeguminStaff";
 
-    public override void Load() => ExplosionDrawing.Load(Mod);
+    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategoryForMeguminStaff;
 
     public override void SetStaticDefaults() => Item.staff[Type] = true;
 
@@ -21,7 +22,7 @@ public sealed class MeguminExplosion : AnomalyModItem, IContributorItem, ILegend
     {
         Item.width = 64;
         Item.height = 88;
-        Item.damage = 4500;
+        Item.damage = 300;
         Item.DamageType = DamageClass.Magic;
         Item.mana = 160;
         Item.useTime = Item.useAnimation = 30;
@@ -29,23 +30,23 @@ public sealed class MeguminExplosion : AnomalyModItem, IContributorItem, ILegend
         Item.channel = true;
         Item.noMelee = true;
         Item.knockBack = 12f;
-        Item.shoot = ModContent.ProjectileType<MeguminCasting>();
+        Item.shoot = ModContent.ProjectileType<MeguminChant>();
         Item.shootSpeed = 1f;
         Item.rare = ModContent.RarityType<MeguminRarity>();
-        Item.value = Item.sellPrice(gold: 30);
+        Item.value = Item.sellPrice(1, 0, 0, 0);
         Item.UseSound = SoundID.Item117 with { Volume = 0.55f, Pitch = -0.35f };
     }
 
     public override bool CanUseItem(Player player) => !player.HasBuff<MeguminExhaustion>()
         && player.ownedProjectileCounts[Item.shoot] == 0
-        && player.ownedProjectileCounts[ModContent.ProjectileType<MeguminBlast>()] == 0;
+        && player.ownedProjectileCounts[ModContent.ProjectileType<MeguminBeam>()] == 0;
 
     public override void ModifyManaCost(Player player, ref float reduce, ref float mult)
     {
         // Vanilla can recheck a channeling staff's use cost; only the initial cast pays that cost.
         // The beam pays its separate fixed maintenance cost through CheckMana with an explicit amount.
         if (player.ownedProjectileCounts[Item.shoot] > 0
-            || player.ownedProjectileCounts[ModContent.ProjectileType<MeguminBlast>()] > 0)
+            || player.ownedProjectileCounts[ModContent.ProjectileType<MeguminBeam>()] > 0)
             mult = 0f;
     }
 
@@ -129,27 +130,5 @@ public sealed class MeguminExplosion : AnomalyModItem, IContributorItem, ILegend
         CreateRecipe().AddIngredient(ItemID.InfernoFork).AddIngredient(ItemID.Ruby, 999)
             .AddIngredient(ItemID.LunarBar, 40).AddIngredient(ItemID.FragmentSolar, 400)
             .AddTile(TileID.LunarCraftingStation).Register();
-    }
-}
-
-public sealed class MeguminExhaustion : ModBuff
-{
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
-
-    public override string Texture => $"Terraria/Images/Buff_{BuffID.ManaSickness}";
-    public override string LocalizationCategory => "SpecialContents.Contributor";
-
-    public override void Load() => ExplosionDrawing.Load(Mod);
-
-    public override void SetStaticDefaults()
-    {
-        Main.debuff[Type] = true;
-        Main.buffNoSave[Type] = true;
-    }
-
-    public override void Update(Player player, ref int buffIndex)
-    {
-        player.moveSpeed -= 0.35f;
-        player.manaRegenDelay = Math.Max(player.manaRegenDelay, 30);
     }
 }

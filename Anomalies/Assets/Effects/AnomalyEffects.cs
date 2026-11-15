@@ -46,6 +46,7 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer LegendStellarExplosion;
         public static MiscShaderContainer LegendStellarPhotosphere;
         public static MiscShaderContainer LegendStellarSphere;
+        public static MiscShaderContainer LightweightBloom;
         public static MiscShaderContainer Shockwave;
         public static MiscShaderContainer SkeletronArenaExterior;
         public static MiscShaderContainer SkeletronFinalCharge;
@@ -68,10 +69,8 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer LegendStellarLaser;
         public static MiscShaderContainer LegendStellarLaserWarning;
         public static MiscShaderContainer LegendStellarLightOrb;
-#if SPECIAL_CONTENTS
         public static MiscShaderContainer MeguminCircle;
         public static MiscShaderContainer MeguminLaser;
-#endif
         public static MiscShaderContainer SkeletronForwardBeam;
     }
 
@@ -81,9 +80,7 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer AnomalyUltramundaneTitle;
         public static MiscShaderContainer EventideReunion;
         public static MiscShaderContainer LegendaryNightGold;
-#if SPECIAL_CONTENTS
         public static MiscShaderContainer MeguminStaff;
-#endif
     }
 
     public static class ScreenFilters

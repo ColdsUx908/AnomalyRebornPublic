@@ -8,7 +8,7 @@ public sealed class VacuousBlackBuff : BaseSummonBuff<VacuousBlackMinion>
 
     public override ref bool MinionBool => ref AnomalyPlayer.Minion_VacuousBlack;
 
-    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public override string LocalizationCategory => VacuousBlack.LocalizationCategoryForVacuousBlack;
 
     public override LocalizedText DisplayName => ModContent.GetModItem<VacuousBlack>()?.DisplayName;
 }

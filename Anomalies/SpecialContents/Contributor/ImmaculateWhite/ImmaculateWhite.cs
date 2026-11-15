@@ -65,15 +65,15 @@ public sealed class ImmaculateWhite : AnomalyModItem, ILegendaryItem, ILocalizat
             3 => 20f,
             2 => subPhase switch //肉后
             {
-                5 => 10f,      //教徒后
+                5 => 10f,     //教徒后
                 4 => 8f,      //石巨人后
-                3 => 6.5f,      //世纪之花后
-                2 => 4.5f,      //机械三王后
+                3 => 6.5f,    //世纪之花后
+                2 => 5f,      //机械三王后
                 _ => 3f
             },
             1 => subPhase switch //肉前
             {
-                3 => 3f,      //骷髅王后
+                3 => 2.5f,    //骷髅王后
                 2 => 1.5f,    //世界吞噬者/克苏鲁之脑后
                 _ => 1f
             },
@@ -87,9 +87,11 @@ public sealed class ImmaculateWhite : AnomalyModItem, ILegendaryItem, ILocalizat
     public void LegendaryUpdate(Player player) => LegendaryUpdate();
     #endregion 传奇
 
+    public const string LocalizationCategoryForImmaculateWhite = "SpecialContents.Contributor.ImmaculateWhite";
+
     public override string LocalizationCategory => "SpecialContents.Contributor";
 
-    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory + ".ImmaculateWhite";
+    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategoryForImmaculateWhite;
 
     public override void SetStaticDefaults()
     {
@@ -100,7 +102,7 @@ public sealed class ImmaculateWhite : AnomalyModItem, ILegendaryItem, ILocalizat
     {
         Item.width = 22;
         Item.height = 60;
-        Item.damage = 24;
+        Item.damage = 30;
         Item.DamageType = DamageClass.Ranged;
         Item.useAmmo = AmmoID.Arrow;
         Item.useTime = OriginalUseTime;
@@ -189,6 +191,7 @@ public sealed class ImmaculateWhite : AnomalyModItem, ILegendaryItem, ILocalizat
             .AddIngredient(ItemID.WoodenBow)
             .AddIngredient(ItemID.AngelStatue)
             .AddIngredient(ItemID.AngelHalo)
+            .AddIngredient(ItemID.Diamond, 10)
             .AddCondition(Condition.NearShimmer)
             .Register();
     }

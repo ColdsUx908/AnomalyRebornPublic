@@ -4,9 +4,9 @@
 
 ## 性能与绘制约定更新
 
-新增 LightweightBloom、BloomSettings 和可避免捕获委托的 IBloomLayer 图层入口，原有 Action/显式 Effect 签名保留。Draw 现在在无滤波回退和异常路径也恢复约定内的设备状态，并在租约归还前解除捕获目标绑定；零尺寸视口不调用图层。已经 Begin 的 SpriteBatch、跨设备/已释放资源和 Composite 的目标别名会提前报错。低层 Blur/Composite 仍不保存设备状态。调用方须使用有效的当前设备资源并自行管理其他纹理槽及顶点/索引绑定，详见[图形约定](Graphics.md)。
+新增 LightweightBloom、BloomSettings 和可避免捕获委托的 IBloomLayer 图层入口，Action/显式 Effect 签名保留。辉光着色器已迁回 Anomalies，由 AnomalyEffects.Overlays.LightweightBloom 管理；移除框架自动资产入口及 IsAvailable，调用方改传 Effect（不可用时传 null）。Draw 现在在无滤波回退和异常路径也恢复约定内的设备状态，并在租约归还前解除捕获目标绑定；零尺寸视口不调用图层。已经 Begin 的 SpriteBatch、跨设备/已释放资源和 Composite 的目标别名会提前报错。低层 Blur/Composite 仍不保存设备状态。调用方须使用有效的当前设备资源并自行管理其他纹理槽及顶点/索引绑定，详见[图形约定](Graphics.md)。
 
-新增 WorldView2D、SpriteDrawing 和 Mulberry32Random，不依赖 Anomalies。Mulberry32 的状态与序列固定，NextSingle 浮点舍入可能为 1，不能当作严格小于 1 的数组索引采样器。框架现有 API 与网络载荷没有因本次提取而移除或改序。
+新增 WorldView2D、SpriteDrawing 和 Mulberry32Random，不依赖 Anomalies。Mulberry32 的状态与序列固定，NextSingle 浮点舍入可能为 1，不能当作严格小于 1 的数组索引采样器。除上述辉光自动资产入口外，其余现有 API 与网络载荷未移除或改序。
 
 NewProjectileAction（含泛型和弧形生成入口）在恢复调用方速度、完成初始化回调后，由弹幕所有端立即补发 SyncProjectile。原版 NewProjectile 会在返回前发送经过速度修正、尚未执行回调的首包；仅设置 netUpdate 会让远端先使用这份状态。此修正不改变生成权限或网络载荷布局，但每次联网生成会增加一次同步发送。
 

@@ -58,7 +58,9 @@ public sealed partial class LegendaryNightOverlay
     private void DrawStarbursts(SpriteBatch spriteBatch, SkeletronLegendHead head,
         LegendStarburstVisuals.Burst[] frames, int count, float circleRadius, float ringRadius)
     {
-        bool bloom = AnomalyClientConfig.Instance.EnableShaders && LightweightBloom.IsAvailable;
+        Effect bloomEffect = !Main.dedServ && AnomalyClientConfig.Instance.EnableShaders
+            ? AnomalyEffects.Overlays.LightweightBloom?.Asset.Value : null;
+        bool bloom = bloomEffect is not null;
         BlendState blend = bloom || !Main.dayTime ? LightweightBloom.AdditiveBlend : BlendState.AlphaBlend;
         WorldView2D view = new(Main.screenPosition, Main.GameViewMatrix.TransformationMatrix,
             new Vector2(Main.screenWidth, Main.screenHeight));
@@ -70,13 +72,13 @@ public sealed partial class LegendaryNightOverlay
                 // 预告星保留固定像素光晕，不跟随爆区放大。
                 BloomSettings settings = LegendStarburstVisuals.WithBody(BloomSettings.Default, Main.dayTime);
                 StarburstLayer layer = new(null, 0, warning, false, view, blend, textures, default, null);
-                LightweightBloom.Draw(spriteBatch, bloom, settings, layer);
+                LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
             if (circleRadius > 0f)
             {
                 BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(circleRadius, view, Main.dayTime, false);
                 StarburstLayer layer = new(frames, count, default, false, view, blend, textures, default, null);
-                LightweightBloom.Draw(spriteBatch, bloom, settings, layer);
+                LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
         }
         if (ringRadius > 0f && LegendStarburstRingAssets.IsLoaded)
@@ -84,7 +86,7 @@ public sealed partial class LegendaryNightOverlay
             BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(ringRadius, view, Main.dayTime, true);
             StarburstLayer layer = new(frames, count, default, true, view, blend, default,
                 LegendStarburstRingAssets.Textures, AnomalyEffects.Overlays.LegendStarburstRingMark.Asset.Value);
-            LightweightBloom.Draw(spriteBatch, bloom, settings, layer);
+            LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
         }
     }
 

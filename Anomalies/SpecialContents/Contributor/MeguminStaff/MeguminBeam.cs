@@ -1,16 +1,17 @@
 using Terraria.Graphics.CameraModifiers;
 
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-/// <summary>慧慧法杖的持续爆炎光束；所属客户端更新位置、支付魔力并同步停止状态。</summary>
+/// <summary>惠惠法杖的持续爆炎光束；所属客户端更新位置、支付魔力并同步停止状态。</summary>
 /// <remarks>ai[0] 为存续帧数，ai[1] 为停止后的淡出帧数，ai[2] 未使用。位置由实体包同步；发包位置缓存不进入快照。</remarks>
-public sealed class MeguminBlast : AnomalyModProjectile
+public sealed class MeguminBeam : AnomalyModProjectile
 {
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
+    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
     private Vector2 _LastSyncedCenter;
     public const int WarmupTime = 18;
     public const int FadeDuration = 18;
+    public const int MaxDuration = 600;
     public const int ManaInterval = 10;
     public const int ManaPerPulse = 12;
     public float Time => Projectile.ai[0];
@@ -21,7 +22,7 @@ public sealed class MeguminBlast : AnomalyModProjectile
     public Vector2 BeamStart => new(Projectile.Center.X, 16f);
     public Vector2 BeamEnd => new(Projectile.Center.X, Main.maxTilesY * 16f - 16f);
     public override string Texture => "Terraria/Images/Projectile_0";
-    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public override string LocalizationCategory => MeguminStaff.LocalizationCategoryForMeguminStaff;
 
     public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 4000;
 
@@ -37,7 +38,7 @@ public sealed class MeguminBlast : AnomalyModProjectile
         Projectile.timeLeft = 2;
         Projectile.hide = true;
         Projectile.usesLocalNPCImmunity = true;
-        Projectile.localNPCHitCooldown = 15;
+        Projectile.localNPCHitCooldown = 3;
     }
 
     public override bool ShouldUpdatePosition() => false;
@@ -60,14 +61,14 @@ public sealed class MeguminBlast : AnomalyModProjectile
         // Only the owner reads the mouse and pays mana; normal projectile position packets synchronize the column.
         if (Projectile.owner == Main.myPlayer && !Stopping)
         {
-            if (!player.controlUseItem || player.noItems || player.CCed || player.HeldItem.type != ModContent.ItemType<MeguminExplosion>())
+            if (Time >= MaxDuration || !player.controlUseItem || player.noItems || player.CCed || player.HeldItem.type != ModContent.ItemType<MeguminStaff>())
                 StopChannel(player);
             else
             {
                 Vector2 mouse = Main.MouseWorld;
                 if (player.gravDir == -1f)
                     mouse.Y = Main.screenPosition.Y + Main.screenHeight - Main.mouseY;
-                Vector2 target = MeguminExplosion.ClampTarget(player, mouse);
+                Vector2 target = MeguminStaff.ClampTarget(player, mouse);
                 Projectile.Center = target;
                 if ((Time % 4f == 0f && Vector2.DistanceSquared(_LastSyncedCenter, target) > 1f) || Time % 15f == 0f)
                 {
@@ -148,7 +149,7 @@ public sealed class MeguminBlast : AnomalyModProjectile
     public override bool PreDraw(ref Color lightColor)
     {
         GetVisibleSegment(out Vector2 top, out Vector2 bottom);
-        ExplosionDrawing.Laser(Projectile.Center, top, bottom, Time, BeamPower, Opacity);
+        MeguminDrawing.Laser(Projectile.Center, top, bottom, Time, BeamPower, Opacity);
         return false;
     }
 

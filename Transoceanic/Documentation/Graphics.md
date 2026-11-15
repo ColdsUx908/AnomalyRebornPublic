@@ -60,8 +60,8 @@ RenderTargetScope、SpriteBatchScope 用于局部保存和恢复状态；调用�
 
 ```csharp
 BloomSettings settings = BloomSettings.Default;
-// 调用前 SpriteBatch 未 Begin，回调自行配对 Begin/End。
-LightweightBloom.Draw(spriteBatch, enabled, settings, () =>
+// bloomEffect 由调用方加载；调用前 SpriteBatch 未 Begin，回调自行配对 Begin/End。
+LightweightBloom.Draw(spriteBatch, enabled ? bloomEffect : null, settings, () =>
 {
     spriteBatch.Begin(SpriteSortMode.Deferred, LightweightBloom.AdditiveBlend);
     SpriteDrawing.DrawGlow(spriteBatch, texture, position, new Vector2(64f), Color.White, 0f, 1.5f);
@@ -69,7 +69,7 @@ LightweightBloom.Draw(spriteBatch, enabled, settings, () =>
 });
 ```
 
-热路径可以实现值类型 `IBloomLayer`，使用泛型 `Draw` 避免捕获委托；调用同步完成，不保留图层或纹理引用。自动资产入口使用框架管理的 Effect，显式 Effect 入口方便独立宿主；调用方持有的 Effect 不会被释放。框架在卸载时释放自己的混合状态，独立宿主可调用 `ReleaseResources`。
+热路径可以实现值类型 `IBloomLayer`，使用泛型 `Draw` 避免捕获委托；调用同步完成，不保留图层或纹理引用。框架不携带或自动加载辉光着色器，调用方须传入兼容的 Effect；Anomalies 通过 AnomalyEffects.Overlays.LightweightBloom 管理自身资源。调用方持有的 Effect 不会被释放。框架在卸载时释放自己的混合状态，独立宿主可调用 `ReleaseResources`。
 
 所有入口须在图形主线程运行，SpriteBatch 必须未开始，输入资源属于同一设备且未释放。不能在回调中切换目标、重建设备或释放使用中的资源；无内容时不要调用。透明图层使用预乘 RGBA；`AdditiveBlend` 同时累加颜色与覆盖度。关闭效果、资产未加载或显式 Effect 为 null 时执行原图层，不租用捕获目标。
 

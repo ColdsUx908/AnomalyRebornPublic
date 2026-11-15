@@ -46,15 +46,7 @@ public sealed class ImmaculateWhiteBow : AnomalyModProjectile
 
     public override void AI()
     {
-        ShootSpeed = 20f;
-        if (NPC.downedBoss2) //世吞克脑
-            ShootSpeed -= 1f;
-        if (NPC.downedBoss3) //骷髅王
-            ShootSpeed -= 1f;
-        if (NPC.downedGolemBoss) //石巨人
-            ShootSpeed -= 1f;
-
-        ShootSpeed = (int)(ShootSpeed * ShootSpeedMultiplier); //应用修饰语加成
+        ShootSpeed = 20f * (int)(ShootSpeed * ShootSpeedMultiplier); //应用修饰语加成
 
         Lighting.AddLight(Projectile.Center, 1f, 1f, 1f);
         Player player = Projectile.Owner;

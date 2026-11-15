@@ -9,7 +9,7 @@ public sealed class VacuousBlackMinion : AnomalyModProjectile
 
     public ref bool MinionBool => ref Owner.Anomaly.Minion_VacuousBlack;
 
-    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public override string LocalizationCategory => VacuousBlack.LocalizationCategoryForVacuousBlack;
 
     public override LocalizedText DisplayName => ModContent.GetModItem<VacuousBlack>()?.DisplayName;
 

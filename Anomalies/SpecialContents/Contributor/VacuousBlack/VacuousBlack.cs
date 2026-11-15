@@ -15,9 +15,11 @@ public sealed class VacuousBlack : AnomalyModItem, ILegendaryItem, ILocalization
     public void LegendaryUpdate(Player player) => LegendaryUpdate();
     #endregion 传奇
 
+    public const string LocalizationCategoryForVacuousBlack = "SpecialContents.Contributor.VacuousBlack";
+
     public override string LocalizationCategory => "SpecialContents.Contributor";
 
-    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory + ".VacuousBlack";
+    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategoryForVacuousBlack;
 
     public override void SetStaticDefaults()
     {
@@ -106,6 +108,7 @@ public sealed class VacuousBlack : AnomalyModItem, ILegendaryItem, ILocalization
             .AddIngredient(ItemID.Star)
             .AddIngredient(ItemID.AngelStatue)
             .AddIngredient(ItemID.AngelHalo)
+            .AddIngredient(ItemID.Diamond, 10)
             .AddCondition(Condition.NearShimmer)
             .Register();
     }

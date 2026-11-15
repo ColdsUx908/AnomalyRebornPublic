@@ -67,9 +67,9 @@ public sealed class ImmaculateBolt : AnomalyModProjectile
         }
     }
 
-    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public override string LocalizationCategory => ImmaculateWhite.LocalizationCategoryForImmaculateWhite;
 
-    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory + "ImmaculateWhite";
+    public string LocalizationPrefix => AnomalySharedData.ModLocalizationPrefix + LocalizationCategory;
 
     public override void SetStaticDefaults()
     {

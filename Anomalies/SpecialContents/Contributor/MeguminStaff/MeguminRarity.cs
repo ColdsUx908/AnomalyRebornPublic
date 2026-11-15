@@ -1,8 +1,8 @@
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
 public sealed class MeguminRarity : ModRarity
 {
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
+    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
     public override Color RarityColor => Color.Lerp(new Color(244, 61, 67), new Color(255, 214, 112),
         MathF.Sin(Main.GlobalTimeWrappedHourly * 2f) * 0.5f + 0.5f);

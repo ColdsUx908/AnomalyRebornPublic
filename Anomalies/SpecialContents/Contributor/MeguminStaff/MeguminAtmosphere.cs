@@ -1,10 +1,10 @@
 using Terraria.UI;
 
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
 public sealed class MeguminAtmosphere : ModSystem
 {
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
+    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
     public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
     {
@@ -21,12 +21,12 @@ public sealed class MeguminAtmosphere : ModSystem
         foreach (Projectile projectile in Main.ActiveProjectiles)
         {
             float distanceFade = MathHelper.Clamp(1f - Vector2.Distance(Main.LocalPlayer.Center, projectile.Center) / 2400f, 0f, 1f);
-            if (projectile.ModProjectile is MeguminCasting cast)
+            if (projectile.ModProjectile is MeguminChant cast)
                 darkness = Math.Max(darkness, cast.Charge * 0.28f * distanceFade);
-            if (projectile.ModProjectile is MeguminBlast blast)
+            if (projectile.ModProjectile is MeguminBeam blast)
             {
                 darkness = Math.Max(darkness, blast.Opacity * 0.12f * distanceFade);
-                flash = Math.Max(flash, MathHelper.Clamp(1f - Math.Abs(blast.Time - MeguminBlast.WarmupTime - 2f) / 7f,
+                flash = Math.Max(flash, MathHelper.Clamp(1f - Math.Abs(blast.Time - MeguminBeam.WarmupTime - 2f) / 7f,
                     0f, 1f) * 0.16f * blast.Opacity * distanceFade);
             }
         }

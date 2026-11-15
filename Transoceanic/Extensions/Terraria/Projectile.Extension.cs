@@ -141,11 +141,8 @@ public static partial class TOTerrariaExtensions
             }
 
             Vector2 displacement = idlePosition - projectile.Center;
-            if (distance < 4f)
-                projectile.velocity *= 0.25f;
-
-            if (displacement != Vector2.Zero)
-                projectile.velocity = displacement.Length() < 4f ? displacement : displacement * 0.1f;
+            // 到达目标时也必须清零速度，避免残余速度让宠物反复偏离并返回。
+            projectile.velocity = displacement.Length() < 4f ? displacement : displacement * 0.1f;
 
             projectile.direction = player.direction;
             if (distance > 50f)

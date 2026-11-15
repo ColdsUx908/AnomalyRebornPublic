@@ -1,17 +1,17 @@
-namespace Anomalies.SpecialContents.Contributor.MeguminExplosion;
+namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-/// <summary>慧慧法杖的蓄力持有弹幕；鼠标目标由所属客户端更新。</summary>
+/// <summary>惠惠法杖的蓄力持有弹幕；鼠标目标由所属客户端更新。</summary>
 /// <remarks>ai[0] 为蓄力帧数，ai[1..2] 为目标世界坐标。同步阈值缓存仅用于所属客户端发包，不进入快照。</remarks>
-public sealed class MeguminCasting : AnomalyModProjectile
+public sealed class MeguminChant : AnomalyModProjectile
 {
-    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminExplosion;
+    public override bool IsLoadingEnabled(Mod mod) => AnomalySpecialContentToggler.MeguminStaff;
 
     private Vector2 _LastSyncedTarget;
     public float Time => Projectile.ai[0];
-    public float Charge => MathHelper.Clamp(Time / MeguminExplosion.ChargeDuration, 0f, 1f);
+    public float Charge => MathHelper.Clamp(Time / MeguminStaff.ChargeDuration, 0f, 1f);
     public Vector2 Target => new(Projectile.ai[1], Projectile.ai[2]);
     public override string Texture => "Terraria/Images/Projectile_0";
-    public override string LocalizationCategory => "SpecialContents.Contributor";
+    public override string LocalizationCategory => MeguminStaff.LocalizationCategoryForMeguminStaff;
 
     public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2200;
 
@@ -33,7 +33,7 @@ public sealed class MeguminCasting : AnomalyModProjectile
     {
         Player player = Main.player[Projectile.owner];
         if (!player.active || player.dead || player.noItems || player.CCed || !player.channel
-            || player.HeldItem.type != ModContent.ItemType<MeguminExplosion>())
+            || player.HeldItem.type != ModContent.ItemType<MeguminStaff>())
         {
             Projectile.Kill();
             return;
@@ -45,7 +45,7 @@ public sealed class MeguminCasting : AnomalyModProjectile
             Vector2 mouse = Main.MouseWorld;
             if (player.gravDir == -1f)
                 mouse.Y = Main.screenPosition.Y + Main.screenHeight - Main.mouseY;
-            Vector2 target = MeguminExplosion.ClampTarget(player, mouse);
+            Vector2 target = MeguminStaff.ClampTarget(player, mouse);
             Projectile.ai[1] = target.X;
             Projectile.ai[2] = target.Y;
             if (Time % 6f == 0f && Vector2.DistanceSquared(target, _LastSyncedTarget) > 16f)
@@ -86,12 +86,12 @@ public sealed class MeguminCasting : AnomalyModProjectile
         }
 
         Projectile.ai[0]++;
-        if (Time >= MeguminExplosion.ChargeDuration)
+        if (Time >= MeguminStaff.ChargeDuration)
         {
             if (Projectile.owner == Main.myPlayer)
             {
                 Projectile.NewProjectileAction(Projectile.GetSource_FromThis(), Target, Vector2.Zero,
-                    ModContent.ProjectileType<MeguminBlast>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
+                    ModContent.ProjectileType<MeguminBeam>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
             }
             Projectile.Kill();
         }
@@ -104,16 +104,16 @@ public sealed class MeguminCasting : AnomalyModProjectile
         Color amber = new(255, 120, 35);
         Color rose = new(255, 65, 180);
         float radius = MathHelper.Lerp(70f, 160f, charge);
-        ExplosionDrawing.Circle(Projectile.Center, new Vector2(radius), time, charge, -time, rose);
-        ExplosionDrawing.Circle(Projectile.Center, new Vector2(radius * 1.16f), -time, charge * 0.6f, time * 0.3f, Color.Cyan);
-        ExplosionDrawing.Glow(Projectile.Center, new Vector2(65f + charge * 70f), rose * (charge * 0.7f));
+        MeguminDrawing.Circle(Projectile.Center, new Vector2(radius), time, charge, -time, rose);
+        MeguminDrawing.Circle(Projectile.Center, new Vector2(radius * 1.16f), -time, charge * 0.6f, time * 0.3f, Color.Cyan);
+        MeguminDrawing.Glow(Projectile.Center, new Vector2(65f + charge * 70f), rose * (charge * 0.7f));
 
         for (int i = 0; i < 4; i++)
         {
             float reveal = MathHelper.Clamp((Time - i * 28f) / 50f, 0f, 1f);
             float size = (480f + i * 90f) * (0.4f + charge * 0.6f);
             Vector2 center = Target - Vector2.UnitY * (18f + i * 112f);
-            ExplosionDrawing.Circle(center, new Vector2(size, size * 0.3f), time * (i % 2 == 0 ? 1 : -1),
+            MeguminDrawing.Circle(center, new Vector2(size, size * 0.3f), time * (i % 2 == 0 ? 1 : -1),
                 reveal * 0.9f, 0f, i % 2 == 0 ? amber : rose);
         }
 
@@ -128,7 +128,7 @@ public sealed class MeguminCasting : AnomalyModProjectile
                     float t = i / 64f;
                     float angle = t * MathHelper.TwoPi * 2f - time * 2.5f + strand * MathHelper.Pi;
                     Vector2 point = Target + new Vector2(MathF.Sin(angle) * (140f + t * 150f) * charge, -t * 390f);
-                    ExplosionDrawing.Line(previous, point, (1.4f + charge * 2.3f), amber * (charge * 0.55f));
+                    MeguminDrawing.Line(previous, point, (1.4f + charge * 2.3f), amber * (charge * 0.55f));
                     previous = point;
                 }
             }
