@@ -26,7 +26,7 @@ public sealed partial class Skull
         Color tailColor = SkeletronCombatVisuals.BoneColor;
         float trailLength = Projectile.localAI[1];
         Effect effect = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Primitives.SkeletronForwardBeam?.Asset.Value
+            ? SkeletronEffects.SkeletronForwardBeam?.Asset.Value
             : null;
         if (effect is null)
         {

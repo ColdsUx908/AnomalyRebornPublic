@@ -15,8 +15,8 @@ public sealed partial class LegendEnergySphere
 
     private void DrawStellarPhotosphere(SpriteBatch spriteBatch, Vector2 center, float radius, bool blue, float opacity)
     {
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Overlays.LegendStellarPhotosphere : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarPhotosphere : null;
         float dissipation = blue ? 0f : SkeletronLegendHead.Mechanic7Parameters.StarDissipation(Head?.Phase2MusicElapsedTime ?? 0);
         if (dissipation >= 1f)
             return;

@@ -272,7 +272,7 @@ public sealed class EaterTeleportRift : ModProjectile
         }
 
         // Draw the crack.
-        Effect crackShader = AnomalyEffects.Overlays.EaterRealityCrack?.Asset.Value;
+        Effect crackShader = EaterofWorldsEffects.EaterRealityCrack?.Asset.Value;
         float crackOpacity = (AIState == 1f) ? Projectile.Opacity * 0.1f : 0.1f;
         Color darkerPixelColor = EaterPortalAssets.Twilight;
 

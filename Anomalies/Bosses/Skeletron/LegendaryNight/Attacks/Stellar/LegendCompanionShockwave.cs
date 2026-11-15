@@ -23,6 +23,9 @@ public sealed class LegendCompanionShockwave : LegendStellarShockwave
     private bool _Hit;
     private bool _ImpactPlayed;
     private StellarDebrisSet _Particles;
+    // 吸收越多，结算爆发越强；压缩伤害跨度并限制最大相机冲击。
+    protected override float ImpactStrength => MathHelper.Clamp(MathF.Sqrt(Projectile.damage / 100f) * 0.8f, 0.8f, 1.8f);
+    protected override int ImpactDuration => 38;
     protected override bool YellowPalette => false;
     protected override int Lifetime => NebulaDuration;
     protected override string ExplosionPass => "SupernovaRemnant";
@@ -61,8 +64,6 @@ public sealed class LegendCompanionShockwave : LegendStellarShockwave
                             sphere.FlashCore();
                     if (age <= 6)
                     {
-                        float proximity = 1f - MathHelper.Clamp(Main.LocalPlayer.Distance(Projectile.Center) / 3000f, 0f, 1f);
-                        Main.LocalPlayer.SetScreenshake(14f * proximity);
                         SoundEngine.PlaySound(SoundID.Item14 with { Volume = 1.4f, Pitch = -0.65f }, Projectile.Center);
                     }
                     _Particles = new StellarDebrisSet();

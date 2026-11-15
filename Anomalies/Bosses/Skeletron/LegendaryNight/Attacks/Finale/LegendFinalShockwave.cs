@@ -10,7 +10,6 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class LegendFinalShockwave : LegendStellarShockwave
 {
-    internal const float FailureScreenshake = 18f;
     private const int FailureShellDuration = 300;
     private const int FailureDuration = 360;
     private const int SuccessDuration = 240;
@@ -20,6 +19,8 @@ public sealed class LegendFinalShockwave : LegendStellarShockwave
     private bool _Hit;
     private bool _ImpactPlayed;
     private bool Success => Projectile.damage == 0;
+    protected override float ImpactStrength => Success ? 0.35f : 2f;
+    protected override int ImpactDuration => Success ? 24 : 44;
     protected override bool YellowPalette => true;
     protected override string ExplosionPass => Success ? "CurtainCall" : "SupernovaRemnant";
     protected override float ShaderRadiusScale => OuterShaderRadiusScale;
@@ -162,7 +163,6 @@ public sealed class LegendFinalShockwave : LegendStellarShockwave
                     }
                 }
                 SoundEngine.PlaySound(Meteor.ExplosionSound with { Volume = Success ? 0.45f : 1f }, Projectile.Center);
-                Main.LocalPlayer.SetScreenshake(Success ? 3f : FailureScreenshake);
             }
         }
     }

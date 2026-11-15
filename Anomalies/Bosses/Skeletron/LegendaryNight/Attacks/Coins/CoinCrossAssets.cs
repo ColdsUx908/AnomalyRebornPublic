@@ -20,8 +20,14 @@ internal sealed class CoinCrossAssets : ILoadable
         && _Outer?.IsLoaded == true && _Flow?.IsLoaded == true && _Streak?.IsLoaded == true
         && _Warp?.IsLoaded == true && _Star?.IsLoaded == true;
     internal static Effect BodyEffect => AnomalyClientConfig.Instance.EnableShaders
-        && AnomalyEffects.Primitives.LegendCoinCross?.Asset.IsLoaded == true
-        ? AnomalyEffects.Primitives.LegendCoinCross.Asset.Value : null;
+        && LegendaryNightEffects.LegendCoinCross?.Asset.IsLoaded == true
+        ? LegendaryNightEffects.LegendCoinCross.Asset.Value : null;
+    internal static Effect RadialEffect => AnomalyClientConfig.Instance.EnableShaders
+        && LegendaryNightEffects.LegendCoinRadial?.Asset.IsLoaded == true
+        ? LegendaryNightEffects.LegendCoinRadial.Asset.Value : null;
+    internal static Effect ParticleEffect => AnomalyClientConfig.Instance.EnableShaders
+        && LegendaryNightEffects.LegendCoinCrossParticles?.Asset.IsLoaded == true
+        ? LegendaryNightEffects.LegendCoinCrossParticles.Asset.Value : null;
     internal static CoinCrossVisuals.Textures Textures => new(_Outer.Value, _Flow.Value, _Streak.Value, _Warp.Value,
         _Star.Value, LegendStarburstCircleAssets.Textures.SparkTail,
         LegendStarburstCircleAssets.Textures.ShotLine);

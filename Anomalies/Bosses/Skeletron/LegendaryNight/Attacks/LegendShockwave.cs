@@ -25,6 +25,10 @@ public sealed class LegendShockwave : BaseShockwaveProjectile
     public override float FinalScale => TargetScale * ExpansionMultiplier;
     public override bool UseHDTexture => true;
 
+    internal bool TryGetImpactFrame(out LegendStarburstVisuals.Burst frame) =>
+        LegendStarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, PulseRing.TextureRadiusHD * FinalScale, Timer1,
+            MathHelper.Clamp(TargetScale / 2.25f * 0.45f, 0.2f, 0.7f), 24, out frame);
+
     public override void AI()
     {
         base.AI();

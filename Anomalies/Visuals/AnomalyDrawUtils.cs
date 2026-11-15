@@ -26,7 +26,7 @@ public static class AnomalyDrawUtils
     {
         if (radius <= 0f || opacity <= 0f || lineWidth <= 0f || glowWidth <= 0f)
             return;
-        if (AnomalyClientConfig.Instance.EnableShaders && AnomalyEffects.Primitives.GlowCircle is AnomalyEffects.MiscShaderContainer shader)
+        if (AnomalyClientConfig.Instance.EnableShaders && AnomalyCommonEffects.GlowCircle is MiscShaderContainer shader)
         {
             Matrix view = Main.GameViewMatrix.TransformationMatrix;
             Vector2 screenCenter = Vector2.Transform(center - Main.screenPosition, view);
@@ -82,7 +82,7 @@ public static class AnomalyDrawUtils
     {
         if (lines.IsEmpty || opacity <= 0f || lineWidth <= 0f || glowWidth <= 0f)
             return;
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders ? AnomalyEffects.Primitives.GlowLine : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders ? AnomalyCommonEffects.GlowLine : null;
         spriteBatch.Begin(shader is null ? SpriteSortMode.Deferred : SpriteSortMode.Immediate,
             BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         foreach ((Vector2 start, Vector2 end) in lines)

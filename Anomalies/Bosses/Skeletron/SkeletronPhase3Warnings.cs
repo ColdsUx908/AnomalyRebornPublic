@@ -7,7 +7,7 @@ internal static class SkeletronPhase3Warnings
     internal static void Draw(SpriteBatch spriteBatch, SkeletronPhase3Arena arena)
     {
         if (Main.dedServ || !arena.IsActivated || !AnomalyClientConfig.Instance.EnableShaders
-            || AnomalyEffects.Overlays.SkeletronPhase3Warning is not AnomalyEffects.MiscShaderContainer shader
+            || SkeletronEffects.SkeletronPhase3Warning is not MiscShaderContainer shader
             || arena.WarningOpacity <= 0f)
             return;
 

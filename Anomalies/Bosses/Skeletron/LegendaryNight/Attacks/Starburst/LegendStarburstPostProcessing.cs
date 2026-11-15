@@ -5,16 +5,16 @@ using Transoceanic.Graphics.Drawing;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>普通圆形/圆环星爆与圆心审判的短时场景模糊；由当前有效实体推导，攻击结束后自动失活。</summary>
+/// <summary>星爆、钱币审判和冲击波的短时场景反馈；由当前有效实体推导，攻击结束后自动失活。</summary>
 public sealed class LegendStarburstPostProcessing : ModSystem
 {
-    private const string FilterKey = "Anomalies:LegendStarburstRadialBlur";
+    private const string FilterKey = "Anomalies:LegendaryNight/LegendStarburstRadialBlur";
     private static Filter _Filter;
     private static AnomalyScreenShaderData _Data;
 
     public override void PostSetupContent()
     {
-        Filter filter = AnomalyEffects.ScreenFilters.LegendStarburstRadialBlur;
+        Filter filter = LegendaryNightEffects.LegendStarburstRadialBlur;
         if (Main.dedServ || filter?.GetShader() is not AnomalyScreenShaderData data)
             return;
         TOCleanup.Register(Clear);
@@ -31,7 +31,7 @@ public sealed class LegendStarburstPostProcessing : ModSystem
         {
             // Arm capture at age zero, before the first nonzero blur sample. FilterManager's
             // scene fade must not gate this short impulse or omit frames after reactivation.
-            _Data.UseIntensity(LegendStarburstVisuals.BlurStrength(frame.Age));
+            _Data.UseIntensity(LegendStarburstVisuals.BlurStrength(frame.Age) * frame.BlurScale);
             if (!_Filter.IsActive())
                 Filters.Scene.Activate(FilterKey, frame.Center);
             _Filter.Opacity = 1f;
@@ -43,11 +43,11 @@ public sealed class LegendStarburstPostProcessing : ModSystem
 
     public override void ModifyScreenPosition()
     {
-        if (TryGetBurst(out LegendStarburstVisuals.Burst frame))
-            Main.screenPosition -= LegendStarburstVisuals.ShakeOffset(frame.Age);
+        if (TryGetBurst(out LegendStarburstVisuals.Burst frame, includeCross: false))
+            Main.screenPosition -= LegendStarburstVisuals.ShakeOffset(frame.Age) * frame.ShakeScale;
     }
 
-    private static bool TryGetBurst(out LegendStarburstVisuals.Burst frame)
+    private static bool TryGetBurst(out LegendStarburstVisuals.Burst frame, bool includeCross = true)
     {
         frame = default;
         if (Main.dedServ || Main.gameMenu)
@@ -58,19 +58,35 @@ public sealed class LegendStarburstPostProcessing : ModSystem
             LegendStarburstVisuals.Burst candidate = default;
             bool visible = projectile.ModProjectile switch
             {
+                LegendStellarShockwave wave => wave.TryGetImpactFrame(out candidate),
+                LegendShockwave wave => wave.TryGetImpactFrame(out candidate),
                 LegendStarburst burst => burst.TryGetVisualFrame(out candidate),
-                CoinJudgment judgment => judgment.TryGetCircleFrame(out candidate),
+                CoinJudgment judgment when includeCross || (int)projectile.ai[0] is 0 or 2 => judgment.TryGetBlurFrame(out candidate),
                 _ => false
             };
             if (visible && candidate.Age < LegendStarburstVisuals.BlurDuration
-                && (!found || candidate.Age < frame.Age))
+                && (!found || FeedbackStrength(candidate, includeCross) > FeedbackStrength(frame, includeCross)
+                    || FeedbackStrength(candidate, includeCross) == FeedbackStrength(frame, includeCross) && candidate.Age < frame.Age))
             {
-                // The newest impact owns both camera and blur, including its zero-strength onset.
+                // 选择当前较强反馈，强度相同时取较新项；重叠爆发不叠加全屏效果。
                 frame = candidate;
                 found = true;
             }
         }
         return found;
+    }
+
+    private static float FeedbackStrength(in LegendStarburstVisuals.Burst frame, bool blur) => blur
+        ? LegendStarburstVisuals.BlurStrength(frame.Age) * frame.BlurScale
+        : LegendStarburstVisuals.ShakeOffset(frame.Age).LengthSquared() * frame.ShakeScale * frame.ShakeScale;
+
+    internal static bool TryCreateShockwaveFrame(Vector2 center, float radius, int age, float strength,
+        int duration, out LegendStarburstVisuals.Burst frame)
+    {
+        frame = default;
+        return !Main.dedServ && !Main.gameMenu
+            && LegendStarburstVisuals.TryCreateShockwaveFrame(center, radius, Main.LocalPlayer.Distance(center),
+                age, strength, duration, out frame);
     }
 
     public override void OnWorldUnload() => Deactivate();
@@ -104,7 +120,7 @@ public sealed class LegendStarburstPostProcessing : ModSystem
             WorldView2D view = new(Main.screenPosition, Main.GameViewMatrix.TransformationMatrix,
                 new Vector2(Main.screenWidth, Main.screenHeight));
             data.UseDirection(view.WorldToUv(frame.Center));
-            data.UseIntensity(LegendStarburstVisuals.BlurStrength(frame.Age));
+            data.UseIntensity(LegendStarburstVisuals.BlurStrength(frame.Age) * frame.BlurScale);
         }
         else
             data.UseIntensity(0f);

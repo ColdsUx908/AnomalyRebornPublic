@@ -17,6 +17,8 @@ public sealed class LegendTransitionShockwave : LegendStellarShockwave
     private const int BrakingStart = 24;
     private const float BrakingTime = 42f;
 
+    protected override float ImpactStrength => 1.4f;
+    protected override int ImpactDuration => 32;
     protected override bool YellowPalette => true;
     protected override string ExplosionPass => "GoldenImpact";
     protected override int Lifetime => NebulaDuration;
@@ -37,8 +39,6 @@ public sealed class LegendTransitionShockwave : LegendStellarShockwave
     {
         if (age != 0)
             return;
-
-        Main.LocalPlayer.SetScreenshake(LegendFinalShockwave.FailureScreenshake * 0.8f);
 
         const int SparkCount = 96;
         for (int i = 0; i < SparkCount; i++)

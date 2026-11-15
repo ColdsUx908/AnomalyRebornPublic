@@ -25,7 +25,7 @@ internal static class EventideReunionBladeTrail
 
     public static void Draw(VertexPositionColorTexture[] vertices, float time, bool deathPalette = false, bool samsaraPalette = false)
     {
-        if (AnomalyEffects.Primitives.EventideSweep is not AnomalyEffects.MiscShaderContainer eventideSweepShader)
+        if (EventideReunionEffects.EventideSweep is not MiscShaderContainer eventideSweepShader)
             return;
         Effect trailEffect = eventideSweepShader.Asset.Value;
         GraphicsDevice device = Main.instance.GraphicsDevice;

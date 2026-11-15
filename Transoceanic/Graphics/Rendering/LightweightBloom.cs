@@ -16,6 +16,9 @@ public readonly record struct BloomSettings(float NearRadius, float FarRadius, f
     /// <summary>远光晕 Screen 合成次数，限制为 1～3。</summary>
     public int FarPasses { get; init; } = 1;
 
+    /// <summary>省略全目标不透明滤波前的清屏。仅当 Effect 的滤波 Pass 完整写入目标且不使用 discard 时启用。</summary>
+    public bool SkipFilterClear { get; init; }
+
     /// <summary>对应两层 8px/26px 光晕的默认设置。</summary>
     public static BloomSettings Default => new(8f, 26f, 0.85f, 0.9f);
 }
@@ -63,6 +66,10 @@ public static partial class LightweightBloom
     /// </summary>
     public static void Blur(SpriteBatch spriteBatch, Effect effect, Texture2D source,
         RenderTarget2D scratch, RenderTarget2D result, float radius)
+        => BlurCore(spriteBatch, effect, source, scratch, result, radius, false);
+
+    private static void BlurCore(SpriteBatch spriteBatch, Effect effect, Texture2D source,
+        RenderTarget2D scratch, RenderTarget2D result, float radius, bool skipClear)
     {
         ValidateBatch(spriteBatch);
         GraphicsDevice device = spriteBatch.GraphicsDevice;
@@ -101,7 +108,8 @@ public static partial class LightweightBloom
         void Filter(Texture2D input, RenderTarget2D output, Vector2 step, string pass = "Pass0")
         {
             spriteBatch.GraphicsDevice.SetRenderTarget(output);
-            spriteBatch.GraphicsDevice.Clear(Color.Transparent);
+            if (!skipClear)
+                spriteBatch.GraphicsDevice.Clear(Color.Transparent);
             effect.Parameters["uBlurStep"].SetValue(step);
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone);

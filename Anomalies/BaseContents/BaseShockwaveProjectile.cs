@@ -127,7 +127,7 @@ public abstract class BaseShockwaveProjectile : AnomalyModProjectile
     public override bool PreDraw(ref Color lightColor)
     {
         Color color = GetAlpha(lightColor) ?? Color.White;
-        Effect effect = AnomalyClientConfig.Instance.EnableShaders ? AnomalyEffects.Overlays.Shockwave?.Asset.Value : null;
+        Effect effect = AnomalyClientConfig.Instance.EnableShaders ? AnomalyCommonEffects.Shockwave?.Asset.Value : null;
         if (effect is not null)
         {
             DrawShader(effect, color);

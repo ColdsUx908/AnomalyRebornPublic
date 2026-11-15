@@ -126,8 +126,8 @@ public sealed partial class LegendEnergySphere
 
     private void EnsureCompanion(SkeletronLegendHead head, int time)
     {
-        if (!TONetworkEnvironment.NotClient || time < SkeletronLegendHead.Mechanic6Timeline.CompanionStartMusicTime
-            || time >= SkeletronLegendHead.Mechanic6Timeline.CompanionImpactMusicTime)
+        if (!TONetworkEnvironment.NotClient || time < CompanionStartMusicTime
+            || time >= CompanionImpactMusicTime)
             return;
         Projectile companion = _CompanionReference.Resolve();
         if (companion?.ModProjectile is LegendBlueStar cached && cached.PrimaryProjectile == Projectile)

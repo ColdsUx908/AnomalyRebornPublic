@@ -206,7 +206,9 @@
 
 ### 3.3 着色器引用与生命周期
 
-- 一般着色器引用统一存储在 `AnomalyEffects` 及其嵌套类中，按资源目录归入 `Primitives`、`Overlays`、`Texts`、`BossBars` 或 `ScreenFilters`；嵌套类内字段按字母顺序排列，名称与资源文件名保持一致。
+- 项目特效统一采用 LDR 渲染，离屏颜色目标使用 `SurfaceFormat.Color`；不使用浮点渲染目标或 HDR 光能编码、提取及合成管线。高亮与辉光通过普通颜色、加色/Screen 混合及 LDR 柔光实现。
+
+- 着色器资源统一存放在 `Assets/Effects/<归属>/`，编译产物在 `Assets/Effects_Compiled/` 保持相同相对路径。通用资源归 `Common`，血条归 `BossBars`，专属资源按 Boss 或整体项目归档，默认扁平存放；需要时允许增加子目录。公共资源使用符合用途的名称，不保留特定项目的前缀。引用分别存储在 `AnomalyCommonEffects`、`AnomalyBossBarEffects` 和所属项目的 Effects 提供者中；专属提供者源码放在所属项目目录，随目录参与模块筛选与移除。提供者继承 `AnomalyEffectProvider`、实现 `IAnomalyEffectProvider`，通过原生 ILoadable 流程及 IsLoadingEnabled 筛选，由 AnomalyEffects 统一加载和清理。公共加载器不得集中引用专属提供者。公开静态嵌套类逐级对应资源子目录，字段按字母排序、名称与资源文件一致；字段类型区分普通 shader 与 Filter，注册键使用模组名加完整资源相对路径。
 - 可沿用现有加载方式的着色器，复用 `AnomalyEffects` 的统一加载、注册和卸载流程；绘制类从对应容器的 `Asset.Value` 获取 `Effect`，不得另行保存静态 `Asset<Effect>` 或在绘制时重复请求同一资源。确需特殊加载方式时，应说明原因及生命周期管理方式。
 - 调用方必须兼容专用服务器、关闭着色器配置或资源尚未加载时容器为空的情况；无可用着色器时跳过对应效果，或沿用已有的不依赖着色器的绘制路径。
 - 同一着色器在不同效果间复用时，每次绘制显式设置所需参数和 Pass，避免共享状态影响后续绘制。

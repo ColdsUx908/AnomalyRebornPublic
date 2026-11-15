@@ -10,6 +10,9 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class SlimeMount : AnomalyModProjectile
 {
+    /// <summary>释放史莱姆坐骑的音效。</summary>
+    public static readonly SoundStyle SummonSound = SoundID.Item81 with { MaxInstances = 0 };
+
     /// <summary>预警最大长度，单位为世界像素。</summary>
     private const float WarningMaxLength = 1600f;
     /// <summary>预警增长量时刻。</summary>

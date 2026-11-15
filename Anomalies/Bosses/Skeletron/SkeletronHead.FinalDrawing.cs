@@ -13,7 +13,7 @@ public sealed partial class SkeletronHead
         float closing = MathHelper.Clamp((charge - 0.6f) / 0.4f, 0f, 1f);
         float collapse = closing * closing;
         float opacity = MathHelper.SmoothStep(0f, 1f, Math.Min(Timer / 18f, 1f));
-        Effect effect = AnomalyClientConfig.Instance.EnableShaders ? AnomalyEffects.Overlays.SkeletronFinalCharge?.Asset.Value : null;
+        Effect effect = AnomalyClientConfig.Instance.EnableShaders ? SkeletronEffects.SkeletronFinalCharge?.Asset.Value : null;
         spriteBatch.End();
         if (effect is not null)
         {

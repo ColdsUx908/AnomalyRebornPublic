@@ -38,8 +38,7 @@ public sealed partial class LegendaryNightOverlay : CustomOverlay
         float intensity = phase2 ? Phase2Arena.Intensity : Arena?.Intensity ?? 0f;
         if (intensity <= 0f || !phase2 && (Arena is null || !Arena.Projectile.active))
         {
-            DrawImpactFlame(spriteBatch, phase2 ? Phase2Arena : null);
-            DrawCoinCircleImpacts(spriteBatch);
+            DrawCoinRadialImpacts(spriteBatch);
             DrawCoinCrossImpacts(spriteBatch);
 
             return;
@@ -56,16 +55,15 @@ public sealed partial class LegendaryNightOverlay : CustomOverlay
             DrawArenaEdge(spriteBatch);
             // 先铺发光底色，让攻击火焰的流纹和边缘在交叠时保持清晰。
             DrawMaterializedFill(spriteBatch);
-            DrawImpactFlame(spriteBatch, Phase2Arena);
+            DrawSlapFlame(spriteBatch, Phase2Arena);
             DrawMagicCircle(spriteBatch);
             LegendaryNightAttackDrawing.Draw(spriteBatch, Phase2Arena.MasterBehavior);
         }
         else
         {
-            DrawImpactFlame(spriteBatch, null);
             SkeletronArenaDrawing.DrawBoundary(spriteBatch, Arena.VisualPolygon, intensity);
         }
-        DrawCoinCircleImpacts(spriteBatch);
+        DrawCoinRadialImpacts(spriteBatch);
         DrawCoinCrossImpacts(spriteBatch);
 
     }

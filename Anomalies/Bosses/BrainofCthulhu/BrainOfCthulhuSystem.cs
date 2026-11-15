@@ -266,20 +266,20 @@ public class BrainOfCthulhuSystem : ModSystem
 
     public override void PostDrawTiles()
     {
-        if (Main.dedServ || AnomalyEffects.ScreenFilters.BrainOfCthulhuForcefield is null || AnomalyEffects.ScreenFilters.RadialBlur is null)
+        if (Main.dedServ || BrainofCthulhuEffects.BrainOfCthulhuForcefield is null || AnomalyCommonEffects.RadialBlur is null)
             return;
         if (Main.netMode != NetmodeID.Server)
         {
             if (!BrainBehaviorAccess.ActiveBrain || !AnomalySharedData.Anomaly || Main.npc[NPC.crimsonBoss].GetBrainBehavior().CurrentBehavior >= BrainofCthulhu.Behavior.Phase2TransitionClosed || !Main.npc[NPC.crimsonBoss].TryGetBrainBehavior(out BrainofCthulhu ai))
             {
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseOpacity(0);
-                if (Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].IsActive())
-                    Filters.Scene.Deactivate("Anomalies:BrainOfCthulhuForcefield");
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseOpacity(0);
+                if (Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].IsActive())
+                    Filters.Scene.Deactivate("Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield");
             }
             else
             {
-                if (!Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].IsActive())
-                    Filters.Scene.Activate("Anomalies:BrainOfCthulhuForcefield");
+                if (!Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].IsActive())
+                    Filters.Scene.Activate("Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield");
                 NPC target = Main.npc[NPC.crimsonBoss];
                 Vector2 targetPos = target.Center + target.netOffset;
                 float shieldOpacity = ai.ShieldOpacity;
@@ -287,47 +287,47 @@ public class BrainOfCthulhuSystem : ModSystem
                 targetPos = Vector2.Transform(targetPos - Main.screenPosition, Main.GameViewMatrix.ZoomMatrix) / Main.ScreenSize.ToVector2();
                 Texture2D voronoi = AnomalyTextures.Noise.Voronoi;
                 Texture2D depthNoise = AnomalyTextures.Noise.Vein2;
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uVoronoi"].SetValue(voronoi);
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uDepthNoise"].SetValue(depthNoise);
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uScreenResolution"].SetValue(new Vector2(Main.graphics.GraphicsDevice.Viewport.Width, Main.graphics.GraphicsDevice.Viewport.Height));
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseProgress(0.15f * shieldScale);
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseOpacity(shieldOpacity);
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseColor(Color.Red);
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseSecondaryColor(new Color(255, 0, 90)); //Crimson color (R:220,G:20,B:60,A:255). // Magenta color (R:255,G:0,B:255,A:255).
-                Filters.Scene["Anomalies:BrainOfCthulhuForcefield"].GetShader().UseDirection(targetPos);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uVoronoi"].SetValue(voronoi);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uDepthNoise"].SetValue(depthNoise);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().Shader.Parameters["uScreenResolution"].SetValue(new Vector2(Main.graphics.GraphicsDevice.Viewport.Width, Main.graphics.GraphicsDevice.Viewport.Height));
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseProgress(0.15f * shieldScale);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseOpacity(shieldOpacity);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseColor(Color.Red);
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseSecondaryColor(new Color(255, 0, 90)); //Crimson color (R:220,G:20,B:60,A:255). // Magenta color (R:255,G:0,B:255,A:255).
+                Filters.Scene["Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield"].GetShader().UseDirection(targetPos);
             }
 
             if (ScreenBlurStrength == 0f)
             {
-                Filters.Scene["Anomalies:RadialBlur"].GetShader().UseIntensity(0);
-                if (Filters.Scene["Anomalies:RadialBlur"].IsActive())
-                    Filters.Scene.Deactivate("Anomalies:RadialBlur");
+                Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().UseIntensity(0);
+                if (Filters.Scene["Anomalies:Common/RadialBlur"].IsActive())
+                    Filters.Scene.Deactivate("Anomalies:Common/RadialBlur");
                 return;
             }
 
             if (!BrainBehaviorAccess.ActiveBrain)
             {
-                ScreenBlurStrength = Filters.Scene["Anomalies:RadialBlur"].GetShader().Intensity * 0.9f;
-                Filters.Scene["Anomalies:RadialBlur"].GetShader().UseIntensity(ScreenBlurStrength);
+                ScreenBlurStrength = Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().Intensity * 0.9f;
+                Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().UseIntensity(ScreenBlurStrength);
                 if (ScreenBlurStrength < 0.01f)
                     ScreenBlurStrength = 0f;
                 return;
             }
 
-            if (Filters.Scene["Anomalies:RadialBlur"].IsLoaded)
+            if (Filters.Scene["Anomalies:Common/RadialBlur"].IsLoaded)
             {
-                if (!Filters.Scene["Anomalies:RadialBlur"].IsActive())
-                    Filters.Scene.Activate("Anomalies:RadialBlur");
+                if (!Filters.Scene["Anomalies:Common/RadialBlur"].IsActive())
+                    Filters.Scene.Activate("Anomalies:Common/RadialBlur");
                 NPC boss = Main.npc[NPC.crimsonBoss];
                 float counter = boss.ai[1] - boss.ai[2] - 240;
                 float distSQ = Main.LocalPlayer.DistanceSQ(boss.Center);
                 float distanceScaleFactor = 1;
                 if (distSQ > 592900) //770^2
                     distanceScaleFactor = 1 / (1 + (((float)Math.Sqrt(distSQ) - 770) / 32f));
-                Filters.Scene["Anomalies:RadialBlur"].GetShader().UseIntensity((ScreenBlurStrength + (((float)Math.Cos(counter * MathHelper.TwoPi / 15f) / 2f + 0.5f) * (0.4f * ScreenBlurStrength))) * distanceScaleFactor);
-                Filters.Scene["Anomalies:RadialBlur"].GetShader().Shader.Parameters["uSaturation"].SetValue(20);
+                Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().UseIntensity((ScreenBlurStrength + (((float)Math.Cos(counter * MathHelper.TwoPi / 15f) / 2f + 0.5f) * (0.4f * ScreenBlurStrength))) * distanceScaleFactor);
+                Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().Shader.Parameters["uSaturation"].SetValue(20);
                 Vector2 targetPos = Vector2.Transform(boss.Center - Main.screenPosition, Main.GameViewMatrix.ZoomMatrix) / Main.ScreenSize.ToVector2();
-                Filters.Scene["Anomalies:RadialBlur"].GetShader().UseDirection(targetPos);
+                Filters.Scene["Anomalies:Common/RadialBlur"].GetShader().UseDirection(targetPos);
             }
         }
     }
@@ -347,10 +347,10 @@ public class BrainOfCthulhuSystem : ModSystem
     {
         VerletTendrils = null;
         ScreenBlurStrength = 0f;
-        if (!Main.dedServ && AnomalyEffects.ScreenFilters.BrainOfCthulhuForcefield is not null)
+        if (!Main.dedServ && BrainofCthulhuEffects.BrainOfCthulhuForcefield is not null)
         {
-            Filters.Scene.Deactivate("Anomalies:BrainOfCthulhuForcefield");
-            Filters.Scene.Deactivate("Anomalies:RadialBlur");
+            Filters.Scene.Deactivate("Anomalies:BrainofCthulhu/BrainOfCthulhuForcefield");
+            Filters.Scene.Deactivate("Anomalies:Common/RadialBlur");
         }
     }
 

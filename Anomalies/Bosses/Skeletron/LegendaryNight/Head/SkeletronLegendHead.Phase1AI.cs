@@ -164,7 +164,7 @@ public sealed partial class SkeletronLegendHead
                     _ => 0
                 };
 
-                SoundEngine.PlaySound(SoundID.Item81, NPC.Center);
+                SoundEngine.PlaySound(SlimeMount.SummonSound, NPC.Center);
 
                 SlimeMount.SpawnSlimeMountDust(NPC.Center, 300, Vector2.Zero, d =>
                 {

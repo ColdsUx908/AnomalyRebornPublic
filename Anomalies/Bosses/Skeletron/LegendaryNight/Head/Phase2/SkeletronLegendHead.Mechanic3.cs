@@ -190,7 +190,7 @@ public sealed partial class SkeletronLegendHead
 
         void FireMounts(int count, float spacing, bool spin)
         {
-            SoundEngine.PlaySound(SoundID.Item81, NPC.Center);
+            SoundEngine.PlaySound(SlimeMount.SummonSound, NPC.Center);
             if (!TONetworkEnvironment.NotClient)
                 return;
             Projectile.NewProjectilesArc<SlimeMount>(count, spacing, SourceAI, NPC.Center,

@@ -160,14 +160,14 @@ Anomalies 不强依赖灾厄等可选模组。技能所需的外部贴图必须�
 - 突进期间通过玩家行为提供全伤害免疫，结束后再保留 10 帧，状态存入 `AnomalyPlayer.EventideReunionDeathProtection`。已有更长的无敌时间不被缩短。
 - 死亡残影的人物与矛使用不受环境光衰减的紫色扩散轮廓，人物本体保留最低紫色亮度，外发光随回收缩放与透明度同步减弱。绘制上下文只在单次死亡残影绘制期间启用并在 finally 中恢复，不影响真实玩家或其他技能残影；通过 PlayerBehavior 的 TransformDrawData 回调插入轮廓层，避免再次调用玩家渲染器造成重入。残影保存生成时的矛角度、缩放、人物方向、手臂姿态和身体帧，不读取真实矛之后的横斩方向。横斩开始后先保持原姿态 18 帧（0.3 秒），再按生成顺序间隔 10 帧回收：先用 8 帧平滑立矛，再用 20 帧加速移向玩家并缩小；每次回收在玩家处产生紫黑星光，最后一枚触发较大的爆发。回斩结束后仅保留 4 帧动作硬直，随后解除持矛、转向、手臂及攻击输入占用；普通攻击与选择轮盘统一通过 `IsBlockingActions` 判断，不能因残影载体弹幕仍存在而阻止操作。残影在后台继续回收，载体寿命由回收总时序推导（当前收招阶段保留 60 帧），确保三道残影全部回收并留出 8 帧余量；这段纯视觉寿命不再延长动作硬直。
 - 结束突进时朝首个穿过目标碰撞箱的最近部位锁定横斩方向，保证巨大或狭长目标也能进入斩击范围；目标失效时使用其最后记录的碰撞箱，未接触敌人时向突进后方回斩。方向及挥动符号随技能弹幕同步。
-- 横斩和同步释放的镰刀波共用 `EventideReunionDeathGeometry.SlashVector` 的近圆弧与轻微透视投影（半径 320、横向比例 0.92），武器姿态、弧面推进和伤害碰撞使用一致方向。回斩本体复用 `EventideReunionBladeTrail` 与 `EventideSweep` 的现有刀光材质、流纹和短拖尾，仅切换紫色调并沿挥动切线生成紫白星芒；共享着色器每次调用必须重设配色，避免影响普通攻击和 Sun。飞行镰刀波保持独立星空弧面，不使用原版死神镰刀贴图，使用本项目 `Assets/Effects/Primitives/EventideDeathSweep.fx/.xnb` 绘制明艳紫色亮刃和内部星空。参考 MEAC 永夜刃夜间 `Effects/Screen/Cosmic.fx` 的遮罩星空采样，将 `Images/Cosmic.png` 复制为本地 `Death/Starfield.png`；世界像素采样避免随屏幕比例或圆弧 UV 压扁星空，不需要启用 MEAC。
+- 横斩和同步释放的镰刀波共用 `EventideReunionDeathGeometry.SlashVector` 的近圆弧与轻微透视投影（半径 320、横向比例 0.92），武器姿态、弧面推进和伤害碰撞使用一致方向。回斩本体复用 `EventideReunionBladeTrail` 与 `EventideSweep` 的现有刀光材质、流纹和短拖尾，仅切换紫色调并沿挥动切线生成紫白星芒；共享着色器每次调用必须重设配色，避免影响普通攻击和 Sun。飞行镰刀波保持独立星空弧面，不使用原版死神镰刀贴图，使用本项目 `Assets/Effects/EventideReunion/EventideDeathSweep.fx` 与 `Assets/Effects_Compiled/EventideReunion/EventideDeathSweep.xnb` 绘制明艳紫色亮刃和内部星空。参考 MEAC 永夜刃夜间 `Effects/Screen/Cosmic.fx` 的遮罩星空采样，将 `Images/Cosmic.png` 复制为本地 `Death/Starfield.png`；世界像素采样避免随屏幕比例或圆弧 UV 压扁星空，不需要启用 MEAC。
 - 刀光两端、内侧和外缘使用平滑透明度过渡，星空随同一遮罩消失。飞行波沿前后两帧之间的世界轨迹补发紫色细长光点与白紫星屑，粒子脱离波体后向后缓慢漂移并自行消散；拖尾历史仅存于客户端，寿命末期同步减少发射并平滑淡出。
 - 镰刀波及突进、横斩伤害代理由单人端或服务器生成并拥有；伤害代理通过 `ProjectileNetReference` 记录技能的 owner + identity，不能跨端使用本地弹幕槽位。印记归属存入 `AnomalyGlobalNPC.EventideReunionDeathOwner`。服务器负责施加印记、斩杀及每次击杀唯一的灵魂生成，避免客户端重复结算。
 - 回斩和波在 `ModifyHitNPC` 中登记本次命中的临时归属 `EventideReunionDeathHitOwner`，并在 `OnHitNPC` 中清除。`OnKill` 先于命中后回调执行，直接击杀因此不依赖后续命中回调；分节目标同步登记共享生命根实体，但只有根实体死亡时生成一次治疗球。临时命中归属在结算后清除，持续治疗资格仅在字段印记有效时存在。
-- 标记 NPC 使用 `Assets/Effects/Primitives/EventideDeathMark.fx/.xnb` 在身体处以纯程序形状绘制深紫主体、冷紫刃缘及扩大的冷白亮芯的凹弧四角星与断裂封印环。星体及断环始终具有水平、竖直对称轴，不能用旋转角相位破坏对称；随时间平滑呼吸缩放并发光，亮芯增强但保留深紫外围。标记本身不在轴线上生成星芒；被标记 NPC 每 4 帧从自身中心放射 3 颗紫白星芒，方向覆盖整周并随机转动，生成后独立向外减速、旋转和渐隐，复用 Transoceanic 的 `GenericSparkle`。仅在字段计时有效时发射粒子，绘制保留平滑退场，大小按 NPC 尺寸限制，不引入额外网络视觉状态。
+- 标记 NPC 使用 `Assets/Effects/EventideReunion/EventideDeathMark.fx` 与 `Assets/Effects_Compiled/EventideReunion/EventideDeathMark.xnb` 在身体处以纯程序形状绘制深紫主体、冷紫刃缘及扩大的冷白亮芯的凹弧四角星与断裂封印环。星体及断环始终具有水平、竖直对称轴，不能用旋转角相位破坏对称；随时间平滑呼吸缩放并发光，亮芯增强但保留深紫外围。标记本身不在轴线上生成星芒；被标记 NPC 每 4 帧从自身中心放射 3 颗紫白星芒，方向覆盖整周并随机转动，生成后独立向外减速、旋转和渐隐，复用 Transoceanic 的 `GenericSparkle`。仅在字段计时有效时发射粒子，绘制保留平滑退场，大小按 NPC 尺寸限制，不引入额外网络视觉状态。
 - 印记目标生命严格低于 25% 才执行斩杀，排除 Boss 及其多节部件。带印记目标被击杀后，治疗灵魂归属于施加印记的玩家。灵魂保留原版幽魂粒子，但用独立追踪 AI，以玩家速度前馈加距离自适应速度追踪；路径碰撞检查防止高速越过玩家。所属客户端实际增加最多 5 点生命（不超过上限，遵循月噬限制），通过原版 `SpiritHeal` 消息同步治疗，并立即销毁灵魂以防重复结算。
 
-突进边缘暗屏使用 `Assets/Effects/Overlays/EventideDeathVignette.fx/.xnb` 的解析遮罩，屏幕中心透明，四边按屏幕高度统一尺度平滑变暗，进出阶段平滑淡入淡出；不再写入通用全屏 `DarknessIntensity`。
+突进边缘暗屏使用 `Assets/Effects/EventideReunion/EventideDeathVignette.fx` 与 `Assets/Effects_Compiled/EventideReunion/EventideDeathVignette.xnb` 的解析遮罩，屏幕中心透明，四边按屏幕高度统一尺度平滑变暗，进出阶段平滑淡入淡出；不再写入通用全屏 `DarknessIntensity`。
 
 `Validation/Tests/Anomalies/EventideReunion/Death/` 验证薄目标扫描、宽目标延长穿身、迟命中、空挥距离、地形阻挡、安全退回、96 像素间距、目标后方判定、残影回收顺序与加速缩小、扩大近圆弧与投影旋转一致性，以及静止和高速玩家、远距离传送后的灵魂追踪、治疗上限与月噬限制。
 
@@ -198,7 +198,7 @@ Anomalies 不强依赖灾厄等可选模组。技能所需的外部贴图必须�
 ### 轮回 / 死亡标记协同绘制
 
 - `EventideReunionMarkDrawing` 统一负责两种 NPC 标记的 PostDraw，在一次 SpriteBatch 中断内先绘制轮回齿轮、再绘制死亡四角星，避免行为加载顺序导致不同叠色。两个技能各自的标记行为仅管理机制，不重复绘制。
-- 轮回标记使用 `Assets/Effects/Primitives/EventideSamsaraMark.fx/.xnb`：十八枚平顶圆角轮齿、蓝紫/冷蓝刃缘、深靛齿体、反向交织因果线和从十二点钟顺时针消退的五秒计时内圈。圆心透明，不使用任何 Buff 图标；`SamsaraResonance.png` 仅供轮回共鸣 Buff 使用，结算特效也不引用此图标。
+- 轮回标记使用 `Assets/Effects/EventideReunion/EventideSamsaraMark.fx` 与 `Assets/Effects_Compiled/EventideReunion/EventideSamsaraMark.xnb`：十八枚平顶圆角轮齿、蓝紫/冷蓝刃缘、深靛齿体、反向交织因果线和从十二点钟顺时针消退的五秒计时内圈。圆心透明，不使用任何 Buff 图标；`SamsaraResonance.png` 仅供轮回共鸣 Buff 使用，结算特效也不引用此图标。
 - 两枚标记单独出现时保持各自尺寸；共存强度由平滑入退场计算，外齿轮最多扩大 15%，死亡星体最多缩小 20%，以形成外齿轮、内四角星的同心布局。两 shader 通过 `CompanionPresence` 收敛交叠光晕，死亡星体保持水平/竖直对称。死亡后的退场粒子接续共存时的实际尺寸和光晕参数。
 - 绘制参数每次调用显式重设，包括无伴随标记时的零值；GraphicsDevice 状态与 SpriteBatch 在 finally 中恢复。使用世界像素正方形网格和相同相机矩阵，长宽比变化不会压扁齿轮。shader 使用统一的 `Main / ps_3_0 / Technique1 / Pass0`，已生成对应 XNB。
 - `Validation/Tests/History/Eventide.MarkShaders/` 保存旧的隔离编译配置与 XNA 产物。当前预览通过 Validation/Tests/Anomalies/EventideReunion/ShaderRendering/Verify.ps1 加载部署的 XNB，比较不同时间、明暗背景下的轮回单标记、死亡单标记和共存效果。
@@ -249,7 +249,7 @@ Anomalies 不强依赖灾厄等可选模组。技能所需的外部贴图必须�
 
 ### 因果线顶点带及连接点
 
-- 因果线使用 `EventideReunionSamsaraThreadDrawing` 和 `Assets/Effects/Primitives/EventideSamsaraThread.fx/.xnb` 绘制连续顶点带，约 2.5 像素亮芯和轻微柔光；六线从实际矛尖汇合，沿后方约 220 像素逐渐展开，完整线束的基准间距为 8 像素。
+- 因果线使用 `EventideReunionSamsaraThreadDrawing` 和 `Assets/Effects/EventideReunion/EventideSamsaraThread.fx` 与 `Assets/Effects_Compiled/EventideReunion/EventideSamsaraThread.xnb` 绘制连续顶点带，约 2.5 像素亮芯和轻微柔光；六线从实际矛尖汇合，沿后方约 220 像素逐渐展开，完整线束的基准间距为 8 像素。
 - 参数细分采样后，末段小于 2 像素时合并到活动端点，保留精确矛尖而不积累近重合顶点。线束偏移法线使用前后各 6 像素弧长邻域，顶点带边缘法线使用前后各 3 像素邻域，不再直接依赖帧边界的两个近邻顶点。冻结后不再合并；回收只裁剪端点，尚未涉及的轨迹与边缘保持原样。
 - shader 使用导数抗锯齿、圆形端帽及沿端点衰减的外光，避免裸露四边形截面形成方块。StartDistance / EndDistance 每次显式设置为可见轨迹弧长边界，不用全局渐隐改变剩余轨迹。
 - TurnDuration 为 6 帧；以独立 512 子采样解析真实矛尖函数，无需额外推进 AI、伤害或标记计时。测试覆盖六帧终点精度、微短段合并、圆轨迹跨帧切线连续性和 shader 实际 GPU 亮芯/外光/透明边缘。

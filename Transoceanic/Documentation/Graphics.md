@@ -56,6 +56,8 @@ RenderTargetScope、SpriteBatchScope 用于局部保存和恢复状态；调用�
 
 ## Bloom 与像素精灵
 
+内置 Bloom 滤波 Pass 使用 Opaque 混合完整覆盖目标，调用方可显式设置 `BloomSettings.SkipFilterClear = true` 省略逐 Pass 的重复清屏。仅适用于完整写入目标且不使用 discard 的滤波 Effect；默认 false，公共 `Blur` 保持原清屏行为，捕获图层仍先清为透明。
+
 `LightweightBloom.Draw` 在当前视口捕获一个图层，使用半分辨率近光晕和可选的四分之一分辨率远光晕，再合成回原场景。`BloomSettings.Default` 的半径为最终画面像素的高斯标准差；相机缩放、世界半径和昼夜合成策略由内容侧换算，不由框架猜测。非有限/负半径按零处理，非正/非有限强度不合成对应光晕。
 
 ```csharp
@@ -69,7 +71,7 @@ LightweightBloom.Draw(spriteBatch, enabled ? bloomEffect : null, settings, () =>
 });
 ```
 
-热路径可以实现值类型 `IBloomLayer`，使用泛型 `Draw` 避免捕获委托；调用同步完成，不保留图层或纹理引用。框架不携带或自动加载辉光着色器，调用方须传入兼容的 Effect；Anomalies 通过 AnomalyEffects.Overlays.LightweightBloom 管理自身资源。调用方持有的 Effect 不会被释放。框架在卸载时释放自己的混合状态，独立宿主可调用 `ReleaseResources`。
+热路径可以实现值类型 `IBloomLayer`，使用泛型 `Draw` 避免捕获委托；调用同步完成，不保留图层或纹理引用。框架不携带或自动加载辉光着色器，调用方须传入兼容的 Effect；Anomalies 通过 AnomalyCommonEffects.LightweightBloom 管理自身资源。调用方持有的 Effect 不会被释放。框架在卸载时释放自己的混合状态，独立宿主可调用 `ReleaseResources`。
 
 所有入口须在图形主线程运行，SpriteBatch 必须未开始，输入资源属于同一设备且未释放。不能在回调中切换目标、重建设备或释放使用中的资源；无内容时不要调用。透明图层使用预乘 RGBA；`AdditiveBlend` 同时累加颜色与覆盖度。关闭效果、资产未加载或显式 Effect 为 null 时执行原图层，不租用捕获目标。
 

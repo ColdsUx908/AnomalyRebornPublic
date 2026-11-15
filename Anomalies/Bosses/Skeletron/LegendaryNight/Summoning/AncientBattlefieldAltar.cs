@@ -44,7 +44,7 @@ public sealed class AncientBattlefieldAltarItem : AnomalyModItem
 
     public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
     {
-        if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyEffects.Texts.LegendaryNightGold.Data
+        if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyCommonEffects.GoldText.Data
             .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
             .SetCustomParameter("uScreenRatio", TODrawUtils.ScreenRatio)
             .SetCustomParameter("uPosition", new Vector2(l.X, l.Y))

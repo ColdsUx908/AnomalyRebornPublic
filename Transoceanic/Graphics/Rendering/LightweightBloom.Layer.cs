@@ -73,9 +73,9 @@ public static partial class LightweightBloom
                 layer.Draw(spriteBatch);
                 if (new SpriteBatch_Publicizer(spriteBatch).beginCalled)
                     throw new InvalidOperationException("Bloom layers must end their SpriteBatch.");
-                Blur(spriteBatch, effect, source.Target, nearScratch.Target, near.Target, settings.NearRadius);
+                BlurCore(spriteBatch, effect, source.Target, nearScratch.Target, near.Target, settings.NearRadius, settings.SkipFilterClear);
                 if (settings.WideHalo)
-                    Blur(spriteBatch, effect, source.Target, farScratch.Target, far.Target, settings.FarRadius);
+                    BlurCore(spriteBatch, effect, source.Target, farScratch.Target, far.Target, settings.FarRadius, settings.SkipFilterClear);
                 device.SetRenderTargets(previous);
                 device.Viewport = viewport;
                 device.ScissorRectangle = scissor;

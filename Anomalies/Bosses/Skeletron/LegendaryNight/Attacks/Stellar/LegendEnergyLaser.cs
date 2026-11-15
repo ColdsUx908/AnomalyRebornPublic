@@ -174,8 +174,8 @@ public sealed class LegendEnergyLaser : AnomalyModProjectile
         // Radiance 的三次方蓄力、末段集中辉光及20帧光束衰减。
         float opacity = Math.Max(0.15f, progress * progress * progress + 0.25f * progress * (1f - progress)) * appear;
         float glow = progress > 0.33f ? MathF.Pow((progress - 0.33f) / 0.67f, 10f) * 2f : 0f;
-        AnomalyEffects.MiscShaderContainer shader = !AnomalyClientConfig.Instance.EnableShaders ? null
-            : firing ? AnomalyEffects.Primitives.LegendStellarLaser : AnomalyEffects.Primitives.LegendStellarLaserWarning;
+        MiscShaderContainer shader = !AnomalyClientConfig.Instance.EnableShaders ? null
+            : firing ? LegendaryNightEffects.LegendStellarLaser : LegendaryNightEffects.LegendStellarLaserWarning;
         Color beamColor = EffectiveBeamColor;
         Color color = beamColor;
         color.A = (byte)(beamColor.A * 190 / 255);

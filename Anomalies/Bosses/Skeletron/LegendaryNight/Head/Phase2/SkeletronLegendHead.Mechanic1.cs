@@ -151,7 +151,7 @@ public sealed partial class SkeletronLegendHead
         if (!Main.dedServ)
         {
             if (summonSlime)
-                SoundEngine.PlaySound(SoundID.Item81, NPC.Center);
+                SoundEngine.PlaySound(SlimeMount.SummonSound, NPC.Center);
             if (firePlatinumCoin)
                 SoundEngine.PlaySound(PlatinumCoin.UnlimitedTossSound, NPC.Center);
         }

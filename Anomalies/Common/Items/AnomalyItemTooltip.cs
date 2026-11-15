@@ -37,7 +37,7 @@ public sealed class AnomalyItemTooltip : AnomalyGlobalItemBehavior
         {
             if (item.rare == ModContent.RarityType<AnomalyRarity>())
             {
-                if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyEffects.Texts.AnomalyTitle.Data
+                if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyCommonEffects.AnomalyTitle.Data
                     .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
                     .SetCustomParameter("uScreenRatio", TODrawUtils.ScreenRatio)
                     .SetCustomParameter("uPosition", new Vector2(l.X, l.Y))
@@ -48,7 +48,7 @@ public sealed class AnomalyItemTooltip : AnomalyGlobalItemBehavior
             }
             else if (item.rare == ModContent.RarityType<AnomalyUltramundaneRarity>())
             {
-                if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyEffects.Texts.AnomalyUltramundaneTitle.Data
+                if (TODrawUtils.TryDrawItemNameWithCustomShader(line, l => AnomalyCommonEffects.AnomalyUltramundaneTitle.Data
                     .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
                     .SetCustomParameter("uScreenRatio", TODrawUtils.ScreenRatio)
                     .SetCustomParameter("uPosition", new Vector2(l.X, l.Y))

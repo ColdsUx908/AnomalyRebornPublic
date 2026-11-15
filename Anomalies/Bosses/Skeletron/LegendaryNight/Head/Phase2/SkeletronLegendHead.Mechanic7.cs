@@ -45,13 +45,13 @@ public sealed partial class SkeletronLegendHead
         /// <summary>最大速度倍率。</summary>
         public const float MaximumSpeedMultiplier = 7.5f;
         /// <summary>元素弹幕速度，以世界像素和游戏帧计量。</summary>
-        public const float ElementProjectileSpeed = 3.5f;
+        public const float ElementProjectileSpeed = 3f;
         /// <summary>激光数量。</summary>
         public const int LaserCount = 8;
         /// <summary>激光波次数量。</summary>
         public const int LaserWaveCount = 8;
         /// <summary>元素波次数量。</summary>
-        public const int ElementWaveCount = 43;
+        public const int ElementWaveCount = 57;
         // 各调用点独立定义，数值相同也不互相引用，便于单独调整时间轴。
         /// <summary>星体消散持续时间，单位为游戏帧。</summary>
         public const int StarDissipationDuration = 285;
@@ -84,15 +84,15 @@ public sealed partial class SkeletronLegendHead
         public static bool ShouldFireElementWave(int musicTime)
         {
             int age = musicTime - Mechanic7Timeline.AttackStartMusicTime;
-            // 每95帧均分3轮，整数帧偏移0、31、63；第43轮（最后一轮）落在攻击开始后的第1330帧。
-            return age >= 0 && age <= (ElementWaveCount - 1) * 95 / 3
-                && age % 95 is 0 or 31 or 63;
+            // 每95帧均分4轮，整数帧偏移0、23、47、71；第57轮（最后一轮）落在攻击开始后的第1330帧。
+            return age >= 0 && age <= (ElementWaveCount - 1) * 95 / 4
+                && age % 95 is 0 or 23 or 47 or 71;
         }
         /// <summary>元素圆半径，单位为世界像素。</summary>
         public const float CircleRadius = 100f;
         // 独立公转角速度；编号奇数顺时针，偶数逆时针。
         /// <summary>公转角速度。</summary>
-        public static ReadOnlySpan<float> RollingSpeeds => [0.002f, 0.003f, 0.0033f, 0.0025f, 0.0023f, 0.0037f, 0.0027f, 0.0035f];
+        public static ReadOnlySpan<float> RollingSpeeds => [0.003f, 0.004f, 0.0043f, 0.0035f, 0.0033f, 0.0047f, 0.0037f, 0.0045f];
         /// <summary>计算元素圆透明度。</summary>
         public static float CircleOpacity(int musicTime) => MathHelper.Clamp((musicTime - Mechanic7Timeline.CircleStartMusicTime) / (float)FadeDuration, 0f, 1f)
             * (1f - MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((musicTime - Mechanic7Timeline.ElementFadeOutStartMusicTime) / (float)FadeDuration, 0f, 1f)));

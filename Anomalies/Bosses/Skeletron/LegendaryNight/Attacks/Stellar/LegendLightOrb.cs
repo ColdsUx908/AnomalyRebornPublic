@@ -250,8 +250,8 @@ public sealed class LegendLightOrb : AnomalyModProjectile
 
         Vector2 position = Projectile.Center - Main.screenPosition;
         Vector2 drawScale = LightOrbDrawScale(age, EffectiveTravelDuration);
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Primitives.LegendStellarLightOrb : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarLightOrb : null;
         if (shader is null)
         {
             Texture2D circle = AnomalyTextures.Extra.BasicCircle;

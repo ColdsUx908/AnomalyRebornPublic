@@ -105,8 +105,8 @@ public sealed class EaterDistortionSystem : ModSystem
             batch.End();
             DrawCracks(device);
         }
-        if (AnomalyEffects.Overlays.EaterMetaballEdge is not AnomalyEffects.MiscShaderContainer edge
-            || AnomalyEffects.Overlays.EaterDistortionFog is null || AnomalyEffects.Overlays.EaterDistortionWinds is null)
+        if (EaterofWorldsEffects.EaterMetaballEdge is not MiscShaderContainer edge
+            || EaterofWorldsEffects.EaterDistortionFog is null || EaterofWorldsEffects.EaterDistortionWinds is null)
         {
             batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             batch.Draw(mask.Target, Vector2.Zero, EaterPortalAssets.Twilight * 0.65f);
@@ -205,7 +205,7 @@ public sealed class EaterDistortionSystem : ModSystem
 
     private static void DrawDistortionWinds_Foreground()
     {
-        Effect windsShader = AnomalyEffects.Overlays.EaterDistortionWinds.Asset.Value;
+        Effect windsShader = EaterofWorldsEffects.EaterDistortionWinds.Asset.Value;
 
         Vector2 screenSize = new(Main.screenWidth, Main.screenHeight);
         /* Screen UVs keep the original 16:9 scale at any viewport. */
@@ -260,7 +260,7 @@ public sealed class EaterDistortionSystem : ModSystem
 
     private static void DrawDistortionClouds_Foreground()
     {
-        Effect rollingCloudsShader = AnomalyEffects.Overlays.EaterDistortionFog.Asset.Value;
+        Effect rollingCloudsShader = EaterofWorldsEffects.EaterDistortionFog.Asset.Value;
         Texture2D cloudsTexture = AnomalyTextures.Noise.Cloud;
         Texture2D erosionTexture = AnomalyTextures.Noise.Harsh;
         Vector2 screenSize = new(Main.screenWidth, Main.screenHeight);

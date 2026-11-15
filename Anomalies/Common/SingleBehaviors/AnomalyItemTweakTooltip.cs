@@ -54,7 +54,7 @@ public sealed class AnomalyItemTweakTooltip : AnomalyGlobalItemBehavior, ILocali
                 using (spriteBatch.Scope(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp))
                 {
                     Vector2 keySize = font.MeasureString(Key) * baseScale;
-                    AnomalyEffects.Texts.AnomalyTitle.Data
+                    AnomalyCommonEffects.AnomalyTitle.Data
                         .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
                         .SetCustomParameter("uScreenRatio", TODrawUtils.ScreenRatio)
                         .SetCustomParameter("uPosition", baseDrawPosition)

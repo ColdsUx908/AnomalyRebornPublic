@@ -67,10 +67,10 @@ internal static class SkeletronArenaDrawing
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.None, Main.Rasterizer, null, Matrix.Identity);
 
             bool useShaders = AnomalyClientConfig.Instance.EnableShaders
-                && AnomalyEffects.Overlays.LegendaryNightArenaMist is not null
+                && SkeletronEffects.SkeletronArenaMist is not null
                 && AnomalyTextures.Noise._Wave is { IsLoaded: true };
             if (useShaders)
-                AnomalyEffects.Overlays.LegendaryNightArenaMist.Data
+                SkeletronEffects.SkeletronArenaMist.Data
                     .UseImage1(AnomalyTextures.Noise._Wave)
                     .SetCustomParameter("uScreenPosition", Main.screenPosition)
                     .SetCustomParameter("uInverseViewMatrix", Matrix.Invert(Main.GameViewMatrix.TransformationMatrix))
@@ -125,7 +125,7 @@ internal static class SkeletronArenaDrawing
     private static void DrawPolygonMist(SpriteBatch spriteBatch, Hexadecagon polygon, float intensity)
     {
         if (Main.dedServ || !AnomalyClientConfig.Instance.EnableShaders || polygon.CircumRadius <= 0f
-            || AnomalyEffects.Overlays.LegendaryNightArenaMist is not AnomalyEffects.MiscShaderContainer shader
+            || SkeletronEffects.SkeletronArenaMist is not MiscShaderContainer shader
             || AnomalyTextures.Noise._Wave is not Asset<Texture2D> { IsLoaded: true } noise)
             return;
 
@@ -150,7 +150,7 @@ internal static class SkeletronArenaDrawing
         // World-pixel geometry follows the same polygon as the bone boundary at every zoom.
         // Without shaders keep the bone boundary; never substitute an approximate interior mask.
         if (Main.dedServ || !AnomalyClientConfig.Instance.EnableShaders || polygon.CircumRadius <= 0f
-            || AnomalyEffects.Overlays.SkeletronArenaExterior is not AnomalyEffects.MiscShaderContainer shader)
+            || SkeletronEffects.SkeletronArenaExterior is not MiscShaderContainer shader)
             return;
 
         spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,

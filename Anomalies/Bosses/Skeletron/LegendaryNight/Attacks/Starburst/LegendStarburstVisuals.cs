@@ -9,11 +9,35 @@ internal static class LegendStarburstVisuals
 {
     public const int BlurDuration = 20;
     public const int ShakeDuration = 14;
-    internal static float CircleEmissionIntensity => 1f;
-    internal static float RingEmissionIntensity => 1f;
 
     /// <summary>Age 以伤害起始帧为零；InnerRadius 为零表示实心圆，SigilRadius 为交汇小法阵半径。</summary>
-    public readonly record struct Burst(Vector2 Center, float OuterRadius, float InnerRadius, float SigilRadius, float Age);
+    public readonly record struct Burst(Vector2 Center, float OuterRadius, float InnerRadius, float SigilRadius, float Age, float ShakeScale = 1f, float SustainDuration = 0f, float BlurScale = 1f);
+
+    /// <summary>只延长主体退场包络；入场、扩张、粒子运动与相机仍使用真实年龄。</summary>
+    public static float SustainAge(float age, float duration, float peakAge)
+    {
+        if (duration <= peakAge || age <= peakAge)
+            return age;
+        // 伤害窗口内保持峰值；窗口结束后以原速度的 75% 退场。
+        return peakAge + Math.Max(0f, age - duration) * 0.75f;
+    }
+
+    /// <summary>冲击反馈按规模和距离衰减；只重映射反馈时钟，不改变攻击本身。</summary>
+    public static bool TryCreateShockwaveFrame(Vector2 center, float radius, float distance, int age,
+        float strength, int duration, out Burst frame)
+    {
+        frame = default;
+        if (age < 0 || duration <= 0 || age >= duration || !float.IsFinite(radius) || radius <= 0f
+            || !float.IsFinite(distance) || distance < 0f || !float.IsFinite(strength) || strength <= 0f)
+            return false;
+        float proximity = 1f - Clamp((distance - radius * 0.3f) / Math.Max(1000f, radius * 1.5f));
+        float amplitude = strength * proximity;
+        if (amplitude <= 0f)
+            return false;
+        float pulseAge = age * BlurDuration / (float)duration;
+        frame = new(center, radius, 0f, 0f, pulseAge, amplitude, BlurScale: amplitude);
+        return true;
+    }
 
     public static float BlurStrength(float age) => age < 0f || age >= BlurDuration ? 0f
         : 0.12f * Smooth(Clamp(age / 1.5f)) * MathF.Pow(1f - age / BlurDuration, 2f);
@@ -36,17 +60,26 @@ internal static class LegendStarburstVisuals
     public static float Bell(float ratio, float rise) => ratio <= 0f || ratio >= 1f ? 0f
         : ratio < rise ? Smooth(ratio / rise) : MathF.Pow(1f - (ratio - rise) / (1f - rise), 1.6f);
 
-    public static LegendaryNightBloomSettings GetLegendaryNightBloomSettings(bool ring)
+    public static BloomSettings GetBloomSettings(float outerRadius, in WorldView2D view, bool dayTime, bool ring)
     {
-        // 三种爆炸共用屏幕像素核及一次本体合成；颜色光能由各自配方提供。
-        return LegendaryNightBloomSettings.Default with
+        // 保留两种设计半径和各自的运算顺序，避免提取公共逻辑时改变光晕校准。
+        const float OutputScale = 1.5f;
+        const float CircleCalibration = 1.1f;
+        float haloScale = ring
+            ? OutputScale * view.Scale * outerRadius / LegendStarburstRingVisuals.ReferenceRadius
+            : OutputScale * view.Scale * (outerRadius / LegendStarburstCircleVisuals.ReferenceRadius) / CircleCalibration;
+        BloomSettings defaults = BloomSettings.Default;
+        return WithBody(defaults with
         {
-            SourceIntensity = ring ? RingEmissionIntensity : CircleEmissionIntensity
-        };
+            NearRadius = defaults.NearRadius * haloScale,
+            FarRadius = defaults.FarRadius * haloScale
+        }, dayTime);
     }
 
     public static BloomSettings WithBody(BloomSettings settings, bool dayTime) => settings with
     {
+        // 内置柔光滤波完整覆盖目标，保留捕获清屏即可。
+        SkipFilterClear = true,
         AdditiveBody = !dayTime,
         BodyPasses = dayTime ? 2 : 1
     };

@@ -46,7 +46,7 @@ internal static class LegendaryNightElementBarrage
                 SoundStyle sound = (i / 2) switch
                 {
                     0 => SoundID.Item8,
-                    1 => SoundID.Item81,
+                    1 => SlimeMount.SummonSound,
                     2 => SoundID.Item9,
                     _ => PlatinumCoin.UnlimitedTossSound,
                 };

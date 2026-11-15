@@ -31,7 +31,7 @@ public sealed partial class LegendaryNightOverlay
                 else
                     circleRadius = Math.Max(circleRadius, frame.OuterRadius);
             }
-            if (!UseImpactFlame)
+            if (!UseSlapFlame)
                 DrawMechanic2HalfField(spriteBatch);
             for (int i = 0; i < 3; i++)
             {
@@ -59,9 +59,9 @@ public sealed partial class LegendaryNightOverlay
         LegendStarburstVisuals.Burst[] frames, int count, float circleRadius, float ringRadius)
     {
         Effect bloomEffect = !Main.dedServ && AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Overlays.LegendaryNightBloom?.Asset.Value : null;
+            ? AnomalyCommonEffects.LightweightBloom?.Asset.Value : null;
         bool bloom = bloomEffect is not null;
-        BlendState blend = bloom || !Main.dayTime ? LegendaryNightBloom.AdditiveBlend : BlendState.AlphaBlend;
+        BlendState blend = bloom || !Main.dayTime ? LightweightBloom.AdditiveBlend : BlendState.AlphaBlend;
         WorldView2D view = new(Main.screenPosition, Main.GameViewMatrix.TransformationMatrix,
             new Vector2(Main.screenWidth, Main.screenHeight));
         if (LegendStarburstCircleAssets.IsLoaded)
@@ -72,21 +72,21 @@ public sealed partial class LegendaryNightOverlay
                 // 预告星保留固定像素光晕，不跟随爆区放大。
                 BloomSettings settings = LegendStarburstVisuals.WithBody(BloomSettings.Default, Main.dayTime);
                 StarburstLayer layer = new(null, 0, warning, false, view, blend, textures, default, null);
-                LightweightBloom.Draw(spriteBatch, bloom ? AnomalyEffects.Overlays.LightweightBloom?.Asset.Value : null, settings, layer);
+                LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
             if (circleRadius > 0f)
             {
-                LegendaryNightBloomSettings settings = LegendStarburstVisuals.GetLegendaryNightBloomSettings(false);
+                BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(circleRadius, view, Main.dayTime, false);
                 StarburstLayer layer = new(frames, count, default, false, view, blend, textures, default, null);
-                LegendaryNightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
+                LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
             }
         }
         if (ringRadius > 0f && LegendStarburstRingAssets.IsLoaded)
         {
-            LegendaryNightBloomSettings settings = LegendStarburstVisuals.GetLegendaryNightBloomSettings(true);
+            BloomSettings settings = LegendStarburstVisuals.GetBloomSettings(ringRadius, view, Main.dayTime, true);
             StarburstLayer layer = new(frames, count, default, true, view, blend, default,
-                LegendStarburstRingAssets.Textures, AnomalyEffects.Overlays.LegendStarburstRingMark.Asset.Value);
-            LegendaryNightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
+                LegendStarburstRingAssets.Textures, LegendaryNightEffects.LegendStarburstRingMark.Asset.Value);
+            LightweightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
         }
     }
 
@@ -182,7 +182,7 @@ public sealed partial class LegendaryNightOverlay
         SkeletronLegendHead head = Phase2Arena.MasterBehavior;
         if (head is null
             || !AnomalyClientConfig.Instance.EnableShaders
-            || AnomalyEffects.Overlays.LegendaryNightArenaEdge is not AnomalyEffects.MiscShaderContainer shader
+            || LegendaryNightEffects.LegendaryNightArenaEdge is not MiscShaderContainer shader
             || AnomalyTextures.Noise._Wave2 is not Asset<Texture2D> { IsLoaded: true } noise)
             return;
         int age = head.Phase2MusicElapsedTime - SkeletronLegendHead.Mechanic2Timeline.StartMusicTime;

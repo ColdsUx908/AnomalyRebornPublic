@@ -169,7 +169,7 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
 
     public override void ApplyCustomMainBossBarShader(BossHealthBar newBar, SpriteBatch spriteBatch, Rectangle destinationRentangle)
     {
-        AnomalyEffects.BossBars.EaterofWorlds.Data
+        AnomalyBossBarEffects.EaterofWorlds.Data
             .UseImage1(AnomalyTextures.Noise._Smear)
             .UseImage2(AnomalyTextures.Noise._Vein)
             .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)

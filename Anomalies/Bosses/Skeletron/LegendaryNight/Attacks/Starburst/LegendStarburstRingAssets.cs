@@ -10,7 +10,7 @@ internal static class LegendStarburstRingAssets
 
     public static bool IsLoaded => !Main.dedServ && AnomalyClientConfig.Instance.EnableShaders
         && LegendStarburstCircleAssets.IsLoaded && _RingMarkGradient?.IsLoaded == true
-        && AnomalyEffects.Overlays.LegendStarburstRingMark?.Asset.IsLoaded == true;
+        && LegendaryNightEffects.LegendStarburstRingMark?.Asset.IsLoaded == true;
 
     public static LegendStarburstRingVisuals.Textures Textures
     {

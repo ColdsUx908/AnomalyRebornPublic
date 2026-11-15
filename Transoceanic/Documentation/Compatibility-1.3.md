@@ -48,3 +48,7 @@ Transoceanic 保持 side = NoSync。不需要 Ocean 同步的单端数学/视觉
 NPCScalingCompatibility 在原生内容 Load 中调用 TONPCUtils.ValidateHostCompatibility，提前检查 NPC 私有缩放方法的完整签名、唯一的静态四参数缩放钩子及动态委托生成。失败中止加载，异常包含宿主程序集版本、目标方法与内部原因，不静默使用错误倍率。
 
 该检查只验证当前所依赖的结构，不证明任意 tML 版本的血量算法语义一致。升级宿主后必须重审专家倍率计算流程；离线测试同时检查实际宿主结构及被破坏的 IL，真实钩子链与战斗行为仍需另行验证。
+
+## Bloom 清屏优化选项
+
+`BloomSettings.SkipFilterClear` 为默认 false 的新增选项；仅在滤波 Effect 完整写入目标且不使用 discard 时可设置 true。默认 Draw 与公共 Blur 保持原清屏行为。BloomSettings 是值类型，增加该成员后应重新编译框架消费方，不承诺与旧 DLL 混用结构布局。

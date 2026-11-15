@@ -20,10 +20,22 @@ internal static class LegendStarburstRingVisuals
 
     public readonly record struct Textures(Texture2D Gradient, Texture2D ShotLine,
         Texture2D GlowDot, Texture2D Star4, Texture2D StarFlare);
-    private readonly record struct Pop(float Angle, float Radius, float Delay, float Life, float Size, float Rotation);
-    private readonly record struct Spark(float Angle, float Radius, float Travel, float Delay, float Life, float Size, bool Star, float Rotation);
-    private readonly record struct OuterStar(float Angle, float Radius, float Size, float Delay);
-    private readonly record struct Linger(float Angle, float Radius, float Life, float Size, bool Big, float Rotation);
+    private readonly record struct Pop(float Angle, float Radius, float Delay, float Life, float Size, float Rotation)
+    {
+        public Vector2 UnitDirection { get; } = Direction(Angle);
+    }
+    private readonly record struct Spark(float Angle, float Radius, float Travel, float Delay, float Life, float Size, bool Star, float Rotation)
+    {
+        public Vector2 UnitDirection { get; } = Direction(Angle);
+    }
+    private readonly record struct OuterStar(float Angle, float Radius, float Size, float Delay)
+    {
+        public Vector2 UnitDirection { get; } = Direction(Angle);
+    }
+    private readonly record struct Linger(float Angle, float Radius, float Life, float Size, bool Big, float Rotation)
+    {
+        public Vector2 UnitDirection { get; } = Direction(Angle);
+    }
     private static readonly Pop[] _Pops;
     private static readonly Spark[] _Sparks;
     private static readonly OuterStar[] _OuterStars;
@@ -64,6 +76,7 @@ internal static class LegendStarburstRingVisuals
         if (!IsVisible(burst.Age) || burst.OuterRadius <= burst.InnerRadius || burst.InnerRadius <= 0f)
             return;
         float age = burst.Age;
+        float sustainDuration = burst.SustainDuration;
         float scale = burst.OuterRadius / ReferenceRadius;
         float inner = burst.InnerRadius / scale;
         float band = ReferenceRadius - inner;
@@ -88,7 +101,7 @@ internal static class LegendStarburstRingVisuals
         effect.Parameters["uScale"].SetValue(scale);
         effect.Parameters["uInnerRadius"].SetValue(inner);
         effect.Parameters["uFront"].SetValue(front);
-        effect.Parameters["uBody"].SetValue(Bell(Clamp(age / 34f), 0.08f));
+        effect.Parameters["uBody"].SetValue(Bell(Clamp(SustainAge(age, sustainDuration, 34f * 0.08f) / 34f), 0.08f));
         effect.Parameters["uBoundaryRadius"].SetValue(boundary);
         effect.Parameters["uBoundaryOpacity"].SetValue(innerAlpha * (0.8f + 1.5f * flash));
         effect.Parameters["uBoundaryAlpha"].SetValue(Clamp(innerAlpha * (0.8f + 1.5f * flash)));
@@ -152,7 +165,7 @@ internal static class LegendStarburstRingVisuals
         }
         void DrawFront()
         {
-            float alpha = Smooth(Clamp(age / 2f)) * MathF.Pow(1f - Clamp((age - 12f) / 18f), 1.5f);
+            float alpha = Smooth(Clamp(age / 2f)) * MathF.Pow(1f - Clamp((SustainAge(age, sustainDuration, 12f) - 12f) / 18f), 1.5f);
             const int Segments = 52;
             for (int i = 0; i < Segments; i++)
             {
@@ -167,7 +180,7 @@ internal static class LegendStarburstRingVisuals
                 if (a < 0f || a > 24f)
                     continue;
                 float t = a / 24f;
-                Vector2 position = Direction(star.Angle) * (ReferenceRadius * (star.Radius + 0.06f * t));
+                Vector2 position = star.UnitDirection * (ReferenceRadius * (star.Radius + 0.06f * t));
                 position.Y -= 8f * t;
                 Glow(images.Star4, _Light, position, star.Size, 0f, 1.5f * Bell(t, 0.2f));
             }
@@ -182,7 +195,7 @@ internal static class LegendStarburstRingVisuals
                 float t = a / pop.Life;
                 float k = Bell(t, 0.12f);
                 float radius = inner + band * pop.Radius;
-                Vector2 direction = Direction(pop.Angle);
+                Vector2 direction = pop.UnitDirection;
                 Vector2 position = direction * radius;
                 float size = (36f + 34f * (1f - pop.Radius)) * pop.Size * (0.7f + 0.5f * OutCubic(t));
                 Glow(images.GlowDot, _Gold, position, size * 0.9f, 0f, 1.3f * k);
@@ -200,7 +213,7 @@ internal static class LegendStarburstRingVisuals
                     continue;
                 float t = a / spark.Life;
                 float radius = inner + band * spark.Radius + band * spark.Travel * OutQuart(t);
-                Vector2 direction = Direction(spark.Angle);
+                Vector2 direction = spark.UnitDirection;
                 Vector2 position = direction * radius;
                 position.Y += 26f * t * t;
                 float k = MathF.Pow(1f - t, 1.2f);
@@ -224,7 +237,7 @@ internal static class LegendStarburstRingVisuals
                     continue;
                 float t = a / star.Life;
                 float k = Bell(t, 0.15f) * (0.7f + 0.3f * MathF.Sin(a * 0.5f + star.Angle * 3f));
-                Vector2 position = Direction(star.Angle) * (inner + band * star.Radius);
+                Vector2 position = star.UnitDirection * (inner + band * star.Radius);
                 position.Y -= 10f * t;
                 if (star.Big)
                     Star(position, star.Size * 3f, star.Rotation, 1.5f * k, 0.45f);

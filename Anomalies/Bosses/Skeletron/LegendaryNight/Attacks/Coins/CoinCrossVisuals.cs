@@ -10,17 +10,16 @@ internal static class CoinCrossVisuals
 {
     public const int EndAge = 72;
     public const int PeakAge = 8;
+    public const int WarningHandoffAge = 5;
     public const float ReferenceWidth = 120f;
     // 使用属性方法体，便于热重载；束身、发射口和延迟收束范围共用宽度倍率。
-    internal static float VisualWidthMultiplier => 2.3f;
+    internal static float VisualWidthMultiplier => 2.65f;
     // 统一调整星点尺寸和拖尾粗细，不改变发射位置、飞行速度及尾迹长度。
     internal static float ParticleSizeMultiplier => 2f;
     // 每帧读取倍率；同步作用于轴向位移、历史尾迹和预计离场时间。
     internal static float ParticleSpeedMultiplier => 2f;
-    // 只乘粒子的 RGB 光能，Alpha 仍由寿命控制；超过 1 的颜色交给统一 HDR Bloom。
+    // 仅调整粒子 RGB；颜色在普通 Color 渲染目标中饱和，Alpha 仍由寿命控制。
     internal static float ParticleColorIntensity => 2f;
-    private static readonly Color _StarColor = new(132, 111, 58);
-    private static readonly Color _TailColor = new(62, 42, 12);
     private static readonly Star[] _Stars = new Star[400];
     // 只缓存确定性配方，不持有实体、时钟或网络状态。
     private static readonly float[] _StarEnds = new float[400];
@@ -32,7 +31,7 @@ internal static class CoinCrossVisuals
     public readonly record struct Textures(Texture2D Outer, Texture2D Flow, Texture2D Streak,
         Texture2D Warp, Texture2D Star, Texture2D Tail, Texture2D ShotLine);
     // Width 是原伤害判定的完整世界宽度；视觉宽度另乘 VisualWidthMultiplier。
-    public readonly record struct Frame(Vector2 Center, float Width, float Length, float Rotation, float Age);
+    public readonly record struct Frame(Vector2 Center, float Width, float Length, float Rotation, float Age, int CoinType = 1);
     internal readonly record struct StarState(Vector2 Position, Vector2 Tail, float Velocity,
         float Size, float Opacity, bool Bright);
     private readonly record struct Star(float X, float Y, float Speed, float Phase, float Size,
@@ -49,6 +48,8 @@ internal static class CoinCrossVisuals
                 (float)(1 + 45 * ((i * 0.75487766625 + 0.13) % 1)), Lerp(26f, 38f, random.NextSingle()));
     }
 
+    public static bool CoversWarning(float age) => age >= WarningHandoffAge;
+
     public static bool IsVisible(float age) => age > 0f && age < EndAge;
 
     public static float Envelope(float age) => !IsVisible(age) ? 0f : age < PeakAge ? OutCubic(age / PeakAge)
@@ -59,17 +60,49 @@ internal static class CoinCrossVisuals
     internal static float Expansion(float age) => Lerp(0.78f, 1f, OutCubic(Clamp(age / 6f)));
     internal static int StarCount(float length) => Math.Clamp((int)MathF.Ceiling(length / 24f), 32, _Stars.Length);
 
-    public static void Draw(SpriteBatch batch, Effect body, in Textures textures,
+    public static void Draw(SpriteBatch batch, Effect body, Effect particles, in Textures textures,
         in WorldView2D view, in Frame frame, BlendState blend)
     {
         if (!IsVisible(frame.Age) || frame.Width <= 0f || frame.Length <= 0f)
             return;
+        CoinJudgmentPalette palette = CoinJudgmentPalette.For(frame.CoinType);
         float scale = frame.Width / ReferenceWidth;
         float referenceLength = frame.Length / scale;
         float length = referenceLength * Expansion(frame.Age);
         float envelope = VisualEnvelope(frame.Age);
         Vector2 center = frame.Center - view.ScreenPosition;
         EnsureStarEnds(referenceLength);
+        int starCount = StarCount(frame.Length);
+        Span<StarState> states = stackalloc StarState[starCount];
+        for (int i = 0; i < starCount; i++)
+        {
+            Star star = _Stars[i];
+            float elapsed = frame.Age - star.Born;
+            states[i] = elapsed <= 0f || elapsed >= star.Life
+                ? default : CalculateStarState(i, frame.Age, referenceLength);
+        }
+        float pulseTime = (frame.Age - 3f) / 3.4f;
+        float pulse = 1f + 2.2f * MathF.Exp(-pulseTime * pulseTime);
+        float colorIntensity = float.IsFinite(ParticleColorIntensity) ? Math.Max(0f, ParticleColorIntensity) : 0f;
+        if (body is not null && frame.Age < 64f)
+        {
+            body.Parameters["uOuter"].SetValue(textures.Outer);
+            body.Parameters["uFlow"].SetValue(textures.Flow);
+            body.Parameters["uStreak"].SetValue(textures.Streak);
+            body.Parameters["uNoise"].SetValue(textures.Warp);
+            body.Parameters["uTime"].SetValue(frame.Age);
+            // 在 CPU 计算时间包络，兼容项目的 XNA effect preshader 编译器。
+            body.Parameters["uRise"].SetValue(Smooth(Clamp(frame.Age / 2f)));
+            body.Parameters["uThin"].SetValue(Smooth(Clamp((frame.Age - 24f) / 20f)));
+            body.Parameters["uRelease"].SetValue(Smooth(Clamp((frame.Age - 38f) / 26f)));
+            body.Parameters["uLength"].SetValue(length);
+            body.Parameters["uPulse"].SetValue(pulse);
+            body.Parameters["uShade"].SetValue(palette.Shade.ToVector3());
+            body.Parameters["uColor"].SetValue(palette.Body.ToVector3());
+            body.Parameters["uLight"].SetValue(palette.Light.ToVector3());
+        }
+        if (particles is not null)
+            particles.Parameters["uIntensity"].SetValue(colorIntensity * pulse);
         for (int beam = 0; beam < 2; beam++)
         {
             float rotation = frame.Rotation + beam * MathHelper.PiOver2;
@@ -77,16 +110,6 @@ internal static class CoinCrossVisuals
                 * Matrix.CreateTranslation(center.X, center.Y, 0f) * view.Transform;
             if (body is not null && frame.Age < 64f)
             {
-                body.Parameters["uOuter"].SetValue(textures.Outer);
-                body.Parameters["uFlow"].SetValue(textures.Flow);
-                body.Parameters["uStreak"].SetValue(textures.Streak);
-                body.Parameters["uNoise"].SetValue(textures.Warp);
-                body.Parameters["uTime"].SetValue(frame.Age);
-                // 在 CPU 计算时间包络，兼容项目的 XNA effect preshader 编译器。
-                body.Parameters["uRise"].SetValue(Smooth(Clamp(frame.Age / 2f)));
-                body.Parameters["uThin"].SetValue(Smooth(Clamp((frame.Age - 24f) / 20f)));
-                body.Parameters["uRelease"].SetValue(Smooth(Clamp((frame.Age - 38f) / 26f)));
-                body.Parameters["uLength"].SetValue(length);
                 batch.Begin(SpriteSortMode.Immediate, blend, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, local);
                 body.CurrentTechnique.Passes["Pass0"].Apply();
@@ -100,36 +123,32 @@ internal static class CoinCrossVisuals
                     DepthStencilState.None, RasterizerState.CullNone, null, local);
                 float opacity = Smooth(Clamp(frame.Age / 2f)) * (1f - Smooth(Clamp((frame.Age - 38f) / 26f)));
                 SpriteDrawing.DrawSized(batch, textures.ShotLine, Vector2.Zero,
-                    new Vector2(length, ReferenceWidth * envelope), new Color(255, 205, 70), opacity: opacity);
+                    new Vector2(length, ReferenceWidth * envelope), palette.Light, opacity: opacity);
                 batch.End();
             }
-            float colorIntensity = float.IsFinite(ParticleColorIntensity) ? Math.Max(0f, ParticleColorIntensity) : 0f;
             if (colorIntensity <= 0f)
                 continue;
-            batch.Begin(SpriteSortMode.Immediate, blend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, local);
-            if (body is not null)
+            // 单 Pass 粒子 Effect 交由 SpriteBatch 批量提交，避免每颗粒子独立 DrawCall。
+            batch.Begin(particles is not null && ReferenceEquals(blend, LightweightBloom.AdditiveBlend)
+                ? SpriteSortMode.Texture : SpriteSortMode.Deferred, blend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, particles, local);
+            for (int i = 0; i < starCount; i++)
             {
-                body.Parameters["uParticleColorIntensity"].SetValue(colorIntensity);
-                body.CurrentTechnique.Passes["Particles"].Apply();
-            }
-            for (int i = 0; i < StarCount(frame.Length); i++)
-            {
-                StarState state = GetStarState(i, frame.Age, referenceLength);
+                StarState state = states[i];
                 if (state.Opacity <= 0.002f)
                     continue;
                 DrawParticle(textures.Tail, (state.Position + state.Tail) * 0.5f,
                     new Vector2(Vector2.Distance(state.Position, state.Tail), state.Size * 0.16f),
-                    _TailColor, state.Velocity < 0f ? MathHelper.Pi : 0f, state.Opacity * 0.75f);
+                    palette.Body * 0.45f, state.Velocity < 0f ? MathHelper.Pi : 0f, state.Opacity * 0.75f);
                 float size = state.Size * (state.Bright ? 4f : 2.8f);
                 DrawParticle(textures.Star, state.Position, new Vector2(size),
-                    _StarColor, 0f, state.Opacity);
+                    palette.Spark, 0f, state.Opacity);
             }
             batch.End();
 
             void DrawParticle(Texture2D texture, Vector2 position, Vector2 size, Color color, float angle, float opacity)
             {
-                if (body is not null)
+                if (particles is not null)
                     SpriteDrawing.DrawSized(batch, texture, position, size, color, angle, opacity);
                 else
                     SpriteDrawing.DrawGlow(batch, texture, position, size, color, angle,
@@ -141,6 +160,11 @@ internal static class CoinCrossVisuals
     internal static StarState GetStarState(int index, float age, float referenceLength)
     {
         EnsureStarEnds(referenceLength);
+        return CalculateStarState(index, age, referenceLength);
+    }
+
+    private static StarState CalculateStarState(int index, float age, float referenceLength)
+    {
         Star star = _Stars[index];
         float elapsed = age - star.Born;
         float velocity = (star.X < 0f ? -1f : 1f) * star.Speed * ParticleSpeed;
@@ -203,19 +227,31 @@ internal static class CoinCrossVisuals
         }
     }
 
+    [System.Runtime.CompilerServices.InlineArray(7)]
+    private struct TextureBindings
+    {
+        private Texture _Element;
+    }
+
+    [System.Runtime.CompilerServices.InlineArray(7)]
+    private struct SamplerBindings
+    {
+        private SamplerState _Element;
+    }
+
     internal readonly struct DrawingBindings : IDisposable
     {
         private readonly GraphicsDevice _Device;
-        private readonly Texture[] _Textures;
-        private readonly SamplerState[] _Samplers;
+        private readonly TextureBindings _Textures;
+        private readonly SamplerBindings _Samplers;
         private readonly VertexBufferBinding[] _Vertices;
         private readonly IndexBuffer _Indices;
 
         public DrawingBindings(GraphicsDevice device)
         {
             _Device = device;
-            _Textures = new Texture[7];
-            _Samplers = new SamplerState[7];
+            _Textures = default;
+            _Samplers = default;
             for (int slot = 0; slot < 7; slot++)
             {
                 _Textures[slot] = device.Textures[slot];

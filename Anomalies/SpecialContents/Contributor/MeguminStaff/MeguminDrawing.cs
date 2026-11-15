@@ -11,13 +11,13 @@ internal static class MeguminDrawing
         if (opacity <= 0f)
             return;
         Texture2D noise = AnomalyTextures.Noise.Turbulence;
-        if (AnomalyClientConfig.Instance.EnableShaders && AnomalyEffects.Primitives.MeguminCircle is not null)
+        if (AnomalyClientConfig.Instance.EnableShaders && MeguminStaffEffects.MeguminCircle is not null)
         {
             // The shader emits premultiplied light with zero alpha, so AlphaBlend adds it without dimming the background.
             using (Main.spriteBatch.Scope(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, transformMatrix: Main.GameViewMatrix.TransformationMatrix, effectIsNull: true))
             {
-                AnomalyEffects.Primitives.MeguminCircle.Data.SetCustomParameter("uFlowTime", time)
+                MeguminStaffEffects.MeguminCircle.Data.SetCustomParameter("uFlowTime", time)
                     .SetCustomParameter("uBrightness", (float)CircleBrightness).Apply();
                 Main.spriteBatch.Draw(noise, center - Main.screenPosition, null, color * opacity, rotation,
                     noise.Size() * 0.5f, size / noise.Size(), SpriteEffects.None, 0f);
@@ -53,13 +53,13 @@ internal static class MeguminDrawing
         float width = 540f * (0.16f + power * 0.84f);
         float length = bottom.Y - top.Y;
         Texture2D noise = AnomalyTextures.Noise.Turbulence;
-        bool useShader = AnomalyClientConfig.Instance.EnableShaders && AnomalyEffects.Primitives.MeguminLaser is not null;
+        bool useShader = AnomalyClientConfig.Instance.EnableShaders && MeguminStaffEffects.MeguminLaser is not null;
         if (useShader)
         {
             using (Main.spriteBatch.Scope(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, transformMatrix: Main.GameViewMatrix.TransformationMatrix, effectIsNull: true))
             {
-                AnomalyEffects.Primitives.MeguminLaser.Data.UseImage1(AnomalyTextures.Noise._Perlin)
+                MeguminStaffEffects.MeguminLaser.Data.UseImage1(AnomalyTextures.Noise._Perlin)
                     .SetCustomParameter("uFlowTime", time)
                     .SetCustomParameter("uBeamTop", top.Y / 2400f)
                     .SetCustomParameter("uBeamSpan", length / 2400f).Apply();

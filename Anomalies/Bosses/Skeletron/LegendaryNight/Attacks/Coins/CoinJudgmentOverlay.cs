@@ -15,14 +15,9 @@ public sealed class CoinJudgmentOverlay : CustomOverlay
         {
             if (projectile.ModProjectile is not CoinJudgment judgment)
                 continue;
-            // 中心圆形审判由场地 Overlay 在法阵上方绘制完整星爆。
-            if (judgment.UsesCircleVisuals)
-                continue;
             float boundaryOpacity = judgment.BoundaryOpacity;
             float warningOpacity = judgment.WarningOverlayOpacity;
-            float impactOpacity = judgment.UsesCrossVisuals ? 0f : judgment.OverlayOpacity;
-            if (impactOpacity > 0f && LegendaryNightOverlay.UseImpactFlame)
-                continue;
+            float impactOpacity = judgment.UsesCrossVisuals || judgment.UsesRadialVisuals ? 0f : judgment.OverlayOpacity;
             if (warningOpacity <= 0f && impactOpacity <= 0f)
             {
                 if (boundaryOpacity > 0f)
@@ -39,9 +34,9 @@ public sealed class CoinJudgmentOverlay : CustomOverlay
                 DepthStencilState.None, Main.Rasterizer, null, Matrix.Identity);
             // 两个阶段共用同一张形状遮罩，确保红色预警与命中范围完全重合。
             if (warningOpacity > 0f)
-                spriteBatch.Draw(lease.Target, Vector2.Zero, new Color(255, 120, 120) * warningOpacity);
+                spriteBatch.Draw(lease.Target, Vector2.Zero, CoinJudgmentPalette.For((int)projectile.ai[0]).Body * warningOpacity);
             if (impactOpacity > 0f)
-                spriteBatch.Draw(lease.Target, Vector2.Zero, new Color(234, 154, 54) * (impactOpacity * 0.45f));
+                spriteBatch.Draw(lease.Target, Vector2.Zero, CoinJudgmentPalette.For((int)projectile.ai[0]).Body * (impactOpacity * 0.45f));
             spriteBatch.End();
             // 边界画在遮罩上方，保持币色，并与遮罩同步淡出。
             if (boundaryOpacity > 0f)

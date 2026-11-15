@@ -170,13 +170,7 @@ public sealed class CoinRoulette : AnomalyModProjectile
         }
         _LastVisualCoinType = coinType;
     }
-    public static Color GetCoinColor(int coinType) => coinType switch
-    {
-        0 => new Color(210, 120, 65),
-        1 => new Color(190, 205, 220),
-        2 => LegendaryNightHandler.StarColor,
-        _ => LegendaryNightHandler.PlatinumColor
-    };
+    public static Color GetCoinColor(int coinType) => CoinJudgmentPalette.For(coinType).Body;
 
     private void ReleaseCoinParticles(int coinType, int count, float maxSpeed)
     {

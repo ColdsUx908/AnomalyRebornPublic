@@ -45,8 +45,8 @@ public sealed partial class LegendEnergySphere
         Texture2D bloom = ParticleHandler.GetTexture<BloomParticle>();
         spriteBatch.DrawFromCenter(bloom, center, null, (blue ? new Color(90, 140, 255, 0) : new Color(255, 190, 20, 0)) * opacity * (1f - photosphere) * 0.16f,
             scale: radius * 5f / bloom.Width);
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Overlays.LegendStellarSphere : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarSphere : null;
         if (shader is null)
         {
             Texture2D body = AnomalyTextures.Extra.BasicCircleLarge;
@@ -104,8 +104,8 @@ public sealed partial class LegendEnergySphere
         if (photosphere >= 1f)
             return;
         float flash = blue ? 0f : CoreFlash;
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Overlays.LegendStellarSphere : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarSphere : null;
         if (shader is null)
         {
             Texture2D bloom = ParticleHandler.GetTexture<BloomParticle>();

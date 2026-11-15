@@ -414,7 +414,7 @@ public sealed partial class QueenBee : AnomalyNPCBehavior<QueenBee>
 
     public override void ApplyCustomMainBossBarShader(BossHealthBar newBar, SpriteBatch spriteBatch, Rectangle destinationRentangle)
     {
-        AnomalyEffects.BossBars.QueenBee.Data
+        AnomalyBossBarEffects.QueenBee.Data
             .UseImage1(AnomalyTextures.Noise._Milky)
             .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
             .SetCustomParameter("uPosition", destinationRentangle.TopLeft())

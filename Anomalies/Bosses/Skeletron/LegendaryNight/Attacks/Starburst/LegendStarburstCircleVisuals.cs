@@ -30,12 +30,25 @@ internal static class LegendStarburstCircleVisuals
     public readonly record struct Textures(Texture2D GlowDot, Texture2D Star4, Texture2D StarFlare,
         Texture2D ShotLine, Texture2D ExplosionDisc, Texture2D ShockShell, Texture2D WarningFlare, Texture2D SparkTail);
 
-    private readonly record struct Ray(float Angle, float Length, float Delay, float Life, float Width);
+    private readonly record struct Ray(float Angle, float Length, float Delay, float Life, float Width)
+    {
+        public Vector2 Direction { get; } = new(MathF.Cos(Angle), MathF.Sin(Angle));
+    }
     private readonly record struct Spark(float Angle, float Distance, float Delay, float Life, float Size,
-        bool Star, float Rotation, float Spin);
+        bool Star, float Rotation, float Spin)
+    {
+        public float TravelScale { get; } = StarTravelScale(Distance + 30f, Size * (Star ? 2.2f : 2.6f));
+        public Vector2 Direction { get; } = new(MathF.Cos(Angle), MathF.Sin(Angle));
+    }
     private readonly record struct Twinkle(float Angle, float Radius, float Life, float Size, float Rotation,
-        bool Big, float Drift, float Born, float TravelScale);
-    private readonly record struct RimStar(float Angle, float Distance, float Size, float Delay);
+        bool Big, float Drift, float Born, float TravelScale)
+    {
+        public Vector2 Direction { get; } = new(MathF.Cos(Angle), MathF.Sin(Angle));
+    }
+    private readonly record struct RimStar(float Angle, float Distance, float Size, float Delay)
+    {
+        public Vector2 Direction { get; } = new(MathF.Cos(Angle), MathF.Sin(Angle));
+    }
 
     private static readonly Ray[] _Rays = MakeRays();
     private static readonly Spark[] _Sparks = MakeSparks();
@@ -60,6 +73,7 @@ internal static class LegendStarburstCircleVisuals
         float scale = burst.OuterRadius / ReferenceRadius;
         Vector2 center = burst.Center - view.ScreenPosition;
         float age = burst.Age;
+        float sustainDuration = burst.SustainDuration;
         Textures images = textures;
         batch.Begin(SpriteSortMode.Deferred, blend, SamplerState.LinearClamp,
             DepthStencilState.None, RasterizerState.CullNone, null, view.Transform);
@@ -104,13 +118,13 @@ internal static class LegendStarburstCircleVisuals
         }
         void DrawAoe()
         {
-            if (age > 40f)
+            if (SustainAge(age, sustainDuration, 30f * 0.08f) > 40f)
                 return;
             float radius = ReferenceRadius * Expansion(age);
-            float body = Bell(Clamp(age / 30f), 0.08f);
+            float body = Bell(Clamp(SustainAge(age, sustainDuration, 30f * 0.08f) / 30f), 0.08f);
             Sprite(images.ExplosionDisc, Color.White, 0, 0, radius * 2f, radius * 2f, alpha: body);
             Glow(images.GlowDot, _Deep, 0, 0, radius * 1.6f, 0f, 0.55f * body);
-            float rim = MathF.Pow(1f - Clamp((age - 8f) / 16f), 1.5f) * Smooth(Clamp(age / 2f));
+            float rim = MathF.Pow(1f - Clamp((SustainAge(age, sustainDuration, 8f) - 8f) / 16f), 1.5f) * Smooth(Clamp(age / 2f));
             for (int i = 0; i < RimSegmentCount; i++)
             {
                 float angle = i / (float)RimSegmentCount * MathHelper.TwoPi;
@@ -125,7 +139,7 @@ internal static class LegendStarburstCircleVisuals
                     continue;
                 float t = a / 24f;
                 float distance = (ReferenceRadius - star.Size * MathF.Sqrt(0.5f) - 14f) * (star.Distance - 0.04f * t);
-                Glow(images.Star4, _Light, MathF.Cos(star.Angle) * distance, MathF.Sin(star.Angle) * distance - 8f * t,
+                Glow(images.Star4, _Light, star.Direction.X * distance, star.Direction.Y * distance - 8f * t,
                     star.Size, 0f, 1.5f * Bell(t, 0.2f));
             }
         }
@@ -168,8 +182,8 @@ internal static class LegendStarburstCircleVisuals
                 float t = a / ray.Life;
                 float head = ray.Length * OutCubic(t);
                 float tail = Math.Max(0f, head - ray.Length * 0.55f * (1f - t * 0.6f));
-                float x = MathF.Cos(ray.Angle);
-                float y = MathF.Sin(ray.Angle);
+                float x = ray.Direction.X;
+                float y = ray.Direction.Y;
                 Line(_Light, x * tail, y * tail, x * head, y * head, 18f * ray.Width * (1f - t * 0.5f), MathF.Pow(1f - t, 1.3f));
             }
         }
@@ -180,11 +194,11 @@ internal static class LegendStarburstCircleVisuals
                 float a = age - spark.Delay;
                 if (a < 0f || a > spark.Life)
                     continue;
-                float travelScale = StarTravelScale(spark.Distance + 30f, spark.Size * (spark.Star ? 2.2f : 2.6f));
+                float travelScale = spark.TravelScale;
                 float t = a / spark.Life;
                 float distance = spark.Distance * OutQuart(t) * travelScale;
-                float x = MathF.Cos(spark.Angle) * distance;
-                float y = MathF.Sin(spark.Angle) * distance + 30f * t * t * travelScale;
+                float x = spark.Direction.X * distance;
+                float y = spark.Direction.Y * distance + 30f * t * t * travelScale;
                 float k = MathF.Pow(1f - t, 1.2f);
                 if (spark.Star)
                     Glow(images.Star4, _Light, x, y, spark.Size * 2.2f * (1f - t * 0.4f), spark.Rotation + spark.Spin * a, 1.4f * k);
@@ -193,8 +207,8 @@ internal static class LegendStarburstCircleVisuals
                     // 尾端取最近三帧的实际轨迹，减速与重力同时影响方向和长度。
                     float previousT = Math.Max(0f, a - 3f) / spark.Life;
                     float previousDistance = spark.Distance * OutQuart(previousT) * travelScale;
-                    float bx = MathF.Cos(spark.Angle) * previousDistance;
-                    float by = MathF.Sin(spark.Angle) * previousDistance + 30f * previousT * previousT * travelScale;
+                    float bx = spark.Direction.X * previousDistance;
+                    float by = spark.Direction.Y * previousDistance + 30f * previousT * previousT * travelScale;
                     Vector2 delta = new(x - bx, y - by);
                     float length = delta.Length();
                     float tailAlpha = k * 0.9f * Smooth(Clamp(length / (spark.Size * 0.75f)));
@@ -215,8 +229,8 @@ internal static class LegendStarburstCircleVisuals
                 float t = a / star.Life;
                 float k = Bell(t, 0.15f) * (0.7f + 0.3f * MathF.Sin(a * 0.5f + star.Radius));
                 float distance = (star.Radius + star.Drift * t) * star.TravelScale;
-                float x = MathF.Cos(star.Angle) * distance;
-                float y = MathF.Sin(star.Angle) * distance - 10f * t * star.TravelScale;
+                float x = star.Direction.X * distance;
+                float y = star.Direction.Y * distance - 10f * t * star.TravelScale;
                 if (star.Big)
                     Star(x, y, star.Size * 3.2f, star.Rotation, 1.6f * k, 0.45f);
                 else

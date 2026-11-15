@@ -235,8 +235,8 @@ public sealed partial class LegendBlueStar
         VertexPositionColorTexture[] vertices = BuildMatterRibbonVertices(age, behind, out int count);
         if (count == 0)
             return;
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Primitives.LegendStellarAccretion : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarAccretion : null;
         if (shader is null)
         {
             DrawMatterRibbonFallback(spriteBatch, vertices, count);

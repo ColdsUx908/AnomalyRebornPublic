@@ -70,7 +70,7 @@ public sealed partial class AnomalyDepthDrawSystem
         float scale = GetPerspectiveScale(z);
         Vector2 pivot = GetVanishingPoint(Main.GameViewMatrix.TransformationMatrix, ViewportSize) + Main.screenPosition;
         // 原版以未缩放字体的半尺寸作为绘制中心；投影中心后再还原该偏移。
-        Vector2 origin = Terraria.GameContent.FontAssets.CombatText[dramatic ? 1 : 0].Value.MeasureString(text.text) * 0.5f;
+        Vector2 origin = FontAssets.CombatText[dramatic ? 1 : 0].Value.MeasureString(text.text) * 0.5f;
         text.position = ProjectPosition(text.position + origin, z, pivot)
             + GetNPCAnchorTranslation(npc, pivot, includeNetOffset: false) - origin;
         text.velocity *= scale;

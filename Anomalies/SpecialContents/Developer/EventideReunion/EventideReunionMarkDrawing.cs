@@ -52,7 +52,7 @@ public sealed class EventideReunionMarkDrawing : AnomalyGlobalNPCBehavior
 
     internal static void DrawDeath(Vector2 center, float radius, Vector2 screenPosition, float companion = 0f)
     {
-        if (AnomalyEffects.Primitives.EventideDeathMark is not AnomalyEffects.MiscShaderContainer eventideDeathMarkShader)
+        if (EventideReunionEffects.EventideDeathMark is not MiscShaderContainer eventideDeathMarkShader)
             return;
         DrawQuad(eventideDeathMarkShader.Asset.Value, center, radius, screenPosition, 1f, 1f, companion);
     }
@@ -60,7 +60,7 @@ public sealed class EventideReunionMarkDrawing : AnomalyGlobalNPCBehavior
     internal static void DrawSamsara(Vector2 center, float radius, Vector2 screenPosition,
         float opacity, float remaining, float companion)
     {
-        if (AnomalyEffects.Primitives.EventideSamsaraMark is not AnomalyEffects.MiscShaderContainer eventideSamsaraMarkShader)
+        if (EventideReunionEffects.EventideSamsaraMark is not MiscShaderContainer eventideSamsaraMarkShader)
             return;
         DrawQuad(eventideSamsaraMarkShader.Asset.Value, center, radius, screenPosition, opacity, remaining, companion);
     }

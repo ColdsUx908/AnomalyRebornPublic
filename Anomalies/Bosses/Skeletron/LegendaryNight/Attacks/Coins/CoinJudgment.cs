@@ -3,7 +3,7 @@ using Terraria.Graphics.CameraModifiers;
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 /// <summary>
-/// 按金币种类产生不同形状的审判攻击。
+/// 按钱币种类产生不同形状的审判攻击。
 /// </summary>
 /// <remarks>
 /// <para>ai[0]：金币种类，0铜、1银、2金、3铂金；ai[1]：锁定时的主体自转帧，机制五存放负的锁定音乐帧；ai[2]：主体 NPC 索引 + 1。</para>
@@ -61,13 +61,17 @@ public sealed class CoinJudgment : AnomalyModProjectile
     internal float CrossHalfWidth => IsMechanic5 ? Phase2CrossHalfWidth : NormalCrossHalfWidth;
     internal float EffectiveCopperRadius => ArenaInnerRadius ?? NormalCircleRadius;
     internal float EffectiveGoldInnerRadius => ArenaInnerRadius ?? NormalCircleRadius;
-    internal bool UsesCircleVisuals => IsMechanic5 && (int)Projectile.ai[0] == 0 && LegendStarburstCircleAssets.IsLoaded;
+    internal bool UsesRadialVisuals => (int)Projectile.ai[0] is 0 or 2 && CoinCrossAssets.IsLoaded;
     internal bool UsesCrossVisuals => (int)Projectile.ai[0] is 1 or 3 && CoinCrossAssets.IsLoaded;
 
     public float OverlayOpacity => GetOverlayOpacity(_Age - ImpactAge + WarningDuration);
-    public float WarningOverlayOpacity => IsMechanic5 || _Age >= ImpactAge - (UsesCrossVisuals ? CoinCrossVisuals.PeakAge : OverlayFadeInDuration)
+    private bool IsWarningCovered => UsesCrossVisuals && CoinCrossAssets.BodyEffect is not null
+        && CoinCrossVisuals.CoversWarning(_Age - ImpactAge + CoinCrossVisuals.PeakAge)
+        || UsesRadialVisuals && CoinCrossAssets.RadialEffect is not null
+        && CoinRadialVisuals.CoversWarning(_Age - ImpactAge);
+    public float WarningOverlayOpacity => IsMechanic5 || IsWarningCovered
         ? 0f : GetWarningOverlayOpacity(_Age - (WarningDuration - DangerWarningDuration), DangerWarningDuration);
-    public float BoundaryOpacity => IsMechanic5 ? 0f : _Age < WarningDuration
+    public float BoundaryOpacity => IsMechanic5 || IsWarningCovered ? 0f : _Age < WarningDuration
         ? MathHelper.Clamp((_Age - (WarningDuration - BoundaryWarningDuration)) / (float)BoundaryFadeInDuration, 0f, 1f)
         : OverlayOpacity / OverlayMaxOpacity;
     public static float GetWarningOverlayOpacity(float age, int duration)
@@ -86,14 +90,27 @@ public sealed class CoinJudgment : AnomalyModProjectile
         return OverlayMaxOpacity * fadeIn * fadeOut;
     }
 
-    internal bool TryGetCircleFrame(out LegendStarburstVisuals.Burst burst)
+    internal bool TryGetRadialFrame(out CoinRadialVisuals.Frame frame)
     {
-        burst = default;
+        frame = default;
         int age = _Age - ImpactAge;
-        if (!UsesCircleVisuals || !LegendStarburstCircleVisuals.IsVisible(age))
+        if (!UsesRadialVisuals || !CoinRadialVisuals.IsVisible(age))
             return false;
-        // 中心审判保留自己的蓝圈倒计时，不附加双星交汇的旋转星预告。
-        burst = new(Projectile.Center, EffectiveCopperRadius, 0f, 0f, age);
+        int coinType = (int)Projectile.ai[0];
+        frame = coinType == 0
+            ? new(Projectile.Center, EffectiveCopperRadius, 0f, age, coinType)
+            : new(Projectile.Center, GoldOuterRadius, EffectiveGoldInnerRadius, age, coinType);
+        return true;
+    }
+
+    internal bool TryGetBlurFrame(out LegendStarburstVisuals.Burst frame)
+    {
+        frame = default;
+        int age = _Age - ImpactAge;
+        if ((int)Projectile.ai[0] is < 0 or > 3 || age < 0 || age >= LegendStarburstVisuals.BlurDuration)
+            return false;
+        // 四种币共享一个短时 Filter；以实际审判时刻为零，不因十字提前撑开而提早模糊。
+        frame = new(Projectile.Center, (int)Projectile.ai[0] == 2 ? GoldOuterRadius : EffectiveCopperRadius, 0f, 0f, age);
         return true;
     }
 
@@ -111,7 +128,7 @@ public sealed class CoinJudgment : AnomalyModProjectile
         ReadOnlySpan<Vector2> corners = [Vector2.Zero, new(view.Resolution.X, 0f), new(0f, view.Resolution.Y), view.Resolution];
         foreach (Vector2 corner in corners)
             reach = Math.Max(reach, (Vector2.Transform(corner, inverse) + view.ScreenPosition - Projectile.Center).Length() / 0.6f);
-        frame = new(Projectile.Center, width, reach * 2f, CrossRotation((int)Projectile.ai[0]), age);
+        frame = new(Projectile.Center, width, reach * 2f, CrossRotation((int)Projectile.ai[0]), age, (int)Projectile.ai[0]);
         return true;
     }
 
@@ -126,7 +143,7 @@ public sealed class CoinJudgment : AnomalyModProjectile
         Projectile.penetrate = -1;
         Projectile.netImportant = true;
         Projectile.timeLeft = WarningDuration + Math.Max(OverlayHoldDuration + OverlayFadeOutDuration,
-            Math.Max(CoinCrossVisuals.EndAge - CoinCrossVisuals.PeakAge, LegendStarburstCircleVisuals.EndAge)) + 2;
+            Math.Max(CoinCrossVisuals.EndAge - CoinCrossVisuals.PeakAge, CoinRadialVisuals.EndAge)) + 2;
     }
 
     // 伤害由本机玩家的 Hurt 路径结算，避免常规敌对弹幕检测提前被无敌帧拦截或重复命中。
@@ -141,7 +158,7 @@ public sealed class CoinJudgment : AnomalyModProjectile
             Vector2 center = Projectile.Center - Main.screenPosition;
             Texture2D ring = ParticleHandler.GetTexture<PulseRing>();
             Main.spriteBatch.DrawFromCenter(ring, center, null,
-                new Color(70, 150, 255, 0), scale: RingMaxRadius * radiusFactor / PulseRing.TextureRadius);
+                (CoinJudgmentPalette.For((int)Projectile.ai[0]).Light with { A = 0 }), scale: RingMaxRadius * radiusFactor / PulseRing.TextureRadius);
             CoinRoulette.DrawCoin(center, (int)Projectile.ai[0], 0, 1f, 0.8f);
         }
         return false;

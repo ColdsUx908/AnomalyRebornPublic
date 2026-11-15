@@ -86,8 +86,10 @@ public sealed partial class SkeletronLegendHead
     internal static int RedEnergySphereDamage => _RedEnergySphereDamage.Value;
     private static readonly ProjectileDamageContainer _EnergyLaserDamage = new(180);
     internal static int EnergyLaserDamage => _EnergyLaserDamage.Value;
-    private static readonly ProjectileDamageContainer _StarburstDamage = new(240);
+    private static readonly ProjectileDamageContainer _StarburstDamage = new(396);
     internal static int StarburstDamage => _StarburstDamage.Value;
+    private static readonly ProjectileDamageContainer _SteppedStarburstDamage = new(240);
+    internal static int SteppedStarburstDamage => _SteppedStarburstDamage.Value;
     private static readonly ProjectileDamageContainer _LargePlatinumCoinDamage = new(SpinContactDamage);
 
     private const int Phase1ContactDamage = 192;

@@ -182,7 +182,7 @@ public sealed partial class SkeletronLegendHead
 
     public override void ApplyCustomMainBossBarShader(BossHealthBar newBar, SpriteBatch spriteBatch, Rectangle destinationRectangle)
     {
-        AnomalyEffects.BossBars.Skeletron.Data
+        AnomalyBossBarEffects.Skeletron.Data
             .UseImage1(AnomalyTextures.Noise._Vein)
             .SetCustomParameter("uScreenResolution", Main.ScreenSize.ToVector2() * Math.Max(Main.UIScale, 1f) / 2f)
             .SetCustomParameter("uPosition", destinationRectangle.TopLeft())

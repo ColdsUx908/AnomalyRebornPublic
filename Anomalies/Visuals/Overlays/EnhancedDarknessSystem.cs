@@ -80,7 +80,7 @@ public class EnhancedDarknessSystem : CustomOverlay, IContentLoader
         }
 
         spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-        AnomalyEffects.Overlays.SolidColorMask.Data
+        AnomalyCommonEffects.SolidColorMask.Data
             .UseColor(Color.Black)
             .UseOpacity(anomalyPlayer.Visual_DarknessIntensity)
             .Apply();

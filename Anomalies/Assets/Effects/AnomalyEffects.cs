@@ -1,169 +1,53 @@
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
-using Transoceanic.Runtime.Reflection;
 
 namespace Anomalies.Assets.Effects;
 
 /// <summary>
-/// 通过原生加载入口注册本模组着色器；配置模板与筛选器引用由 TOCleanup 清理。
+/// 按提供者目录和嵌套容器路径统一加载着色器。
 /// </summary>
-public sealed class AnomalyEffects : ILoadable
+public static class AnomalyEffects
 {
-    //所有嵌套类、字段按字母顺序排列
-
-    public sealed record MiscShaderContainer(Asset<Effect> Asset, MiscShaderData Data);
-
-    [AttributeUsage(AttributeTargets.Field)]
-    private sealed class ShaderPassAttribute(string name) : Attribute
+    internal static void Load(Mod mod, IAnomalyEffectProvider provider)
     {
-        public string Name { get; } = name;
-    }
+        LoadType(provider.GetType(), provider.EffectDirectory);
 
-    public static class BossBars
-    {
-        public static MiscShaderContainer BrainofCthulhu;
-        public static MiscShaderContainer EaterofWorlds;
-        public static MiscShaderContainer EyeofCthulhu;
-        public static MiscShaderContainer KingSlime;
-        public static MiscShaderContainer QueenBee;
-        public static MiscShaderContainer QueenSlime;
-        public static MiscShaderContainer RainbowJewel;
-        public static MiscShaderContainer Skeletron;
-    }
-
-    public static class Overlays
-    {
-        public static MiscShaderContainer EaterDistortionFog;
-        public static MiscShaderContainer EaterDistortionWinds;
-        public static MiscShaderContainer EaterMetaballEdge;
-        public static MiscShaderContainer EaterPortal;
-        public static MiscShaderContainer EaterRealityCrack;
-        public static MiscShaderContainer EventideDeathVignette;
-        public static MiscShaderContainer LegendImpactFlame;
-        public static MiscShaderContainer LegendaryNightArenaEdge;
-        public static MiscShaderContainer LegendaryNightArenaMist;
-        public static MiscShaderContainer LegendaryNightBloom;
-        public static MiscShaderContainer LegendStarburstRingMark;
-        public static MiscShaderContainer LegendStellarExplosion;
-        public static MiscShaderContainer LegendStellarPhotosphere;
-        public static MiscShaderContainer LegendStellarSphere;
-        public static MiscShaderContainer LightweightBloom;
-        public static MiscShaderContainer Shockwave;
-        public static MiscShaderContainer SkeletronArenaExterior;
-        public static MiscShaderContainer SkeletronFinalCharge;
-        public static MiscShaderContainer SkeletronPhase3Warning;
-        public static MiscShaderContainer SolidColor;
-        public static MiscShaderContainer SolidColorMask;
-    }
-
-    public static class Primitives
-    {
-        public static MiscShaderContainer CircularAoETelegraph;
-        public static MiscShaderContainer EventideDeathMark;
-        public static MiscShaderContainer EventideDeathSweep;
-        public static MiscShaderContainer EventideSamsaraMark;
-        public static MiscShaderContainer EventideSamsaraThread;
-        public static MiscShaderContainer EventideSweep;
-        public static MiscShaderContainer GlowCircle;
-        public static MiscShaderContainer GlowLine;
-        public static MiscShaderContainer LegendCoinCross;
-        public static MiscShaderContainer LegendStellarAccretion;
-        public static MiscShaderContainer LegendStellarLaser;
-        public static MiscShaderContainer LegendStellarLaserWarning;
-        public static MiscShaderContainer LegendStellarLightOrb;
-        public static MiscShaderContainer MeguminCircle;
-        public static MiscShaderContainer MeguminLaser;
-        public static MiscShaderContainer SkeletronForwardBeam;
-    }
-
-    public static class Texts
-    {
-        public static MiscShaderContainer AnomalyTitle;
-        public static MiscShaderContainer AnomalyUltramundaneTitle;
-        public static MiscShaderContainer EventideReunion;
-        public static MiscShaderContainer LegendaryNightGold;
-        public static MiscShaderContainer MeguminStaff;
-    }
-
-    public static class ScreenFilters
-    {
-        public static Filter BrainOfCthulhuForcefield;
-        public static Filter LegendStarburstRadialBlur;
-        public static Filter RadialBlur;
-    }
-
-    #region 处理逻辑
-    /// <summary>在所属模组资产仓库就绪后加载自身着色器；服务器及关闭着色器时跳过。</summary>
-    /// <param name="mod">由 tML 提供的所属模组，早于 AnomalyMain.Load 可安全使用。</param>
-    void ILoadable.Load(Mod mod)
-    {
-        TOCleanup.Register(ClearReferences);
-        if (Main.dedServ || !AnomalyClientConfig.Instance.EnableShaders) //配置选项关闭时着色器不会加载
-            return;
-
-        HandleType(typeof(AnomalyEffects), true);
-        HandleType(typeof(BossBars));
-        HandleType(typeof(Overlays));
-        HandleType(typeof(Primitives));
-        HandleType(typeof(Texts));
-        ScreenFilters.BrainOfCthulhuForcefield = LoadAndRegisterScreenFilter(mod, "BrainOfCthulhuForcefield", "Pass0");
-        ScreenFilters.LegendStarburstRadialBlur = LoadAndRegisterScreenFilter(mod, "LegendStarburstRadialBlur", "Pass0");
-        ScreenFilters.RadialBlur = LoadAndRegisterScreenFilter(mod, "RadialBlur", "Pass0");
-
-        void HandleType(Type type, bool isRoot = false)
+        void LoadType(Type type, string directory)
         {
-            foreach (FieldInfo field in type.GetFields(TOReflectionUtils.StaticBindingFlags))
-                field.SetValue(null, LoadAndRegisterMiscShader(mod, isRoot ? "" : type.Name, field.Name, field.GetCustomAttribute<ShaderPassAttribute>()?.Name ?? "Pass0"));
+            foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly).OrderBy(field => field.Name, StringComparer.Ordinal))
+            {
+                if (field.FieldType != typeof(MiscShaderContainer) && field.FieldType != typeof(Filter))
+                    continue;
+
+                string relativePath = $"{directory}/{field.Name}";
+                string key = $"{mod.Name}:{relativePath}";
+                string pass = field.GetCustomAttribute<ShaderPassAttribute>()?.Name ?? "Pass0";
+                // 登记先于资源请求，加载中途失败也能清理已经赋值的字段。
+                TOCleanup.Register(() => field.SetValue(null, null));
+                Asset<Effect> asset = mod.Assets.Request<Effect>($"Assets/Effects_Compiled/{relativePath}");
+                if (field.FieldType == typeof(Filter))
+                {
+                    AnomalyScreenShaderData data = new(asset, pass);
+                    Filter filter = new(data, EffectPriority.VeryHigh);
+                    TOCleanup.Register(() =>
+                    {
+                        data.BeforeApply = null;
+                        filter.Deactivate();
+                    });
+                    Filters.Scene[key] = filter;
+                    filter.Load();
+                    field.SetValue(null, filter);
+                }
+                else
+                {
+                    MiscShaderData data = new(asset, pass);
+                    GameShaders.Misc[key] = data;
+                    field.SetValue(null, new MiscShaderContainer(asset, data));
+                }
+            }
+
+            foreach (Type nestedType in type.GetNestedTypes(BindingFlags.Public).Where(type => type.IsAbstract && type.IsSealed).OrderBy(type => type.Name, StringComparer.Ordinal))
+                LoadType(nestedType, $"{directory}/{nestedType.Name}");
         }
     }
-
-    // 资产仓库由 tML 管理，自有容器与筛选器状态由 TOCleanup 清理。
-    void ILoadable.Unload() { }
-
-    private static void ClearReferences()
-    {
-        // 每个筛选器分别登记失活，单项失败不会阻止此处释放其余容器引用。
-        ClearType(typeof(ScreenFilters));
-        ClearType(typeof(AnomalyEffects));
-        ClearType(typeof(BossBars));
-        ClearType(typeof(Overlays));
-        ClearType(typeof(Primitives));
-        ClearType(typeof(Texts));
-    }
-
-    private static Filter LoadAndRegisterScreenFilter(Mod mod, string name, string passName)
-    {
-        Asset<Effect> asset = mod.Assets.Request<Effect>($"Assets/Effects_Compiled/ScreenFilters/{name}");
-        AnomalyScreenShaderData data = new(asset, passName);
-        Filter filter = new(data, EffectPriority.VeryHigh);
-        // 必须先于 Load 登记：Load 失败时尚未返回给 ScreenFilters 字段。
-        TOCleanup.Register(() =>
-        {
-            data.BeforeApply = null;
-            filter.Deactivate();
-        });
-        Filters.Scene[$"Anomalies:{name}"] = filter;
-        filter.Load();
-        return filter;
-    }
-
-    private static MiscShaderContainer LoadAndRegisterMiscShader(Mod mod, string subDirectory, string registrationName, string passName = "Pass0")
-    {
-        string path = "Assets/Effects_Compiled/";
-        if (!string.IsNullOrEmpty(subDirectory))
-            path += subDirectory + "/";
-        path += registrationName;
-        Asset<Effect> shader = mod.Assets.Request<Effect>(path);
-        MiscShaderData data = new(shader, passName);
-        GameShaders.Misc[$"Anomalies:{registrationName}"] = data;
-
-        return new MiscShaderContainer(shader, data);
-    }
-
-    private static void ClearType(Type type)
-    {
-        foreach (FieldInfo field in type.GetFields(TOReflectionUtils.StaticBindingFlags))
-            field.SetValue(null, null);
-    }
-    #endregion 处理逻辑
 }

@@ -59,6 +59,13 @@ public abstract class LegendStellarShockwave : AnomalyModProjectile
 
     internal bool IsOwnedBy(NPC head) => (int)Projectile.ai[2] == head.whoAmI + 1;
 
+    protected virtual float ImpactStrength => 1f;
+    protected virtual int ImpactDuration => 32;
+
+    internal bool TryGetImpactFrame(out LegendStarburstVisuals.Burst frame) =>
+        LegendStarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, Projectile.ai[1], Age,
+            ImpactStrength, ImpactDuration, out frame);
+
     protected abstract bool YellowPalette { get; }
     protected virtual string ExplosionPass => "Pass0";
     protected virtual float VisualOpacity => 1f;
@@ -117,8 +124,8 @@ public abstract class LegendStellarShockwave : AnomalyModProjectile
         float opacity = VisualOpacity * (1f - MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((progress - 0.82f) / 0.18f, 0f, 1f)));
         Vector4 remnantState = RemnantState(age);
         float outerExpansion = OuterExpansion(age);
-        AnomalyEffects.MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
-            ? AnomalyEffects.Overlays.LegendStellarExplosion : null;
+        MiscShaderContainer shader = AnomalyClientConfig.Instance.EnableShaders
+            ? LegendaryNightEffects.LegendStellarExplosion : null;
         if (shader is not null)
         {
             float drawSize = maximumRadius * 2f * ShaderRadiusScale;

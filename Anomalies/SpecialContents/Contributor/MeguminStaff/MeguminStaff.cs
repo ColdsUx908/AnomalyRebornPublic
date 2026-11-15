@@ -93,7 +93,7 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizati
 
     public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
     {
-        if (!AnomalyClientConfig.Instance.EnableShaders || AnomalyEffects.Texts.MeguminStaff is null)
+        if (!AnomalyClientConfig.Instance.EnableShaders || MeguminStaffEffects.MeguminStaff is null)
             return true;
 
         if (TODrawUtils.TryDrawItemNameWithCustomShader(line, text => ApplyGradient(text, 0f)))
@@ -113,7 +113,7 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizati
         }
         return false;
 
-        void ApplyGradient(DrawableTooltipLine text, float palette) => AnomalyEffects.Texts.MeguminStaff.Data
+        void ApplyGradient(DrawableTooltipLine text, float palette) => MeguminStaffEffects.MeguminStaff.Data
             .SetCustomParameter("uTextOrigin", new Vector2(text.X, text.Y) * Main.UIScale)
             .SetCustomParameter("uTextScale", Main.UIScale)
             .SetCustomParameter("uPalette", palette)

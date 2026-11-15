@@ -11,7 +11,7 @@
 - `BrainofCthulhu.Drawing.cs`：触须、主脑与幻象绘制。
 - `CreeperAI`：飞眼怪 Behavior；它的阶段由主脑 Phase 驱动，LocalPhase 计时保存在自身 AI 数组。
 - `Visuals`、`Sounds`、`Assets`：克脑专用演出与纹理选择、音效及资源。
-- `Anomalies/Assets/Effects/ScreenFilters`：克脑护盾与径向模糊；`Primitives/CircularAoETelegraph`：范围预警。统一由 `AnomalyEffects` 注册，遵循着色器配置开关。
+- `Anomalies/Assets/Effects/BrainofCthulhu`：克脑护盾；`Assets/Effects/Common`：径向模糊与 CircularAoETelegraph 范围预警。引用分别由 `BrainofCthulhuEffects` 和 `AnomalyCommonEffects` 声明，统一由 `AnomalyEffects` 注册，遵循着色器配置开关。
 
 灾厄 Death 的参数对应普通 Anomaly（异象），Ultra 暂不额外改变克脑 AI。飞眼怪的生成、再生、血量比例与触须数组统一使用 `CreeperCount = 30`。未启用异象模式时，原版或灾厄自己的 AI 保持原有入口。灾厄是可选依赖，相关调用隔离在带 `ExtendsFromMod` 的兼容类中；安装灾厄时还会保留肾上腺素重置和防御损伤的原有交互。
 
