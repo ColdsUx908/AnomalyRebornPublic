@@ -1,3 +1,5 @@
+using Terraria.Graphics.CameraModifiers;
+
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 /// <summary>
@@ -33,6 +35,9 @@ public sealed class CoinJudgment : AnomalyModProjectile
     /// <summary>十字半宽，单位为世界像素。</summary>
     public const float NormalCrossHalfWidth = 320f;
     private const float Phase2CrossHalfWidth = 240f;
+    private float CrossScreenshakeStrength => 67f;
+    private int CrossScreenshakeDuration => 16;
+    private float CrossScreenshakeFrequency => 38f;
     /// <summary>金币外层半径，单位为世界像素。</summary>
     public const float GoldOuterRadius = 3200f;
     internal static float CrossRotation(int coinType) => coinType == 3 ? MathHelper.PiOver4 : 0f;
@@ -56,8 +61,11 @@ public sealed class CoinJudgment : AnomalyModProjectile
     internal float CrossHalfWidth => IsMechanic5 ? Phase2CrossHalfWidth : NormalCrossHalfWidth;
     internal float EffectiveCopperRadius => ArenaInnerRadius ?? NormalCircleRadius;
     internal float EffectiveGoldInnerRadius => ArenaInnerRadius ?? NormalCircleRadius;
+    internal bool UsesCircleVisuals => IsMechanic5 && (int)Projectile.ai[0] == 0 && LegendStarburstCircleAssets.IsLoaded;
+    internal bool UsesCrossVisuals => (int)Projectile.ai[0] is 1 or 3 && CoinCrossAssets.IsLoaded;
+
     public float OverlayOpacity => GetOverlayOpacity(_Age - ImpactAge + WarningDuration);
-    public float WarningOverlayOpacity => IsMechanic5 || _Age >= ImpactAge - OverlayFadeInDuration
+    public float WarningOverlayOpacity => IsMechanic5 || _Age >= ImpactAge - (UsesCrossVisuals ? CoinCrossVisuals.PeakAge : OverlayFadeInDuration)
         ? 0f : GetWarningOverlayOpacity(_Age - (WarningDuration - DangerWarningDuration), DangerWarningDuration);
     public float BoundaryOpacity => IsMechanic5 ? 0f : _Age < WarningDuration
         ? MathHelper.Clamp((_Age - (WarningDuration - BoundaryWarningDuration)) / (float)BoundaryFadeInDuration, 0f, 1f)
@@ -78,6 +86,35 @@ public sealed class CoinJudgment : AnomalyModProjectile
         return OverlayMaxOpacity * fadeIn * fadeOut;
     }
 
+    internal bool TryGetCircleFrame(out LegendStarburstVisuals.Burst burst)
+    {
+        burst = default;
+        int age = _Age - ImpactAge;
+        if (!UsesCircleVisuals || !LegendStarburstCircleVisuals.IsVisible(age))
+            return false;
+        // 中心审判保留自己的蓝圈倒计时，不附加双星交汇的旋转星预告。
+        burst = new(Projectile.Center, EffectiveCopperRadius, 0f, 0f, age);
+        return true;
+    }
+
+    internal bool TryGetCrossFrame(in WorldView2D view, out CoinCrossVisuals.Frame frame)
+    {
+        frame = default;
+        // 预览的第 8 帧为最大宽度，严格对齐原有的单帧伤害结算。
+        float age = _Age - ImpactAge + CoinCrossVisuals.PeakAge;
+        if (!UsesCrossVisuals || !CoinCrossVisuals.IsVisible(age))
+            return false;
+        float width = CrossHalfWidth * 2f;
+        float reach = 800f * width / CoinCrossVisuals.ReferenceWidth;
+        Matrix inverse = Matrix.Invert(view.Transform);
+        // 无限十字的末端必须在视口外；正常战斗使用固定的设计长度，不随镜头抖动。
+        ReadOnlySpan<Vector2> corners = [Vector2.Zero, new(view.Resolution.X, 0f), new(0f, view.Resolution.Y), view.Resolution];
+        foreach (Vector2 corner in corners)
+            reach = Math.Max(reach, (Vector2.Transform(corner, inverse) + view.ScreenPosition - Projectile.Center).Length() / 0.6f);
+        frame = new(Projectile.Center, width, reach * 2f, CrossRotation((int)Projectile.ai[0]), age);
+        return true;
+    }
+
     public override string Texture => TOTextures.InvisibleTexturePath;
     public override string LocalizationCategory => LegendaryNightHandler.LocalizationCategory;
 
@@ -88,7 +125,8 @@ public sealed class CoinJudgment : AnomalyModProjectile
         Projectile.ignoreWater = true;
         Projectile.penetrate = -1;
         Projectile.netImportant = true;
-        Projectile.timeLeft = WarningDuration + OverlayHoldDuration + OverlayFadeOutDuration + 2;
+        Projectile.timeLeft = WarningDuration + Math.Max(OverlayHoldDuration + OverlayFadeOutDuration,
+            CoinCrossVisuals.EndAge - CoinCrossVisuals.PeakAge) + 2;
     }
 
     // 伤害由本机玩家的 Hurt 路径结算，避免常规敌对弹幕检测提前被无敌帧拦截或重复命中。
@@ -150,12 +188,7 @@ public sealed class CoinJudgment : AnomalyModProjectile
             ? head.Timer1
             : CoinRoulette.RotationDuration + head.Timer1;
         int timer = IsMechanic5 ? head.Phase2MusicElapsedTime + (int)Projectile.ai[1] : spinTime - (int)Projectile.ai[1];
-        _Age = timer;
-        if (!IsMechanic5 && !_WarningSoundPlayed && timer >= WarningDuration - BoundaryWarningDuration && timer < WarningDuration && !Main.dedServ)
-        {
-            _WarningSoundPlayed = true;
-            SoundEngine.PlaySound(WarningSound);
-        }
+        UpdateVisuals(timer);
 
         if (timer != ImpactAge || _Judged)
             return;
@@ -173,5 +206,21 @@ public sealed class CoinJudgment : AnomalyModProjectile
             return;
 
         LegendaryNightDamage.HurtLocalPlayer(Projectile, Projectile.damage, true, knockback: 4.5f);
+    }
+
+    // 本地预览只推进表现；正式 AI 仍独立执行一次性的伤害与战斗记录。
+    internal void UpdateVisuals(int timer)
+    {
+        // 激光最大宽度与审判结算同帧；共享视觉入口也覆盖本地预览，重复更新不重复触发。
+        if (!Main.dedServ && timer == ImpactAge && _Age != timer && (int)Projectile.ai[0] is 1 or 3)
+            Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center,
+                CrossRotation((int)Projectile.ai[0]).ToRotationVector2(), CrossScreenshakeStrength,
+                CrossScreenshakeFrequency, CrossScreenshakeDuration, uniqueIdentity: "Anomalies:CoinCross"));
+        _Age = timer;
+        if (!IsMechanic5 && !_WarningSoundPlayed && timer >= WarningDuration - BoundaryWarningDuration && timer < WarningDuration && !Main.dedServ)
+        {
+            _WarningSoundPlayed = true;
+            SoundEngine.PlaySound(WarningSound);
+        }
     }
 }

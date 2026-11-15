@@ -15,9 +15,12 @@ public sealed class CoinJudgmentOverlay : CustomOverlay
         {
             if (projectile.ModProjectile is not CoinJudgment judgment)
                 continue;
+            // 中心圆形审判由场地 Overlay 在法阵上方绘制完整星爆。
+            if (judgment.UsesCircleVisuals)
+                continue;
             float boundaryOpacity = judgment.BoundaryOpacity;
             float warningOpacity = judgment.WarningOverlayOpacity;
-            float impactOpacity = judgment.OverlayOpacity;
+            float impactOpacity = judgment.UsesCrossVisuals ? 0f : judgment.OverlayOpacity;
             if (impactOpacity > 0f && LegendaryNightOverlay.UseImpactFlame)
                 continue;
             if (warningOpacity <= 0f && impactOpacity <= 0f)

@@ -40,7 +40,7 @@ public sealed partial class LegendaryNightOverlay
         {
             switch (projectile.ModProjectile)
             {
-                case CoinJudgment judgment when judgment.OverlayOpacity > 0f:
+                case CoinJudgment judgment when !judgment.UsesCircleVisuals && !judgment.UsesCrossVisuals && judgment.OverlayOpacity > 0f:
                     AddCoinImpact(judgment);
                     break;
                 // Each owner lookup creates a new behavior wrapper around the same NPC.
@@ -129,5 +129,29 @@ public sealed partial class LegendaryNightOverlay
                     break;
             }
         }
+    }
+
+    private static void DrawCoinCircleImpacts(SpriteBatch spriteBatch)
+    {
+        Effect bloomEffect = !Main.dedServ && AnomalyClientConfig.Instance.EnableShaders
+            ? AnomalyEffects.Overlays.LegendaryNightBloom?.Asset.Value : null;
+        bool bloom = bloomEffect is not null;
+        BlendState blend = bloom || !Main.dayTime ? LegendaryNightBloom.AdditiveBlend : BlendState.AlphaBlend;
+        foreach (Projectile projectile in Projectile.ActiveProjectiles)
+        {
+            if (projectile.ModProjectile is not CoinJudgment judgment
+                || !judgment.TryGetCircleFrame(out LegendStarburstVisuals.Burst frame))
+                continue;
+            WorldView2D view = new(Main.screenPosition, Main.GameViewMatrix.TransformationMatrix,
+                new Vector2(Main.screenWidth, Main.screenHeight));
+            LegendaryNightBloomSettings settings = LegendStarburstVisuals.GetLegendaryNightBloomSettings(false);
+            CoinCircleLayer layer = new(view, frame, blend);
+            LegendaryNightBloom.Draw(spriteBatch, bloomEffect, settings, layer);
+        }
+    }
+    private readonly record struct CoinCircleLayer(WorldView2D View, LegendStarburstVisuals.Burst Frame, BlendState Blend) : IBloomLayer
+    {
+        public void Draw(SpriteBatch spriteBatch) => LegendStarburstCircleVisuals.Draw(spriteBatch,
+            LegendStarburstCircleAssets.Textures, View, Frame, Blend, drawWarning: false);
     }
 }

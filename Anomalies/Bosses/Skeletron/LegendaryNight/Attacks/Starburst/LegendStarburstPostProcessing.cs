@@ -5,7 +5,7 @@ using Transoceanic.Graphics.Drawing;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>普通圆形/圆环星爆的短时场景模糊；由当前有效实体推导，攻击结束后自动失活。</summary>
+/// <summary>普通圆形/圆环星爆与圆心审判的短时场景模糊；由当前有效实体推导，攻击结束后自动失活。</summary>
 public sealed class LegendStarburstPostProcessing : ModSystem
 {
     private const string FilterKey = "Anomalies:LegendStarburstRadialBlur";
@@ -54,15 +54,22 @@ public sealed class LegendStarburstPostProcessing : ModSystem
             return false;
         bool found = false;
         foreach (Projectile projectile in Projectile.ActiveProjectiles)
-            if (projectile.ModProjectile is LegendStarburst burst
-                && burst.TryGetVisualFrame(out LegendStarburstVisuals.Burst candidate)
-                && candidate.Age < LegendStarburstVisuals.BlurDuration
+        {
+            LegendStarburstVisuals.Burst candidate = default;
+            bool visible = projectile.ModProjectile switch
+            {
+                LegendStarburst burst => burst.TryGetVisualFrame(out candidate),
+                CoinJudgment judgment => judgment.TryGetCircleFrame(out candidate),
+                _ => false
+            };
+            if (visible && candidate.Age < LegendStarburstVisuals.BlurDuration
                 && (!found || candidate.Age < frame.Age))
             {
                 // The newest impact owns both camera and blur, including its zero-strength onset.
                 frame = candidate;
                 found = true;
             }
+        }
         return found;
     }
 

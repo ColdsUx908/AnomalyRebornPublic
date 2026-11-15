@@ -42,6 +42,7 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer LegendImpactFlame;
         public static MiscShaderContainer LegendaryNightArenaEdge;
         public static MiscShaderContainer LegendaryNightArenaMist;
+        public static MiscShaderContainer LegendaryNightBloom;
         public static MiscShaderContainer LegendStarburstRingMark;
         public static MiscShaderContainer LegendStellarExplosion;
         public static MiscShaderContainer LegendStellarPhotosphere;
@@ -65,6 +66,7 @@ public sealed class AnomalyEffects : ILoadable
         public static MiscShaderContainer EventideSweep;
         public static MiscShaderContainer GlowCircle;
         public static MiscShaderContainer GlowLine;
+        public static MiscShaderContainer LegendCoinCross;
         public static MiscShaderContainer LegendStellarAccretion;
         public static MiscShaderContainer LegendStellarLaser;
         public static MiscShaderContainer LegendStellarLaserWarning;
