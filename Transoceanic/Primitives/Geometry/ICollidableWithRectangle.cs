@@ -10,5 +10,5 @@ public interface ICollidableWithRectangle
     /// </summary>
     /// <param name="other">要检测的矩形区域。</param>
     /// <returns>若发生碰撞则返回 <see langword="true"/>；否则返回 <see langword="false"/>。</returns>
-    public abstract bool Collides(Rectangle other);
+    bool Collides(Rectangle other);
 }

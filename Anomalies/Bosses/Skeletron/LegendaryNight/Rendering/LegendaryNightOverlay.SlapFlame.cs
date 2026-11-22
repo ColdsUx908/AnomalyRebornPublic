@@ -1,5 +1,3 @@
-using Anomalies.Assets.Effects;
-
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class LegendaryNightOverlay

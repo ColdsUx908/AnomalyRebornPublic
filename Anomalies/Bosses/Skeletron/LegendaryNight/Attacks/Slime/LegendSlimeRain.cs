@@ -11,17 +11,25 @@ public sealed class LegendSlimeRain : AnomalyModProjectile
 {
     public override string Texture => LegendaryNightHandler.LegendaryNightPath + "Attacks/Slime/LegendSlimeRain";
     public override string LocalizationCategory => LegendaryNightHandler.LocalizationCategory;
-    /// <summary>雨幕贴图。</summary>
+    /// <summary>
+    /// 雨幕贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Slime/LegendSlimeRain")]
     private static Asset<Texture2D> _RainTexture;
-    /// <summary>雨幕绿色变体贴图。</summary>
+    /// <summary>
+    /// 雨幕绿色变体贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Slime/LegendSlimeRain_Green")]
     private static Asset<Texture2D> _RainTextureGreen;
-    /// <summary>雨幕圆形变体贴图。</summary>
+    /// <summary>
+    /// 雨幕圆形变体贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Slime/LegendSlimeRain_Round")]
     private static Asset<Texture2D> _RainTextureRound;
 
-    /// <summary>变体数量。</summary>
+    /// <summary>
+    /// 变体数量。
+    /// </summary>
     public const int VariantCount = 3;
     public static Texture2D GetRainTexture(int variant) => variant switch
     {
@@ -30,7 +38,9 @@ public sealed class LegendSlimeRain : AnomalyModProjectile
         _ => _RainTexture.Value
     };
 
-    /// <summary>拖尾长度。</summary>
+    /// <summary>
+    /// 拖尾长度。
+    /// </summary>
     private const int TrailLength = 8;
 
     public override void SetStaticDefaults()

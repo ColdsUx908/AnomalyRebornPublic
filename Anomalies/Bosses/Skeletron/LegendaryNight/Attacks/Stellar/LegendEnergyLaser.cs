@@ -1,7 +1,6 @@
 using Anomalies.Assets.Effects;
 using Terraria.Graphics.Shaders;
 using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Parameters;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Timeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -17,16 +16,24 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 public sealed class LegendEnergyLaser : AnomalyModProjectile
 {
     // Radiance 的直线光束形状：半宽700，实际绘制宽1400；中心伤害宽度独立为32。
-    /// <summary>光束半径，单位为世界像素。</summary>
+    /// <summary>
+    /// 光束半径，单位为世界像素。
+    /// </summary>
     private const float BeamRadius = 700f;
 
-    /// <summary>发射音效。</summary>
+    /// <summary>
+    /// 发射音效。
+    /// </summary>
     public static readonly SoundStyle FiringSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stellar/LegendEnergyLaserFire") { MaxInstances = 0 };
 
-    /// <summary>本束激光及预警的视觉底色；默认混合光球金色与40%星光色，不影响伤害判定。</summary>
+    /// <summary>
+    /// 本束激光及预警的视觉底色；默认混合光球金色与40%星光色，不影响伤害判定。
+    /// </summary>
     public Color BeamColor { get; set; } = new(Vector3.Lerp(LegendEnergySphere.GoldColor, LegendEnergySphere.StarlightColor, 0.4f));
 
-    /// <summary>服务器确定的有符号预警旋转角（弧度），正负分别对应顺、逆时针，范围[-π,π]。</summary>
+    /// <summary>
+    /// 服务器确定的有符号预警旋转角（弧度），正负分别对应顺、逆时针，范围[-π,π]。
+    /// </summary>
     public float TurnAngle { get; set; }
     public bool Punishment { get; set; }
     // 蓝色恒星的冷白核心与偏蓝外沿；保留着色器已有的白核过渡。
@@ -145,9 +152,15 @@ public sealed class LegendEnergyLaser : AnomalyModProjectile
     public override bool CanHitPlayer(Player target) => !Punishment && !_HitPlayers[target.whoAmI] && Firing && Head is SkeletronLegendHead { StellarMechanicsActive: true } head
         && head.CurrentBehavior != SkeletronLegendHead.Behavior.Despawn;
 
-    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => Firing
-        && RotatedRectangle.FromLineSegment(Projectile.Center,
-            Projectile.Center + Angle.ToRotationVector2() * LaserLength, LaserWidth).Collides(targetHitbox);
+    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+    {
+        if (!Firing)
+            return false;
+        Vector2 start = Projectile.Center;
+        Vector2 end = start + Angle.ToRotationVector2() * LaserLength;
+        return !ProjectileDamageBounds.Swept(start, end, LaserWidth * 0.5f + 1f).Excludes(targetHitbox)
+            && RotatedRectangle.FromLineSegment(start, end, LaserWidth).Collides(targetHitbox);
+    }
 
     public override void OnHitPlayer(Player target, Player.HurtInfo info)
     {

@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron;
 
-/// <summary>普通骷髅王与传说之夜共用的运动；调用方负责状态、目标及网络权威。</summary>
+/// <summary>
+/// 普通骷髅王与传说之夜共用的运动；调用方负责状态、目标及网络权威。
+/// </summary>
 internal static class SkeletronKinematics
 {
     public static void NormalMovement(NPC npc, Player target, float maxSpeedX, float maxSpeedY, float accelerationX, float accelerationY, float targetDistanceAboveTarget, float rotationFactor = 15f)

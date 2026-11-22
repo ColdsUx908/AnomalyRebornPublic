@@ -26,27 +26,27 @@ public interface IContentLoader
     /// <summary>
     /// 在所有 Mod 内容加载完成后调用。
     /// </summary>
-    public virtual void PostSetupContent() { }
+    virtual void PostSetupContent() { }
 
     /// <summary>
     /// 在所有配方添加完成后调用。
     /// </summary>
-    public virtual void PostAddRecipes() { }
+    virtual void PostAddRecipes() { }
 
     /// <summary>
     /// 在 Mod 卸载前调用，用于清理资源。
     /// </summary>
-    public virtual void OnModUnload() { }
+    virtual void OnModUnload() { }
 
     /// <summary>
     /// 在世界加载完成时调用。
     /// </summary>
-    public virtual void OnWorldLoad() { }
+    virtual void OnWorldLoad() { }
 
     /// <summary>
     /// 在世界卸载前调用。
     /// </summary>
-    public virtual void OnWorldUnload() { }
+    virtual void OnWorldUnload() { }
 }
 
 /// <summary>

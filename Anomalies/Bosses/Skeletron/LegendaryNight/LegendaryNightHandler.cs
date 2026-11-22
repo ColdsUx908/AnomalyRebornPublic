@@ -1,22 +1,38 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>传说之夜共享资源路径、主题颜色和主体查询入口。</summary>
+/// <summary>
+/// 传说之夜共享资源路径、主题颜色和主体查询入口。
+/// </summary>
 public static class LegendaryNightHandler
 {
-    /// <summary>传说之夜资源根路径。</summary>
+    /// <summary>
+    /// 传说之夜资源根路径。
+    /// </summary>
     public const string LegendaryNightPath = AnomalySharedData.ModPath + "Bosses/Skeletron/LegendaryNight/";
-    /// <summary>机制七元素弹幕标记。</summary>
+    /// <summary>
+    /// 机制七元素弹幕标记。
+    /// </summary>
     public const float Mechanic7ElementProjectileMarker = Skull.SuppressDeathEffectsMarker;
 
-    /// <summary>本地化分类路径。</summary>
+    /// <summary>
+    /// 本地化分类路径。
+    /// </summary>
     public const string LocalizationCategory = "Bosses.Skeletron.LegendaryNight";
-    /// <summary>骨质颜色。</summary>
+    /// <summary>
+    /// 骨质颜色。
+    /// </summary>
     public static readonly Color BoneColor = new(233, 225, 199);
-    /// <summary>史莱姆颜色。</summary>
+    /// <summary>
+    /// 史莱姆颜色。
+    /// </summary>
     public static readonly Color SlimeColor = new(105, 140, 255);
-    /// <summary>星体颜色。</summary>
+    /// <summary>
+    /// 星体颜色。
+    /// </summary>
     public static readonly Color StarColor = new(255, 215, 0);
-    /// <summary>铂金颜色。</summary>
+    /// <summary>
+    /// 铂金颜色。
+    /// </summary>
     public static readonly Color PlatinumColor = new(242, 243, 236);
 
     /// <summary>
@@ -45,7 +61,9 @@ public static class LegendaryNightHandler
         return true;
     }
 
-    /// <summary>取得仍在运行的场景候选，排除退场及未接入当前行为的主体。</summary>
+    /// <summary>
+    /// 取得仍在运行的场景候选，排除退场及未接入当前行为的主体。
+    /// </summary>
     internal static bool TryGetSceneCandidate(NPC npc, out SkeletronLegendHead head)
     {
         head = null;
@@ -58,7 +76,9 @@ public static class LegendaryNightHandler
         return true;
     }
 
-    /// <summary>天空、世界时间和音乐共用的主体选择：时间控制优先，其次二阶段音乐，同优先级按 NPC 槽位顺序。</summary>
+    /// <summary>
+    /// 天空、世界时间和音乐共用的主体选择：时间控制优先，其次二阶段音乐，同优先级按 NPC 槽位顺序。
+    /// </summary>
     internal static bool TryGetSceneHead(out SkeletronLegendHead head)
     {
         head = null;

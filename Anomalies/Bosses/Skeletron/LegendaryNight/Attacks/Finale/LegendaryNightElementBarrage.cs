@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>机制七的元素载体补建与发射编排。</summary>
+/// <summary>
+/// 机制七的元素载体补建与发射编排。
+/// </summary>
 internal static class LegendaryNightElementBarrage
 {
     internal static void Update(SkeletronLegendHead head, LegendaryNightPhase2Arena arena)

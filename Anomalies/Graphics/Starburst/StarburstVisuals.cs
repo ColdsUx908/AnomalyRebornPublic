@@ -1,0 +1,76 @@
+namespace Anomalies.Visuals.Starburst;
+
+/// <summary>
+/// 星爆的共享绘制输入、动画包络和光晕校准；攻击配方留在所属视觉实现中。
+/// </summary>
+internal static class StarburstVisuals
+{
+    public const int BlurDuration = 20;
+    public const int ShakeDuration = 14;
+
+    /// <summary>
+    /// Age 以伤害起始帧为零；InnerRadius 为零表示实心圆，SigilRadius 为交汇小法阵半径。
+    /// </summary>
+    public readonly record struct Burst(Vector2 Center, float OuterRadius, float InnerRadius, float SigilRadius, float Age, float ShakeScale = 1f, float SustainDuration = 0f, float BlurScale = 1f);
+
+    /// <summary>
+    /// 只延长主体退场包络；入场、扩张、粒子运动与相机仍使用真实年龄。
+    /// </summary>
+    public static float SustainAge(float age, float duration, float peakAge)
+    {
+        if (duration <= peakAge || age <= peakAge)
+            return age;
+        // 伤害窗口内保持峰值；窗口结束后以原速度的 75% 退场。
+        return peakAge + Math.Max(0f, age - duration) * 0.75f;
+    }
+
+    /// <summary>
+    /// 冲击反馈按规模和距离衰减；只重映射反馈时钟，不改变攻击本身。
+    /// </summary>
+    public static bool TryCreateShockwaveFrame(Vector2 center, float radius, float distance, int age,
+        float strength, int duration, out Burst frame)
+    {
+        frame = default;
+        if (age < 0 || duration <= 0 || age >= duration || !float.IsFinite(radius) || radius <= 0f
+            || !float.IsFinite(distance) || distance < 0f || !float.IsFinite(strength) || strength <= 0f)
+            return false;
+        float proximity = 1f - Clamp((distance - radius * 0.3f) / Math.Max(1000f, radius * 1.5f));
+        float amplitude = strength * proximity;
+        if (amplitude <= 0f)
+            return false;
+        float pulseAge = age * BlurDuration / (float)duration;
+        frame = new(center, radius, 0f, 0f, pulseAge, amplitude, BlurScale: amplitude);
+        return true;
+    }
+
+    public static float BlurStrength(float age) => age is < 0f or >= BlurDuration ? 0f
+        : 0.12f * Smooth(Clamp(age / 1.5f)) * MathF.Pow(1f - age / BlurDuration, 2f);
+
+    /// <summary>
+    /// 星爆的世界像素相机偏移；相机、爆点和背景共用同一年龄。
+    /// </summary>
+    public static Vector2 ShakeOffset(float age)
+    {
+        if (age is < 0f or >= ShakeDuration)
+            return Vector2.Zero;
+        float amplitude = 9f * (1f - age / ShakeDuration);
+        return new Vector2(MathF.Sin(age * 2.7f), MathF.Cos(age * 3.3f) * 0.7f) * amplitude;
+    }
+
+    public static float Clamp(float ratio) => Math.Clamp(ratio, 0f, 1f);
+    public static float Lerp(float from, float to, float ratio) => MathHelper.Lerp(from, to, ratio);
+    public static float Smooth(float ratio) => ratio * ratio * (3f - 2f * ratio);
+    public static float OutCubic(float ratio) => TOMathUtils.Interpolation.ExponentialEaseOut(ratio, 3f, false);
+    public static float OutQuart(float ratio) => TOMathUtils.Interpolation.ExponentialEaseOut(ratio, 4f, false);
+    public static float OutExpo(float ratio) => TOMathUtils.Interpolation.BinaryExponentialEaseOut(ratio, false);
+    public static float Bell(float ratio, float rise) => ratio is <= 0f or >= 1f ? 0f
+        : ratio < rise ? Smooth(ratio / rise) : MathF.Pow(1f - (ratio - rise) / (1f - rise), 1.6f);
+
+    public static BloomSettings WithBody(BloomSettings settings, bool dayTime) => settings with
+    {
+        // 内置柔光滤波完整覆盖目标，保留捕获清屏即可。
+        SkipFilterClear = true,
+        AdditiveBody = !dayTime,
+        BodyPasses = dayTime ? 2 : 1
+    };
+}

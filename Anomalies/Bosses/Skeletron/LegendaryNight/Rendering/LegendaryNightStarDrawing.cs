@@ -1,42 +1,68 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>传说之夜星体绘制的共享几何与着色参数。</summary>
+/// <summary>
+/// 传说之夜星体绘制的共享几何与着色参数。
+/// </summary>
 public static class LegendaryNightStarDrawing
 {
-    /// <summary>光晕贴图。</summary>
+    /// <summary>
+    /// 光晕贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStarLight")]
     private static Asset<Texture2D> _LightTexture;
-    /// <summary>光晕贴图。</summary>
+    /// <summary>
+    /// 光晕贴图。
+    /// </summary>
     public static Texture2D LightTexture => _LightTexture.Value;
 
-    /// <summary>星体贴图。</summary>
+    /// <summary>
+    /// 星体贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar")]
     private static Asset<Texture2D> _StarTexture;
-    /// <summary>星体贴图。</summary>
+    /// <summary>
+    /// 星体贴图。
+    /// </summary>
     public static Texture2D StarTexture => _StarTexture.Value;
 
-    /// <summary>中等变体贴图。</summary>
+    /// <summary>
+    /// 中等变体贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar_Medium")]
     private static Asset<Texture2D> _MediumTexture;
-    /// <summary>中等变体贴图。</summary>
+    /// <summary>
+    /// 中等变体贴图。
+    /// </summary>
     public static Texture2D MediumTexture => _MediumTexture.Value;
 
-    /// <summary>发光贴图。</summary>
+    /// <summary>
+    /// 发光贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar_Glow")]
     private static Asset<Texture2D> _GlowTexture;
-    /// <summary>发光贴图。</summary>
+    /// <summary>
+    /// 发光贴图。
+    /// </summary>
     public static Texture2D GlowTexture => _GlowTexture.Value;
 
-    /// <summary>中等变体发光贴图。</summary>
+    /// <summary>
+    /// 中等变体发光贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar_MediumGlow")]
     private static Asset<Texture2D> _MediumGlowTexture;
-    /// <summary>中等变体发光贴图。</summary>
+    /// <summary>
+    /// 中等变体发光贴图。
+    /// </summary>
     public static Texture2D MediumGlowTexture => _MediumGlowTexture.Value;
 
-    /// <summary>困难变体贴图。</summary>
+    /// <summary>
+    /// 困难变体贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar_Hard")]
     private static Asset<Texture2D> _HardTexture;
-    /// <summary>困难变体贴图。</summary>
+    /// <summary>
+    /// 困难变体贴图。
+    /// </summary>
     public static Texture2D HardTexture => _HardTexture.Value;
     public static void DrawFallingStar(Vector2 position, float rotation, float scale, Vector2 velocity, int trailType = 0, bool useMediumTexture = false, Vector2[] oldPositions = null, Vector2 trailOffset = default, Color? trailColorOverride = null)
     {
@@ -99,7 +125,9 @@ public static class LegendaryNightStarDrawing
         Main.spriteBatch.Draw(starTexture, position, null, Color.White, rotation, starOrigin, scale, SpriteEffects.None, 0f);
     }
 
-    /// <summary>绘制类型2的连续光斑拖尾；位置和历史采样均使用世界坐标。</summary>
+    /// <summary>
+    /// 绘制类型2的连续光斑拖尾；位置和历史采样均使用世界坐标。
+    /// </summary>
     public static void DrawTrailType2(Vector2 position, float scale, Vector2 velocity, Vector2[] oldPositions,
         Vector2 trailOffset = default, Color? trailColorOverride = null, bool useMediumTexture = false)
     {

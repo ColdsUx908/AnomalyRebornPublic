@@ -1,5 +1,5 @@
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstTimeline;
 using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstParameters;
+using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstTimeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -8,9 +8,13 @@ public sealed partial class LegendaryNightPhase2Arena
     // 接口以每帧弧度定义；速度恒定的区段可直接预测交汇位置。
     // 慢法阵从首次拍击到首次星爆恰好公转一整圈，拍击时的位置就是首次爆点。
     // 首次交汇后按音乐节点分段积分，预测与实际公转共用计算。
-    /// <summary>慢速公转周期，单位为游戏帧。</summary>
+    /// <summary>
+    /// 慢速公转周期，单位为游戏帧。
+    /// </summary>
     public const int SlowOrbitPeriod = SkeletronLegendHead.Mechanic3Timeline.StartMusicTime - SkeletronLegendHead.Mechanic2Timeline.FirstStrikeMusicTime;
-    /// <summary>慢速公转速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 慢速公转速度，以世界像素和游戏帧计量。
+    /// </summary>
     public static float SlowOrbitSpeed => MathHelper.TwoPi / SlowOrbitPeriod;
     public float FirstStarburstAngle => Projectile.ai[2] - 1f;
     public Vector2 FirstStarburstPosition => Projectile.Center
@@ -26,15 +30,25 @@ public sealed partial class LegendaryNightPhase2Arena
 
     // 第四至第五次间先保持旧速，再以SmoothStep加速；积分恰好相差一圈。
     // 加速结束后两圈分别每95帧顺时针转150°、510°，角度与角速度均连续。
-    /// <summary>快速慢速公转速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 快速慢速公转速度，以世界像素和游戏帧计量。
+    /// </summary>
     public static float RapidSlowOrbitSpeed => MathHelper.ToRadians(150f) / RapidStarburstInterval;
-    /// <summary>过渡持续时间。</summary>
+    /// <summary>
+    /// 过渡持续时间。
+    /// </summary>
     private static float TransitionDuration => SkeletronLegendHead.Mechanic5Timeline.FifthStarburstMusicTime - SkeletronLegendHead.Mechanic5Timeline.FourthStarburstMusicTime;
-    /// <summary>初始相对速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 初始相对速度，以世界像素和游戏帧计量。
+    /// </summary>
     private static float InitialRelativeSpeed => MathHelper.TwoPi / (SkeletronLegendHead.Mechanic5Timeline.FourthStarburstMusicTime - SkeletronLegendHead.Mechanic5Timeline.StartMusicTime);
-    /// <summary>快速段相对速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 快速段相对速度，以世界像素和游戏帧计量。
+    /// </summary>
     private static float RapidRelativeSpeed => MathHelper.TwoPi / RapidStarburstInterval;
-    /// <summary>加速延迟。</summary>
+    /// <summary>
+    /// 加速延迟。
+    /// </summary>
     private static float AccelerationDelay =>
         ((InitialRelativeSpeed + RapidRelativeSpeed) * 0.5f * TransitionDuration - MathHelper.TwoPi)
         / ((RapidRelativeSpeed - InitialRelativeSpeed) * 0.5f);

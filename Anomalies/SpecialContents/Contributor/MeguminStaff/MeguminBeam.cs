@@ -2,7 +2,9 @@ using Terraria.Graphics.CameraModifiers;
 
 namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-/// <summary>惠惠法杖的持续爆炎光束；所属客户端更新位置、支付魔力并同步停止状态。</summary>
+/// <summary>
+/// 惠惠法杖的持续爆炎光束；所属客户端更新位置、支付魔力并同步停止状态。
+/// </summary>
 /// <remarks>ai[0] 为存续帧数，ai[1] 为停止后的淡出帧数，ai[2] 未使用。位置由实体包同步；发包位置缓存不进入快照。</remarks>
 public sealed class MeguminBeam : AnomalyModProjectile
 {
@@ -12,8 +14,8 @@ public sealed class MeguminBeam : AnomalyModProjectile
     public const int WarmupTime = 18;
     public const int FadeDuration = 18;
     public const int MaxDuration = 600;
-    public const int ManaInterval = 10;
-    public const int ManaPerPulse = 12;
+    public const int DamageInterval = 3;
+    public const int ManaPerPulse = 15;
     public float Time => Projectile.ai[0];
     public bool Stopping => Projectile.ai[1] > 0f;
     public float Opacity => MathHelper.Clamp(Time / 3f, 0f, 1f)
@@ -38,7 +40,7 @@ public sealed class MeguminBeam : AnomalyModProjectile
         Projectile.timeLeft = 2;
         Projectile.hide = true;
         Projectile.usesLocalNPCImmunity = true;
-        Projectile.localNPCHitCooldown = 3;
+        Projectile.localNPCHitCooldown = DamageInterval;
     }
 
     public override bool ShouldUpdatePosition() => false;
@@ -75,7 +77,7 @@ public sealed class MeguminBeam : AnomalyModProjectile
                     _LastSyncedCenter = target;
                     Projectile.netUpdate = true;
                 }
-                if (Time >= WarmupTime && (Time - WarmupTime) % ManaInterval == 0f
+                if (Time >= WarmupTime && (Time - WarmupTime) % DamageInterval == 0f
                     && !player.CheckMana(player.HeldItem, ManaPerPulse, true))
                     StopChannel(player);
             }

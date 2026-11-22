@@ -33,14 +33,18 @@ public sealed class EaterofWorldsHandler
             }
         }
 
-        /// <summary>在行为内容加载时安装生成和掉落钩子，不提前修改 NPC 静态数组。</summary>
+        /// <summary>
+        /// 在行为内容加载时安装生成和掉落钩子，不提前修改 NPC 静态数组。
+        /// </summary>
         public override void Load()
         {
             On_NPC.DropEoWLoot += On_NPC_DropEoWLoot;
             On_NPC.NewNPC += On_NPC_NewNPC;
         }
 
-        /// <summary>在 tML 完成内容数组扩容后设置原版吞噬怪的残影表，避免加载后被重置。</summary>
+        /// <summary>
+        /// 在 tML 完成内容数组扩容后设置原版吞噬怪的残影表，避免加载后被重置。
+        /// </summary>
         public override void SetStaticDefaults()
         {
             base.SetStaticDefaults();
@@ -91,7 +95,9 @@ public sealed class EaterofWorldsHandler
     [ExtendsFromMod(CalamityModName)]
     public sealed class CalamitySupport : ILoadable
     {
-        /// <summary>在 tML 内容加载时订阅运行期减伤兼容，不立即读取实体状态。</summary>
+        /// <summary>
+        /// 在 tML 内容加载时订阅运行期减伤兼容，不立即读取实体状态。
+        /// </summary>
         /// <param name="mod">由 tML 提供的所属模组。</param>
         void ILoadable.Load(Mod mod)
         {

@@ -12,7 +12,9 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLegendHand>
 {
-    /// <summary>一阶段和常态二阶段共用的手部动作，映射原版 ai[2]。</summary>
+    /// <summary>
+    /// 一阶段和常态二阶段共用的手部动作，映射原版 ai[2]。
+    /// </summary>
     private enum NormalAction : byte
     {
         Idle = 0,
@@ -23,7 +25,9 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
         Sweep = 5,
     }
 
-    /// <summary>机制二/五/六的脚本动作，与常态动作互斥复用 ai[2]。</summary>
+    /// <summary>
+    /// 机制二/五/六的脚本动作，与常态动作互斥复用 ai[2]。
+    /// </summary>
     private enum ScriptedAction : byte
     {
         Idle = 0,
@@ -36,17 +40,29 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
 
     protected override int AI64Capacity => 2;
 
-    /// <summary>攻击周期持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 攻击周期持续时间，单位为游戏帧。
+    /// </summary>
     private const int AttackCycleDuration = 300;
-    /// <summary>常态攻击周期内开始蓄势的相对帧。</summary>
+    /// <summary>
+    /// 常态攻击周期内开始蓄势的相对帧。
+    /// </summary>
     private const int WindupStart = 150;
-    /// <summary>常态攻击周期内开始拍击或横扫的相对帧。</summary>
+    /// <summary>
+    /// 常态攻击周期内开始拍击或横扫的相对帧。
+    /// </summary>
     private const int StrikeTime = 210;
-    /// <summary>最小拍击持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 最小拍击持续时间，单位为游戏帧。
+    /// </summary>
     private const int MinimumStrikeDuration = 20;
-    /// <summary>最大拍击持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 最大拍击持续时间，单位为游戏帧。
+    /// </summary>
     private const int MaximumStrikeDuration = 75;
-    /// <summary>越过出手时玩家位置后继续挥动的帧数。</summary>
+    /// <summary>
+    /// 越过出手时玩家位置后继续挥动的帧数。
+    /// </summary>
     private const int StrikeFollowThroughDuration = 8;
     private const float StrikeSpeed = 28f;
 
@@ -54,7 +70,9 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
 
     // ai[0/1] 保留左右侧和主人；ai[2] 为动作，ai[3] 按常态/脚本解释。
     // AI64[0/1] 在常态攻击和机制二/五/六之间复用，由服务器在动作入口重新锁定。
-    /// <summary>常态/机制五挥击起点；机制六准备时复用为相对主体的位置。</summary>
+    /// <summary>
+    /// 常态/机制五挥击起点；机制六准备时复用为相对主体的位置。
+    /// </summary>
     private Vector2 StrikeOrigin
     {
         get => AnomalyNPC.AnomalyAI64[0].GetValue<Vector2>();
@@ -65,7 +83,9 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
         }
     }
 
-    /// <summary>常态/机制五服务器锁定的挥击终点。</summary>
+    /// <summary>
+    /// 常态/机制五服务器锁定的挥击终点。
+    /// </summary>
     private Vector2 StrikeDestination
     {
         get => AnomalyNPC.AnomalyAI64[1].GetValue<Vector2>();
@@ -76,21 +96,27 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
         }
     }
 
-    /// <summary>星爆开始时锁定的后撤方向，挥击前复用 AI64[0]。</summary>
+    /// <summary>
+    /// 星爆开始时锁定的后撤方向，挥击前复用 AI64[0]。
+    /// </summary>
     private Vector2 Mechanic5WindupDirection
     {
         get => StrikeOrigin;
         set => StrikeOrigin = value;
     }
 
-    /// <summary>机制二入场的相对起点，复用 AI64[0]。</summary>
+    /// <summary>
+    /// 机制二入场的相对起点，复用 AI64[0]。
+    /// </summary>
     private Vector2 Mechanic2EntryOffset
     {
         get => StrikeOrigin;
         set => StrikeOrigin = value;
     }
 
-    /// <summary>机制二入场的初速度，复用 AI64[1]。</summary>
+    /// <summary>
+    /// 机制二入场的初速度，复用 AI64[1]。
+    /// </summary>
     private Vector2 Mechanic2EntryVelocity
     {
         get => StrikeDestination;
@@ -223,10 +249,14 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
         }
     }
 
-    /// <summary>复用普通骷髅王手部的待机位置。</summary>
+    /// <summary>
+    /// 复用普通骷髅王手部的待机位置。
+    /// </summary>
     private Vector2 GetIdleOffset(int side) => SkeletronKinematics.GetIdleOffset(side, NPC.height, Master.height);
 
-    /// <summary>手掌沿第一段骨节连接轴自然下垂。</summary>
+    /// <summary>
+    /// 手掌沿第一段骨节连接轴自然下垂。
+    /// </summary>
     private static float GetRestingRotation(Vector2 handCenter, Vector2 headCenter, int side, int handHeight)
     {
         Vector2 wrist = handCenter + new Vector2(side * 5f, 20f - handHeight * 0.5f);
@@ -234,7 +264,9 @@ public sealed partial class SkeletronLegendHand : AnomalyNPCBehavior<SkeletronLe
         return MathHelper.WrapAngle(forearm.ToRotation() + MathHelper.PiOver2);
     }
 
-    /// <summary>沿用原版 atan2(参考点-手部)+π/2；参考点取原版第二段骨节的 (±50,80)，使手掌顺接前臂。</summary>
+    /// <summary>
+    /// 沿用原版 atan2(参考点-手部)+π/2；参考点取原版第二段骨节的 (±50,80)，使手掌顺接前臂。
+    /// </summary>
     public static float GetPositionRotation(Vector2 handCenter, Vector2 headCenter, int side)
     {
         Vector2 direction = headCenter + new Vector2(side * 50f, 80f) - handCenter;

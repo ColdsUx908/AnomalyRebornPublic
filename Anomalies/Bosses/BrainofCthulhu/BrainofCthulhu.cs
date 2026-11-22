@@ -1,4 +1,3 @@
-using Anomalies.Assets.Effects;
 using Anomalies.Visuals.BossBar;
 
 namespace Anomalies.Bosses.BrainofCthulhu;
@@ -70,7 +69,7 @@ public sealed partial class BrainofCthulhu : AnomalyNPCBehavior<BrainofCthulhu>
     private static SoundStyle _BloodBombSound = new("Anomalies/Bosses/BrainofCthulhu/Sounds/BloodBomb");
     private static SoundStyle _ExplosionSound = new("Anomalies/Bosses/BrainofCthulhu/Sounds/Explosion", 2);
     public bool SummonedViaItem { get => Read(15) != 0; set => Write(15, value ? 1 : 0); }
-    public List<BrainOfCthulhuAfterImage> BoCAfterImages { get => AnomalyNPC.BrainOfCthulhu_AfterImages; set => AnomalyNPC.BrainOfCthulhu_AfterImages = value; }
+    public List<PathAfterimageParticle> BoCAfterImages { get => AnomalyNPC.BrainOfCthulhu_AfterImages; set => AnomalyNPC.BrainOfCthulhu_AfterImages = value; }
 
     private static readonly ProjectileDamageContainer _BrainIllusionDamage = new(30, 60, 90, 90, 90, 90);
     public static int BrainIllusionDamage => _BrainIllusionDamage.Value;

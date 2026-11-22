@@ -9,21 +9,10 @@ Core: {
 }
 
 Commands: {
-	GeneralCommand: {
-		Helper:
-			'''
-			没有输入命令。
-			使用 help 关键字查看所有可用命令。
-			'''
-		Helper2:
-			'''
-			未找到命令。
-			使用 help 关键字查看所有可用命令。
-			'''
-		InvalidArguments: 无效参数。
-	}
+	UnknownCommand: 未找到命令 {0}。
 
 	DebugMode: {
+		InvalidArguments: 无效参数。
 		Status: 调试模式状态为：{0}。
 		On:
 			'''

@@ -11,7 +11,15 @@ public class BloomParticle : Particle
     /// <summary>
     /// 已加载的大尺寸光晕纹理。
     /// </summary>
-    public static Texture2D BloomCircleLarge => _BloomCircleLarge.Value;
+    public static Texture2D BloomCircleLarge => _BloomCircleLargeMask.Value;
+
+    [LoadTexture(ParticleHandler.BaseParticleTexturePath + "BloomCircleLargeMask")]
+    private static Asset<Texture2D> _BloomCircleLargeMask;
+
+    /// <summary>
+    /// 单通道灰度光晕，用于加法绘制。需要透明度覆盖时使用 BloomCircleLarge。
+    /// </summary>
+    public static Texture2D BloomCircleLargeEmission => _BloomCircleLarge.Value;
 
     /// <summary>
     /// 普通光晕纹理的基准半径，单位为像素。
@@ -95,7 +103,7 @@ public class BloomParticle : Particle
     /// </remarks>
     public override bool PreDraw(SpriteBatch spriteBatch, Vector2 drawOffset = default)
     {
-        spriteBatch.DrawFromCenter(UseLargeTexture ? BloomCircleLarge : Texture, Center + drawOffset - Main.screenPosition, null, Color, scale: Scale);
+        spriteBatch.DrawFromCenter(UseLargeTexture ? BloomCircleLargeEmission : Texture, Center + drawOffset - Main.screenPosition, null, Color, scale: Scale);
         return false;
     }
 }

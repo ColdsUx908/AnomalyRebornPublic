@@ -7,6 +7,8 @@ namespace Anomalies.BaseContents;
 
 public abstract class BaseMusicBox<TTile> : AnomalyModItem where TTile : BaseMusicBoxTile
 {
+    public override bool IsLoadingEnabled(Mod mod) => ModLoader.HasMod("AnomaliesMusic");
+
     public override string LocalizationCategory => "GameContents.MusicBoxes";
     public int TileType => ModContent.TileType<TTile>();
     public abstract string MusicFileName { get; }
@@ -30,6 +32,9 @@ public abstract class BaseMusicBox<TTile> : AnomalyModItem where TTile : BaseMus
 
 public abstract class BaseMusicBoxTile : ModTile
 {
+    public override bool IsLoadingEnabled(Mod mod) => ModLoader.HasMod("AnomaliesMusic");
+
+    public override string LocalizationCategory => "GameContents.MusicBoxes";
     public override void SetStaticDefaults()
     {
         Main.tileFrameImportant[Type] = true;
@@ -75,7 +80,11 @@ public abstract class BaseMusicBoxTile : ModTile
             else if (goreType == 571)
                 position.X -= 4f;
 
-            Gore.NewGore(new EntitySource_TileUpdate(i, j), position, velocity, goreType, 0.8f);
+            Gore.NewGoreAction(new EntitySource_TileUpdate(i, j), position, velocity, goreType, gore =>
+            {
+                gore.position += gore.AABBRectangle.Size() / 2f;
+                gore.scale = 0.8f;
+            });
         }
     }
 }

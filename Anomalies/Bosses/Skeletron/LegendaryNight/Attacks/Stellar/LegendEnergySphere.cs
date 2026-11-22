@@ -1,7 +1,5 @@
-using Anomalies.Assets.Effects;
 using ReLogic.Utilities;
 using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Parameters;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Timeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -18,15 +16,25 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 public sealed partial class LegendEnergySphere : AnomalyModProjectile
 {
     // 光球与其激光共用的基础色，着色器不再另写一份色值。
-    /// <summary>金颜色。</summary>
+    /// <summary>
+    /// 金颜色。
+    /// </summary>
     public static Vector3 GoldColor => new(1f, 0.82f, 0.06f);
-    /// <summary>星光颜色。</summary>
+    /// <summary>
+    /// 星光颜色。
+    /// </summary>
     public static Vector3 StarlightColor => new(1f, 0.98f, 0.8f);
-    /// <summary>蓄力音效。</summary>
+    /// <summary>
+    /// 蓄力音效。
+    /// </summary>
     private static readonly SoundStyle _ChargeSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stellar/LegendEnergySphereLoop") { IsLooped = true, Volume = 0.5f };
-    /// <summary>蓄力音效最大音量距离，单位为世界像素。</summary>
+    /// <summary>
+    /// 蓄力音效最大音量距离，单位为世界像素。
+    /// </summary>
     private const float ChargeSoundFullVolumeDistance = 350f;
-    /// <summary>蓄力音效淡出距离，单位为世界像素。</summary>
+    /// <summary>
+    /// 蓄力音效淡出距离，单位为世界像素。
+    /// </summary>
     private const float ChargeSoundFadeOutDistance = 600f;
     private SlotId _ChargeSoundSlot;
     private bool _SoundStarted;

@@ -25,13 +25,19 @@ public sealed class FallingStar : AnomalyModProjectile
 
     public override string Texture => LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/FallingStar";
 
-    /// <summary>拖尾类型：0 无拖尾，1 蓝白光尾，2 金色轨迹拖尾。</summary>
+    /// <summary>
+    /// 拖尾类型：0 无拖尾，1 蓝白光尾，2 金色轨迹拖尾。
+    /// </summary>
     public int TrailType;
 
-    /// <summary>可选拖尾颜色覆盖；null 时保留对应拖尾的默认颜色。</summary>
+    /// <summary>
+    /// 可选拖尾颜色覆盖；null 时保留对应拖尾的默认颜色。
+    /// </summary>
     public Color? TrailColorOverride;
 
-    /// <summary>Timer1 超过此值后开始加速。</summary>
+    /// <summary>
+    /// Timer1 超过此值后开始加速。
+    /// </summary>
     public int AccelerationStartTime = 420;
 
     public override string LocalizationCategory => LegendaryNightHandler.LocalizationCategory;
@@ -142,6 +148,11 @@ public sealed class FallingStar : AnomalyModProjectile
         TrailColorOverride = reader.ReadBoolean() ? new Color { PackedValue = reader.ReadUInt32() } : null;
     }
 
+    private float OuterRadius => 74.5f * Projectile.scale;
+
+    public override bool? CanHitNPC(NPC target) => target.friendly || Projectile.friendly
+        ? ProjectileDamageBounds.Around(Projectile.Center, OuterRadius).CanHitNPC(Type, target) : null;
+
     public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
     {
         Vector2 center = Projectile.Center;
@@ -149,7 +160,7 @@ public sealed class FallingStar : AnomalyModProjectile
         float rotation = Projectile.rotation;
 
         //第一步：圆形包围盒检测
-        float outerRadius = 74.5f * scale; //落星的外接圆半径为 74.5 * scale
+        float outerRadius = OuterRadius;
         if (!new Circle(center, outerRadius).Collides(targetHitbox))
             return false;
 

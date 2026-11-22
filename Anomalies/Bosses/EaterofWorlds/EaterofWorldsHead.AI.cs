@@ -27,7 +27,10 @@ public sealed partial class EaterofWorldsHead
             UpdateCoilDR();
             // The owner drives all heads once, so NPC slot order cannot advance the attack twice.
             NPC.damage = GetContactDamage();
-            SmoothHeadRotation(NPC);
+            if (CircularMovementActive)
+                NPC.velocity = Vector2.Zero;
+            else
+                SmoothHeadRotation(NPC);
             OnRunningPreAI?.Invoke(this);
             return false;
         }
@@ -47,11 +50,41 @@ public sealed partial class EaterofWorldsHead
         }
         if (CurrentBehavior == Behavior.Despawn)
         {
+            StopEncounterCircularMovement();
             NPC.damage = 0;
             NPC.velocity = Vector2.Lerp(NPC.velocity, new Vector2(0f, 18f), 0.04f);
             if (++Timer1 >= 90 && TONetworkEnvironment.NotClient)
                 RemoveEncounter();
             return false;
+        }
+
+        if (TONetworkEnvironment.NotClient && ShouldEnterUltra)
+        {
+            if (CurrentBehavior == Behavior.Phase1_Split)
+            {
+                foreach (Projectile portal in Main.ActiveProjectiles)
+                {
+                    if (portal.ModProjectile is EaterEntryPortal or EaterTeleportRift && portal.ai[0] == NPC.whoAmI + 1)
+                        portal.Kill();
+                }
+            }
+            CurrentPhase = Phase.PhaseChange_1To2;
+            ChangeAttack(Behavior.UltraTransition);
+            Timer2 = Math.Clamp(NPC.life, 1, UltraEntryLife);
+            foreach (NPC segment in AllSegments)
+            {
+                segment.damage = 0;
+                segment.dontTakeDamage = true;
+            }
+            CoilingCenter = Target.Center - new Vector2(0f, 200f);
+            SpawnPortal(CoilingCenter, false, UltraGatherDuration);
+        }
+        else if (TONetworkEnvironment.NotClient && RegularPhase && CurrentBehavior != Behavior.Phase1_Split
+            && RegularPhaseAtCurrentLife > CurrentPhase)
+        {
+            CurrentPhase = RegularPhaseAtCurrentLife;
+            CycleIndex = 0;
+            ChangeAttack(Behavior.Phase1_Split);
         }
 
         switch (CurrentPhase)
@@ -60,7 +93,16 @@ public sealed partial class EaterofWorldsHead
                 InitializeEncounter();
                 break;
             case Phase.Phase1:
-                Phase1CombatAI();
+            case Phase.Phase1_Duet:
+            case Phase.Phase1_Trio:
+                Phase1CombatAI(GetEncounterHeads());
+                break;
+            case Phase.PhaseChange_1To2:
+                UltraTransitionAI(GetEncounterHeads());
+                break;
+            case Phase.Phase2:
+            case Phase.Phase2_Relay:
+                Phase2CombatAI(GetEncounterHeads());
                 break;
         }
         NPC.damage = GetContactDamage();
@@ -68,6 +110,7 @@ public sealed partial class EaterofWorldsHead
         SpawnCoilDust();
         SmoothHeadRotation(NPC);
         OnRunningPreAI?.Invoke(this);
+        UpdateCircularMovement();
         return false;
 
         void InitializeEncounter()
@@ -80,7 +123,7 @@ public sealed partial class EaterofWorldsHead
             Previous = Next = null;
             NPC.realLife = -1;
             AllSegments.Clear();
-            AllSegments.Add(new(NPC));
+            AllSegments.Add(NPC);
             const float SpawnRadius = 140f;
             Vector2 coilCenter = NPC.Center - new Vector2(SpawnRadius, 0f);
             CoilingCenter = coilCenter;
@@ -105,7 +148,7 @@ public sealed partial class EaterofWorldsHead
                         segment.Center = coilCenter + new Vector2(SpawnRadius, 0f).RotatedBy(coilAngle);
                         segment.rotation = coilAngle + MathHelper.Pi;
                         segment.velocity = Vector2.Zero;
-                        AllSegments.Add(new(segment));
+                        AllSegments.Add(segment);
                     });
             }
             if (TransformToWorms(1).Count != 1)
@@ -116,7 +159,7 @@ public sealed partial class EaterofWorldsHead
             CurrentPhase = Phase.Phase1;
             CoilingStartAngle = (NPC.Center - Target.Center).ToRotation();
             ChangeAttack(Behavior.Phase1_Hunt);
-            Phase1CombatAI();
+            Phase1CombatAI(GetEncounterHeads());
         }
     }
 
@@ -124,13 +167,13 @@ public sealed partial class EaterofWorldsHead
     {
         if (!TONetworkEnvironment.NotClient)
             return;
-        foreach (EaterofWorldsSegmentContainer segment in AllSegments)
+        foreach (NPC segment in AllSegments)
         {
-            if (segment.NPC != NPC && segment.SegmentBehavior?.Head != NPC)
+            if (segment != NPC && EaterofWorldsHandler.TryGetSegment(segment)?.Head != NPC)
                 continue;
-            segment.NPC.active = false;
+            segment.active = false;
             if (Main.netMode == NetmodeID.Server)
-                NetMessage.SendData(MessageID.SyncNPC, number: segment.NPC.whoAmI);
+                NetMessage.SendData(MessageID.SyncNPC, number: segment.whoAmI);
         }
         NPC.active = false;
     }

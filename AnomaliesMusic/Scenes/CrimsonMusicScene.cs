@@ -4,7 +4,7 @@ namespace AnomaliesMusic.Scenes;
 
 public sealed class CrimsonMusicScene : BiomeMusicScene
 {
-    protected override string TrackName => "ForsakenBloodland";
+    protected override string TrackName => "Godforsaken — Forsaken Bloodland";
 
     protected override bool IsEnabled(AnomaliesMusicConfig config) => config.ForsakenBloodland;
 

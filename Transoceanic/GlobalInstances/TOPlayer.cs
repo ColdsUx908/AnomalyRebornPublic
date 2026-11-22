@@ -1,17 +1,10 @@
-using Transoceanic.Commands;
-
 namespace Transoceanic.GlobalInstances;
 
 /// <summary>
-/// 保存每个玩家的计时、翼时倍率、命令与本地镜头状态。
+/// 保存每个玩家的计时、翼时倍率与本地镜头状态。
 /// </summary>
 public sealed class TOPlayer : ModPlayer
 {
-    /// <summary>
-    /// 当前玩家保存的命令调用信息。
-    /// </summary>
-    public CommandCallInfo CommandCallInfo { get; internal set; }
-
     /// <summary>
     /// 玩家进入世界后累计的更新帧数。
     /// </summary>
@@ -76,7 +69,6 @@ public sealed class TOPlayer : ModPlayer
     {
         TOPlayer clone = (TOPlayer)base.Clone(newEntity);
 
-        clone.CommandCallInfo = CommandCallInfo;
         clone.GameTime = GameTime;
         clone.IsHurt = IsHurt;
         clone.TimeWithoutHurt = TimeWithoutHurt;

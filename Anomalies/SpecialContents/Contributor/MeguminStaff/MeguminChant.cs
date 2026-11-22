@@ -1,6 +1,8 @@
 namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
-/// <summary>惠惠法杖的蓄力持有弹幕；鼠标目标由所属客户端更新。</summary>
+/// <summary>
+/// 惠惠法杖的蓄力持有弹幕；鼠标目标由所属客户端更新。
+/// </summary>
 /// <remarks>ai[0] 为蓄力帧数，ai[1..2] 为目标世界坐标。同步阈值缓存仅用于所属客户端发包，不进入快照。</remarks>
 public sealed class MeguminChant : AnomalyModProjectile
 {
@@ -67,7 +69,7 @@ public sealed class MeguminChant : AnomalyModProjectile
         if (!Main.dedServ)
         {
             Lighting.AddLight(Projectile.Center, 0.7f * Charge, 0.12f * Charge, 0.45f * Charge);
-            if (Time == 45f || Time == 105f || Time == 150f)
+            if (Time is 45f or 105f or 150f)
                 SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.45f, Pitch = Charge * 0.5f - 0.2f }, Projectile.Center);
             for (int i = 0; i < 2; i++)
             {

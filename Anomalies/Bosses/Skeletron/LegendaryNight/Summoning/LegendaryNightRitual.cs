@@ -14,14 +14,18 @@ public sealed class LegendaryNightRitual : AnomalyModProjectile
 
     public override string LocalizationCategory => LegendaryNightHandler.LocalizationCategory;
 
-    /// <summary>仪式时刻。</summary>
+    /// <summary>
+    /// 仪式时刻。
+    /// </summary>
     public const int RitualTime = 360;
     private const int RiseStartTime = 50;
     private const int RiseEndTime = 170;
     private const int ChargeStartTime = 180;
     private const int ChargeEndTime = 270;
     private const int SummonTime = 300;
-    /// <summary>动画帧数量。</summary>
+    /// <summary>
+    /// 动画帧数量。
+    /// </summary>
     public const int FrameCount = 11;
 
     public Point AltarTopLeftCoordinate;
@@ -61,7 +65,10 @@ public sealed class LegendaryNightRitual : AnomalyModProjectile
                 ? LegendaryNightHandler.IsLegendaryNightHead(summonedHead)
                 : summonedHead is { active: true, type: NPCID.SkeletronHead };
             if (!encounterActive && TONetworkEnvironment.NotClient)
-                Projectile.Kill();
+            {
+                EndRitual();
+                return;
+            }
 
             Projectile.Center = RitualCenter + new Vector2(0f, 8f * MathF.Sin((Timer1 - RitualTime) / 60f)); //上下摆动
         }
@@ -136,6 +143,13 @@ public sealed class LegendaryNightRitual : AnomalyModProjectile
 
         void SummonEncounter()
         {
+            // 两个客户端可能在看到彼此的仪式前同时激活祭坛。由服务器在生成点去重。
+            if (TONetworkEnvironment.NotClient && NPC.AnyNPCs(NPCID.SkeletronHead))
+            {
+                EndRitual();
+                return;
+            }
+
             IsSummoningSkeletron = AnomalyBossChangeToggler.LegendaryNight;
             try
             {
@@ -213,7 +227,18 @@ public sealed class LegendaryNightRitual : AnomalyModProjectile
 
     public override void OnKill(int timeLeft)
     {
+        if (Main.dedServ)
+            return;
+
         for (int i = 0; i < 50; i++)
             ParticleHandler.SpawnParticle(new OrbParticle(Projectile.Center, Main.rand.NextPolarVector2(10f, 25f), Main.rand.Next(20, 40), Main.rand.NextFloat(0.5f, 1f), Color.Lerp(LegendaryNightHandler.StarColor, Color.White, Main.rand.NextFloat(0.5f))));
+    }
+
+    private void EndRitual()
+    {
+        // Projectile.Kill 只自动广播本机拥有的弹幕；祭坛仪式由点击者拥有。
+        if (Main.netMode == NetmodeID.Server && Projectile.owner != Main.myPlayer)
+            NetMessage.SendData(MessageID.KillProjectile, number: Projectile.identity, number2: Projectile.owner);
+        Projectile.Kill();
     }
 }

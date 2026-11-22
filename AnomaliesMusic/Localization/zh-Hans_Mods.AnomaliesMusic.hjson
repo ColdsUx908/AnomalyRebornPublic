@@ -8,22 +8,22 @@ Configs: {
 		}
 
 		PathwaytoReverie: {
-			Label: 入梦之径
+			Label: 雨径——入梦之径
 			Tooltip: 作者：烙、被被子星
 		}
 
 		EchoesoftheAzure: {
-			Label: 深蓝回响
+			Label: 深蓝——深蓝回响
 			Tooltip: 作者：烙、被被子星
 		}
 
 		ForsakenBloodland: {
-			Label: 神唾血地
+			Label: 神弃——神唾血地
 			Tooltip: 作者：烙、被被子星
 		}
 
 		DivineLament: {
-			Label: 神叹魂泣
+			Label: 神泣——神叹魂泣
 			Tooltip: 作者：烙、被被子星
 		}
 	}

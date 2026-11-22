@@ -2,10 +2,14 @@ using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstPa
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>跨机制星爆的纯时间查询；音乐节点由各 MechanicNTimeline 持有，相对窗口由参数类提供。</summary>
+/// <summary>
+/// 跨机制星爆的纯时间查询；音乐节点由各 MechanicNTimeline 持有，相对窗口由参数类提供。
+/// </summary>
 public static class LegendaryNightStarburstTimeline
 {
-    /// <summary>查询当前预警、伤害或淡出窗口的星爆编号；窗口外返回 -1。</summary>
+    /// <summary>
+    /// 查询当前预警、伤害或淡出窗口的星爆编号；窗口外返回 -1。
+    /// </summary>
     public static int GetStarburstIndex(int musicTime)
     {
         // 最后一次允许完整结算伤害及淡出，不在1:52截断。
@@ -17,7 +21,9 @@ public static class LegendaryNightStarburstTimeline
                 return i;
         return -1;
     }
-    /// <summary>返回指定零基星爆编号的音乐绝对帧；前四次采用独立节点，之后按快速间隔排列。</summary>
+    /// <summary>
+    /// 返回指定零基星爆编号的音乐绝对帧；前四次采用独立节点，之后按快速间隔排列。
+    /// </summary>
     public static int GetStarburstTime(int index) => index switch
     {
         0 => SkeletronLegendHead.Mechanic3Timeline.StartMusicTime,
@@ -26,7 +32,9 @@ public static class LegendaryNightStarburstTimeline
         3 => SkeletronLegendHead.Mechanic5Timeline.FourthStarburstMusicTime,
         _ => SkeletronLegendHead.Mechanic5Timeline.FifthStarburstMusicTime + (index - 4) * RapidStarburstInterval
     };
-    /// <summary>按下一次星爆蓄光和上一次星爆余辉计算场地亮度，非激活状态返回零。</summary>
+    /// <summary>
+    /// 按下一次星爆蓄光和上一次星爆余辉计算场地亮度，非激活状态返回零。
+    /// </summary>
     public static float GetGlow(int time, bool active)
     {
         if (!active

@@ -1,8 +1,8 @@
 displayName = Anomalies
 author = ColdsUx
-version = 0.4
+version = 0.4.1
 hideResources = true
 modReferences = Transoceanic
-weakReferences = AnomaliesMusic, CalamityMod
-sortAfter = Transoceanic, Luminance, AnomaliesMusic, CalamityMod
+weakReferences = AnomaliesMusic, CalamityMod, ClamExtraMusic, LegendaryNightExtraMusic
+sortAfter = Transoceanic, Luminance, AnomaliesMusic, CalamityMod, ClamExtraMusic, LegendaryNightExtraMusic
 buildIgnore = .vs\*, Properties\*, obj\*, bin\*, PreBuild\*, Assets\Effects_Cache\*, *.effectcompiler.cache, *.fx, *.fxh, *.md

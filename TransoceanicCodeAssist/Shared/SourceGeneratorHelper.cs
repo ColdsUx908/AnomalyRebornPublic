@@ -50,7 +50,9 @@ internal static class SourceGeneratorHelper
             context.AddSource($"{fileNamePrefix}.{fileIndex}.g.cs", builder.ToString());
     }
 
-    /// <summary>生成完整签名的可逆标识符，包含命名空间、泛型实参、数组秩和引用修饰。</summary>
+    /// <summary>
+    /// 生成完整签名的可逆标识符，包含命名空间、泛型实参、数组秩和引用修饰。
+    /// </summary>
     public static string GetSignatureIdentifier(IMethodSymbol method)
     {
         string signature = method.Name + "(" + string.Join(",", method.Parameters.Select(parameter =>
@@ -58,7 +60,9 @@ internal static class SourceGeneratorHelper
         return "Signature" + string.Concat(signature.Select(character => ((int)character).ToString("X4", System.Globalization.CultureInfo.InvariantCulture)));
     }
 
-    /// <summary>保留无冲突的旧辅助名称；短名冲突时使用完整签名。</summary>
+    /// <summary>
+    /// 保留无冲突的旧辅助名称；短名冲突时使用完整签名。
+    /// </summary>
     public static string GetPublicizerMethodSuffix(IMethodSymbol method)
     {
         string LegacySuffix(IMethodSymbol candidate) => candidate.Name + (candidate.Parameters.Length == 0 ? "" : "_" +
@@ -71,7 +75,9 @@ internal static class SourceGeneratorHelper
             ? GetSignatureIdentifier(method) : legacy;
     }
 
-    /// <summary>为额外的生成参数选择不与源参数重名的标识符。</summary>
+    /// <summary>
+    /// 为额外的生成参数选择不与源参数重名的标识符。
+    /// </summary>
     public static string GetExtraParameterName(IMethodSymbol method, string name)
     {
         while (method.Parameters.Any(parameter => parameter.Name == name)) name = "_" + name;

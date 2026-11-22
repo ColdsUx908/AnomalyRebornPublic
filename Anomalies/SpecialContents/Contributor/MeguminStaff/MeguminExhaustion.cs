@@ -14,7 +14,6 @@ public sealed class MeguminExhaustion : ModBuff
 
     public override void Update(Player player, ref int buffIndex)
     {
-        player.moveSpeed -= 0.35f;
         player.manaRegenDelay = Math.Max(player.manaRegenDelay, 30);
     }
 }

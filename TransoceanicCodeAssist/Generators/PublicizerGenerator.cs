@@ -1,6 +1,8 @@
 namespace TransoceanicCodeAssist.Generators;
 
-/// <summary>为带 Publicize 特性的类型生成强类型反射访问包装。</summary>
+/// <summary>
+/// 为带 Publicize 特性的类型生成强类型反射访问包装。
+/// </summary>
 [Generator]
 public class PublicizerGenerator : IIncrementalGenerator
 {
@@ -122,7 +124,9 @@ public class PublicizerGenerator : IIncrementalGenerator
         }
     }
 
-    /// <summary>获取写入生成源码的 GeneratedCode 特性标记。</summary>
+    /// <summary>
+    /// 获取写入生成源码的 GeneratedCode 特性标记。
+    /// </summary>
     public static string GeneratedCodeMarker => SourceGeneratorHelper.GetGeneratedCodeMarker("PublicizerGenerator");
 
     private const string HelperMethodClass = "global::Transoceanic.Runtime.Publicizing.PublicizerHandler.";
@@ -130,7 +134,9 @@ public class PublicizerGenerator : IIncrementalGenerator
 
     private const string TargetTypeFieldName = "c_TargetType";
 
-    /// <summary>注册增量生成管线；从当前编译中的目标类型生成源码。</summary>
+    /// <summary>
+    /// 注册增量生成管线；从当前编译中的目标类型生成源码。
+    /// </summary>
     /// <param name="context">Roslyn 提供的增量生成器初始化上下文。</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

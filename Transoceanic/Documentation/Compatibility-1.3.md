@@ -52,3 +52,7 @@ NPCScalingCompatibility 在原生内容 Load 中调用 TONPCUtils.ValidateHostCo
 ## Bloom 清屏优化选项
 
 `BloomSettings.SkipFilterClear` 为默认 false 的新增选项；仅在滤波 Effect 完整写入目标且不使用 discard 时可设置 true。默认 Draw 与公共 Blur 保持原清屏行为。BloomSettings 是值类型，增加该成员后应重新编译框架消费方，不承诺与旧 DLL 混用结构布局。
+
+### 叩星旧透视绘制清理
+
+移除此前为叩星试作的 ProjectedWeaponPose 与 TexturedMeshRenderer；仓库内唯一消费方已改用 SpriteBatch 和二维仿射矩阵。依赖这些试作接口的外部源码需自行迁移后重编译，不承诺旧 DLL 的二进制兼容性。

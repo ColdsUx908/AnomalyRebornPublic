@@ -4,7 +4,7 @@ namespace AnomaliesMusic.Scenes;
 
 public sealed class CorruptionMusicScene : BiomeMusicScene
 {
-    protected override string TrackName => "DivineLament";
+    protected override string TrackName => "Gods Weep — Divine Lament";
 
     protected override bool IsEnabled(AnomaliesMusicConfig config) => config.DivineLament;
 

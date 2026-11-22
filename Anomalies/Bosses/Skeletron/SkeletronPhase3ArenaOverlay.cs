@@ -1,5 +1,5 @@
-using Terraria.Graphics.Effects;
 using Anomalies.Visuals.Overlays;
+using Terraria.Graphics.Effects;
 
 namespace Anomalies.Bosses.Skeletron;
 

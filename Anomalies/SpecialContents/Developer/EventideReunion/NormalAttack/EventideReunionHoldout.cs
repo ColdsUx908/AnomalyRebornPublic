@@ -85,6 +85,8 @@ public sealed partial class EventideReunionHoldout : AnomalyModProjectile
         if (ownerPlayer.CanNotUseHoldOut(needsToHold: false) || ownerPlayer.HeldItem.type != ModContent.ItemType<EventideReunion>()
             || ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSelection>()] > 0
             || ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSunSkill>()] > 0
+            || ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSacrednessSkill>()] > 0
+            || EventideReunionStarSkill.IsBlockingActions(ownerPlayer)
             || EventideReunionDeathSkill.IsBlockingActions(ownerPlayer))
         {
             Projectile.Kill();

@@ -1,10 +1,11 @@
-using Transoceanic.Graphics.Drawing;
-using Transoceanic.Graphics.Rendering;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendStarburstVisuals;
+using Anomalies.Visuals.Starburst;
+using static Anomalies.Visuals.Starburst.StarburstVisuals;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>铜币的实心铸纹与金币的空心铸纹：共用流光、同心刻线和向外飞散的金属星屑。</summary>
+/// <summary>
+/// 铜币的实心铸纹与金币的空心铸纹：共用流光、同心刻线和向外飞散的金属星屑。
+/// </summary>
 internal static class CoinRadialVisuals
 {
     public const int StartAge = -8;
@@ -15,7 +16,7 @@ internal static class CoinRadialVisuals
 
     public readonly record struct Frame(Vector2 Center, float OuterRadius, float InnerRadius, float Age, int CoinType);
 
-    public static bool IsVisible(float age) => age > StartAge && age < EndAge;
+    public static bool IsVisible(float age) => age is > StartAge and < EndAge;
     public static bool CoversWarning(float age) => age >= WarningHandoffAge;
     public static float Envelope(float age) => Smooth(Clamp((age - StartAge) / -StartAge))
         * (1f - Smooth(Clamp((age - 26f) / 58f)));
@@ -57,7 +58,7 @@ internal static class CoinRadialVisuals
             batch.Begin(SpriteSortMode.Deferred, blend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, view.Transform);
             if (frame.InnerRadius <= 0f)
-                SpriteDrawing.DrawSized(batch, LegendStarburstCircleAssets.Textures.ExplosionDisc,
+                SpriteDrawing.DrawSized(batch, StarburstCircleAssets.Textures.ExplosionDisc,
                     frame.Center - view.ScreenPosition, new Vector2(frame.OuterRadius * 2f), palette.Body, opacity: envelope * 0.4f);
             for (int edge = 0; edge < 2; edge++)
             {

@@ -45,6 +45,9 @@ public sealed partial class EventideReunion : AnomalyModItem, IDeveloperItem, IL
     public override bool CanUseItem(Player ownerPlayer) => ownerPlayer.altFunctionUse != 2
         && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSelection>()] == 0
         && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSunSkill>()] == 0
+        && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionLifeSkill>()] == 0
+        && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSacrednessSkill>()] == 0
+        && !EventideReunionStarSkill.IsBlockingActions(ownerPlayer)
         && !EventideReunionDeathSkill.IsBlockingActions(ownerPlayer)
         && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSamsaraSkill>()] == 0
         && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionHoldout>()] == 0;
@@ -87,7 +90,19 @@ public sealed partial class EventideReunion : AnomalyModItem, IDeveloperItem, IL
                     });
                 break;
             case EventideReunionAspect.Life:
-                break; // 生命相·新芽赞歌
+                Item lifeWeapon = ownerPlayer.HeldItem;
+                if (ownerPlayer.whoAmI != Main.myPlayer || ownerPlayer.Anomaly.EventideReunion_LifeCooldown > 0
+                    || lifeWeapon.type != ModContent.ItemType<EventideReunion>() || ownerPlayer.dead || ownerPlayer.noItems || ownerPlayer.CCed
+                    || ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionLifeSkill>()] > 0)
+                    return;
+                Projectile.NewProjectileAction<EventideReunionLifeSkill>(ownerPlayer.GetSource_ItemUse(lifeWeapon),
+                    ownerPlayer.Center, Vector2.Zero, 0, 0f, ownerPlayer.whoAmI, p =>
+                    {
+                        p.ai[2] = ownerPlayer.direction;
+                        ownerPlayer.Anomaly.EventideReunion_LifeCooldown = EventideReunionResonancePlayer.Release(
+                            ownerPlayer, aspect, EventideReunionLifeRules.Cooldown);
+                    });
+                break;
             case EventideReunionAspect.Death:
                 Item deathWeapon = ownerPlayer.HeldItem;
                 if (ownerPlayer.whoAmI != Main.myPlayer || ownerPlayer.Anomaly.EventideReunion_DeathCooldown > 0
@@ -104,9 +119,11 @@ public sealed partial class EventideReunion : AnomalyModItem, IDeveloperItem, IL
                     });
                 break;
             case EventideReunionAspect.Sacredness:
-                break; // 神圣相·圣裁贯日
+                EventideReunionSacrednessSkill.Release(ownerPlayer, aimDirection);
+                break;
             case EventideReunionAspect.Star:
-                break; // 恒星相·星核坍缩
+                EventideReunionStarSkill.Release(ownerPlayer, aimDirection);
+                break;
         }
     }
 

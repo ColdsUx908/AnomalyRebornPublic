@@ -345,7 +345,9 @@ internal sealed class SharedRenderTargetPool : RenderTargetPool
         /// </summary>
         public Stack<RenderTarget2D> Targets { get; } = [];
 
-        /// <summary>同一键的尺寸和描述符不变，复用首次计算的显存估算。</summary>
+        /// <summary>
+        /// 同一键的尺寸和描述符不变，复用首次计算的显存估算。
+        /// </summary>
         public long EstimatedBytes { get; } = estimatedBytes;
 
         /// <summary>

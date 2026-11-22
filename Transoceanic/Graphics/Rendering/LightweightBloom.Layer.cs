@@ -2,10 +2,14 @@ using Transoceanic.Runtime.Publicizing.Wrappers;
 
 namespace Transoceanic.Graphics.Rendering;
 
-/// <summary>向 Bloom 提交一个图层；实现自行配对 Begin/End，不持有捕获目标的所有权。</summary>
+/// <summary>
+/// 向 Bloom 提交一个图层；实现自行配对 Begin/End，不持有捕获目标的所有权。
+/// </summary>
 public interface IBloomLayer
 {
-    /// <summary>按原视口的像素尺寸与相机矩阵绘制预乘 RGBA 内容。</summary>
+    /// <summary>
+    /// 按原视口的像素尺寸与相机矩阵绘制预乘 RGBA 内容。
+    /// </summary>
     void Draw(SpriteBatch spriteBatch);
 }
 

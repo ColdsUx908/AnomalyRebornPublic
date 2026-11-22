@@ -18,4 +18,30 @@ internal static class EaterofWorldsTopology
         }
         return links;
     }
+
+    internal static Link[] Create(int segmentCount, System.ReadOnlySpan<int> lengths)
+    {
+        if (segmentCount < 2 || lengths.IsEmpty)
+            return [];
+        int remaining = segmentCount;
+        foreach (int length in lengths)
+        {
+            if (length < 2 || length > remaining)
+                return [];
+            remaining -= length;
+        }
+        if (remaining != 0)
+            return [];
+
+        Link[] links = new Link[segmentCount];
+        int start = 0;
+        foreach (int length in lengths)
+        {
+            int end = start + length;
+            for (int i = start; i < end; i++)
+                links[i] = new(start, i == start ? -1 : i - 1, i == end - 1 ? -1 : i + 1);
+            start = end;
+        }
+        return links;
+    }
 }

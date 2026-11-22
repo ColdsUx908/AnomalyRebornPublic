@@ -2,7 +2,7 @@ namespace Anomalies.Bosses.EmpressofLight;
 
 public sealed partial class EmpressofLight_Night : AnomalyNPCBehavior<EmpressofLight_Night>
 {
-    public override bool ShouldProcess => base.ShouldProcess && AnomalyBossChangeToggler.Skeletron && !Aroma && !Main.dayTime; //暂不启用
+    public override bool ShouldProcess => base.ShouldProcess && AnomalyBossChangeToggler.EmpressofLight && !Aroma && !Main.dayTime; //暂不启用
 
     public override int ApplyingType => NPCID.HallowBoss;
 

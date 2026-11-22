@@ -47,7 +47,7 @@ Runtime 测试验证实际 On_TOExtensions 原生加载后的消费方订阅不�
 
 ## 独立发布契约测试
 
-`dotnet run --project Validation/Tests/Transoceanic/ReleaseReadiness/ReleaseReadiness.Tests.csproj` 只读取实际框架 DLL/XML 和生成器 DLL，不引用产品源码项目，不加入产品项目。`--release` 选择先行构建的 Release 产物。`--update-api` 仅在审查兼容性变更及迁移说明后显式更新候选 API 基线；统一验证不自动更新。测试与基线随独立验证资料包交付。公开承诺见 [1.3 兼容性契约](Compatibility-1.3.md)。
+`dotnet run --project Validation/Tests/Transoceanic/ReleaseReadiness/ReleaseReadiness.Tests.csproj` 只读取实际框架 DLL/XML 和生成器 DLL，不引用产品源码项目，不加入产品项目。`--release` 选择先行构建的 Release 产物。`--update-api` 仅在审查兼容性变更及迁移说明后显式更新候选 API 基线；统一验证不自动更新。测试与基线随独立验证资料包交付。当前候选基线为 PublicApi-1.4.txt，版本规则和消费方操作见 [1.4 迁移说明](Migration-1.4.md)。
 
 ## 当前测试归档
 

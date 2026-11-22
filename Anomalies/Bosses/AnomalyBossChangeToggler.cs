@@ -22,7 +22,7 @@ public static class AnomalyBossChangeToggler
     public static bool EaterofWorlds { get; private set; } = EnableUnfinishedBossChange;
 
     public static bool EmpressofLight { get; private set; } = EnableUnfinishedBossChange;
-     
+
     public static bool EyeofCthulhu { get; private set; } = true;
 
     public static bool KingSlime { get; private set; } = true;

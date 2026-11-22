@@ -9,19 +9,35 @@ namespace Transoceanic.Behaviors;
 /// <remarks>保留优先级、方法分组、ShouldProcess 筛选和绑定锁语义。行为为共享实例，不可缓存或跨实体重入。查询与绑定不提供线程安全保证，须在游戏相应主线程阶段调用。</remarks>
 public static class BehaviorQueries
 {
-    /// <summary>获取 NPC 方法分组的可缓存句柄；清理和重新加载时自动刷新。</summary>
+    /// <summary>
+    /// 检查该弹幕类型是否可能由任一原生 GlobalProjectile 或框架全局行为覆写碰撞。
+    /// 包含条件式挂载的候选，不求值 ShouldProcess。内容尚未就绪时保守返回 true。
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool MayOverrideProjectileCollision(int projectileType) =>
+        GlobalProjectileBehaviorHandler.MayOverrideCollision(projectileType);
+
+    /// <summary>
+    /// 获取 NPC 方法分组的可缓存句柄；清理和重新加载时自动刷新。
+    /// </summary>
     public static SimpleEntityBehaviorSet<NPC, GlobalNPCBehavior>.DispatchGroup GetNPCDispatch(string methodName) =>
         GlobalNPCBehaviorHandler._BehaviorSet.GetDispatch(methodName);
 
-    /// <summary>获取弹幕方法分组的可缓存句柄；清理和重新加载时自动刷新。</summary>
+    /// <summary>
+    /// 获取弹幕方法分组的可缓存句柄；清理和重新加载时自动刷新。
+    /// </summary>
     public static SimpleEntityBehaviorSet<Projectile, GlobalProjectileBehavior>.DispatchGroup GetProjectileDispatch(string methodName) =>
         GlobalProjectileBehaviorHandler._BehaviorSet.GetDispatch(methodName);
 
-    /// <summary>获取物品方法分组的可缓存句柄；清理和重新加载时自动刷新。</summary>
+    /// <summary>
+    /// 获取物品方法分组的可缓存句柄；清理和重新加载时自动刷新。
+    /// </summary>
     public static SimpleEntityBehaviorSet<Item, GlobalItemBehavior>.DispatchGroup GetItemDispatch(string methodName) =>
         GlobalItemBehaviorHandler._BehaviorSet.GetDispatch(methodName);
 
-    /// <summary>获取玩家方法分组的可缓存句柄；清理和重新加载时自动刷新。</summary>
+    /// <summary>
+    /// 获取玩家方法分组的可缓存句柄；清理和重新加载时自动刷新。
+    /// </summary>
     public static SimpleEntityBehaviorSet<Player, PlayerBehavior>.DispatchGroup GetPlayerDispatch(string methodName) =>
         PlayerBehaviorHandler._BehaviorSet.GetDispatch(methodName);
 

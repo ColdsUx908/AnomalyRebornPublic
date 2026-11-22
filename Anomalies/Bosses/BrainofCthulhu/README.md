@@ -1,48 +1,40 @@
-# 克苏鲁之脑战斗移植
+# 克苏鲁之脑
 
-来源为本地 CalamityMod 的 `NPCs/VanillaNPCAIOverrides/Bosses/BrainOfCthulhu`、`Projectiles/Boss/BrainOfCthulhu` 及所用的粒子、效果和音效。实体名与幻象死亡提示沿用 CalamityCN 的英中本地化，统一放在 `Mods.Anomalies.Bosses.BrainofCthulhu`。
+本目录实现飞眼怪、触须、眩晕、转阶段、幻象和死亡演出。战斗实现采用 CalamityMod 克脑行为与相关效果，名称和幻象死亡提示使用对应英中文本；运行时不要求安装灾厄。
 
-## 组织与状态
+## 启用条件与功能
 
-- `BrainofCthulhu.cs`：参数、属性、命中和死亡处理。
-- `BrainofCthulhu.State.cs`：Phase / Behavior / CurrentLocalPhase 与同步 AI 数组映射。
-- `BrainofCthulhu.AI.cs`：阶段分派、初始化、目标选择与离场；入场和死亡演出为 `PreAI` 内的本地函数。
-- `BrainofCthulhu.Phase1AI.cs`、`BrainofCthulhu.PhaseChangeAI.cs`、`BrainofCthulhu.Phase2AI.cs`：一阶段（含眩晕）、转阶段、二阶段的私有入口，各自包含本阶段的本地行为函数。
-- `BrainofCthulhu.Drawing.cs`：触须、主脑与幻象绘制。
-- `CreeperAI`：飞眼怪 Behavior；它的阶段由主脑 Phase 驱动，LocalPhase 计时保存在自身 AI 数组。
-- `Visuals`、`Sounds`、`Assets`：克脑专用演出与纹理选择、音效及资源。
-- `Anomalies/Assets/Effects/BrainofCthulhu`：克脑护盾；`Assets/Effects/Common`：径向模糊与 CircularAoETelegraph 范围预警。引用分别由 `BrainofCthulhuEffects` 和 `AnomalyCommonEffects` 声明，统一由 `AnomalyEffects` 注册，遵循着色器配置开关。
+属于始终编译的模组主内容，要求异象世界及 `AnomalyBossChangeToggler.BrainofCthulhu`；默认 Debug 开启、Release 关闭。普通异象使用 Death 参数，Ultra 不额外改变该 AI。飞眼怪数量统一为 `CreeperCount = 30`。
 
-灾厄 Death 的参数对应普通 Anomaly（异象），Ultra 暂不额外改变克脑 AI。飞眼怪的生成、再生、血量比例与触须数组统一使用 `CreeperCount = 30`。未启用异象模式时，原版或灾厄自己的 AI 保持原有入口。灾厄是可选依赖，相关调用隔离在带 `ExtendsFromMod` 的兼容类中；安装灾厄时还会保留肾上腺素重置和防御损伤的原有交互。
+战斗和血腥脊椎召唤不要求猩红环境；入场、飞眼怪攻击方向与 CrimsonEyes 追击使用地表行为。70% 转阶段和 25% 强制幻象等条件由状态属性统一解释。可选灾厄调用隔离于兼容类，包含肾上腺素重置和防御损伤交互。
 
-## 通用 API 与资源复用
+## 代码导航
 
-粒子更新、分组绘制、上限与生命周期统一使用 Transoceanic 的 `Particle` / `ParticleHandler`。普通和定向圆环统一复用已有 `PulseRing`；`TelekineticEnemyGrab` 的 BloomRing 纹理位于公共 `Anomalies/Assets/Textures/Extra`，与世界吞噬怪共享且不产生跨 Boss 依赖；BloomCircle、HollowCircleHardEdge 与透明纹理不再保留重复副本。
+| 文件 | 职责 |
+| --- | --- |
+| [BrainofCthulhu.cs](BrainofCthulhu.cs) | 属性、参数、命中与死亡 |
+| [BrainofCthulhu.State.cs](BrainofCthulhu.State.cs) | 阶段、行为、局部步骤及同步槽位 |
+| [BrainofCthulhu.AI.cs](BrainofCthulhu.AI.cs) | 初始化、分派、目标与离场 |
+| [BrainofCthulhu.Phase1AI.cs](BrainofCthulhu.Phase1AI.cs)、[PhaseChangeAI](BrainofCthulhu.PhaseChangeAI.cs)、[Phase2AI](BrainofCthulhu.Phase2AI.cs) | 一阶段、转阶段及二阶段攻击 |
+| [BrainofCthulhu.Drawing.cs](BrainofCthulhu.Drawing.cs) | 主脑、幻象及触须绘制 |
+| [BrainByteList.cs](BrainByteList.cs)、同文件中的 `BrainTargetSet` | 攻击队列与玩家目标集合 |
+| [Visuals](Visuals/)、[Sounds](Sounds/)、[Assets](Assets/) | 专属演出、音效和纹理 |
 
-血液粒子和星芒粒子归入 `Transoceanic/Graphics/Particles/BuiltIn`，纹理统一位于 `Transoceanic/Assets/Textures/Particles`。`TexturePulseParticle` 提供任意纹理的扩散、非等比缩放、混合模式和淡出；克脑只保留纹理和种子特殊表现的薄封装。`PathAfterimageParticle` 复用现有残影基类，提供按路径移动且由调用者决定绘制顺序的残影。
+## 状态、资源与修改约束
 
-`Transoceanic/Primitives/Mathematics/BezierCurve.cs` 提供包含两个端点、数量确定的采样；`VerletSimulatedSegment` 提供带端点锁定、重力和可选惯性衰减的链模拟。克脑直接调用这些通用 API。
+Behavior 不保存实体实例字段。主脑状态使用 NPC.ai 和 AnomalyAI32/64，攻击队列及目标集合打包进快照；触须、动画帧与残影为客户端数据。飞眼怪阶段由主脑 Phase 驱动，局部计时归自身 AI。Boss 专属容器、血条与网络接入留在本目录。
 
-Behavior 不保存实体实例字段。主脑的普通状态使用 NPC.ai 与 AnomalyAI32/64；攻击队列和玩家目标历史通过 BrainByteList/BrainTargetSet 打包到同一套快照。触须、动画帧和残影是客户端视觉数据。具体数组布局写在 State 文件中。
+粒子、Bézier、Verlet 与寻敌等通用能力使用 Transoceanic；依赖变种系统的震屏与兼容调用使用 Anomalies 公共支持。护盾由 [BrainofCthulhuEffects.cs](BrainofCthulhuEffects.cs) 提供，通用预警和模糊由 AnomalyCommonEffects 提供，统一交给 AnomalyEffects 加载。护盾使用 Vein2、Voronoi 程序噪声，采样亮度补偿保留在 shader 内。
 
-通用寻敌参数 `NPCTargetingParameters`、目标偏好 `NPCTargetPreference` 和 `TOCombatUtils.TargetWithOptions` 位于 Transoceanic；通用地形射线、弹幕计数和 Boss 召唤工具也由该层提供。向量与图鉴扩展位于 `TOCombatExtensions`，缓动统一使用 `TOMathUtils.Interpolation`。带距离衰减的变种震屏策略位于 `AnomalyCombatUtils`；灾厄 Boss Rush、肾上腺素、破防与真近战接口位于公共 `BridgeUtils`。攻击队列的槽位布局、脑的灾厄换皮与 AI 覆盖、幻象命中和血条规则仍归本 Boss 模块所有。
+BrainBloodShot 和 CreeperBloodShot 自身实现血弹 AI 与绘制。真假脑材质选择同时考虑资源包和灾厄换皮配置；冲刺幻象按主脑实际材质取帧。修改时核对真假脑命中、眩晕与阶段重叠、致死演出和退场清理。
 
-依赖 Boss 类型的 GlobalNPC 字段与克隆、血条扩展和网络处理使用本目录下的部分类实现；公共入口仅保留可选的 partial 方法。模块移除检查见 `Validation/Tests/Anomalies/Bosses/BossIsolation`。
+## 修改与验证
 
-本目录声明的属性与索引器统一为 public。主脑的 AI 行为函数收在对应阶段入口内，飞眼怪的 8 个 AI 专用函数收在 `PreAI` 内；同时服务于 AI、命中和死亡回调的状态重置、死亡触发等方法保留为类成员，绘制与同步回调保留框架要求的入口。
+执行 [Anomalies 构建检查](../../README.md)和 [Boss 隔离检查](../README.md)。独立资料包提供：
 
-## 验证与游戏内复核
+```powershell
+dotnet run --project Validation/Tests/Anomalies/Bosses/BrainofCthulhu.State/BrainofCthulhu.State.csproj
+python Validation/Tests/Anomalies/Bosses/BrainofCthulhu.State/verify_assets.py
+```
 
-先编译通用库：`dotnet msbuild Transoceanic/Transoceanic.csproj /t:Build /p:BuildProjectReferences=false /p:BuildMod=false`；再编译克脑代码：`dotnet msbuild Anomalies/Anomalies.csproj /t:ResolveReferences,Compile /p:BuildProjectReferences=false`。
-
-存储回归检查位于 `Validation/Tests/Anomalies/Bosses/BrainofCthulhu.State`，覆盖跨 32/64 位数组边界的队列、玩家目标位图、实体隔离、快照恢复及同步保留槽，并包含 Bézier 采样与 Verlet 模拟的边界检查。执行 `dotnet run --project Validation/Tests/Anomalies/Bosses/BrainofCthulhu.State/BrainofCthulhu.State.csproj`；同目录的 `verify_assets.py` 检查本地资源引用、统一着色器路径、本地化键及难度/数量约定。
-
-仍需游戏内复核：普通异象与 Ultra 各完整战斗一次；不同高度及血腥脊椎入场（统一使用地表行为）；飞眼怪死亡后断裂触须及再生；眩晕中压到 70% 转阶段；25% 强制幻象；真假脑命中与超时惩罚；死亡演出；所有玩家死亡或远离后的收场；猩红外召唤与战斗；两类幻象均不显示血条。联机应覆盖两名玩家、战斗中途加入、真假脑同时命中及无灾厄环境。
-
-护盾噪声统一使用 `AnomalyTextures.Noise.Vein2` 与 `AnomalyTextures.Noise.Voronoi`。音效文件不使用灾厄前缀或下划线，对应代码字段统一采用 `Sound` 后缀。幻象惩罚不施加血液沸腾，额外 Buff、玩家状态类、纹理与本地化均已移除。
-
-战斗和血腥脊椎召唤不要求猩红环境；入场、飞眼怪攻击方向与 CrimsonEyes 追击速度均固定采用地表行为。
-
-`BrainBloodShot` 与 `CreeperBloodShot` 独立实现灾厄对两类原版血弹的 AI 覆盖及特殊绘制，不再依赖 `AIType` 继承类型判断。血弹保留转向 AI 数组，使用原版缓存长度和朝向拖尾、灾厄血尘与颜色；所有尘埃使用 Action 生成接口。真假脑贴图选择同时考虑资源包检测和灾厄换皮配置，冲刺幻象按实际主脑贴图尺寸取帧，缩放仍跟随主脑。
-
-护盾的Vein2与Voronoi已迁为512×512程序生成图；FX读取后先恢复原亮度范围与对比度。Vein2额外修正了主脉络柔光和多尺度细纹。血条的Smear/Vein采样也已补偿；复现参数、原图备份及记录见Tools/NoiseGenerator。
+检查覆盖队列/目标集合、跨数组边界、克隆、快照及资源引用。游戏内需复核飞眼怪死亡和再生、触须断裂、眩晕中转阶段、真假脑同时命中、超时惩罚、死亡、远离/全员死亡退场、猩红外召唤、中途加入与无灾厄环境。

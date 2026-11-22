@@ -531,9 +531,9 @@ public sealed partial class EyeofCthulhuArena : BaseRingArenaProjectile
             float singleRadian2 = MathHelper.TwoPi / iterationAmount2;
 
             int timer1 = masterBehavior.Timer1;
-            float scale = 1.25f;
             float intensity = EyeSpinEffectIntensityFunction.Process(timer1);
             Texture2D particleTexture = ParticleHandler.GetTexture<OrbParticle>();
+            float scale = 1.25f * OrbParticle.LogicalDiameter / particleTexture.Width;
 
             float rotation = GetEyeRotation(index1);
             float originalVectorLength = Radius - 25f;
@@ -711,7 +711,7 @@ public sealed class EyeofCthulhuArena_Player : AnomalyPlayerBehavior
             {
                 success = true;
                 float scaleMultiplier = 0.0082f;
-                EnhancedDarknessSystem.AddLightSource(projectile.Center, BloomParticle.BloomCircleLarge, scale: arena.Radius * scaleMultiplier);
+                EnhancedDarknessSystem.AddLightSource(projectile.Center, BloomParticle.BloomCircleLargeEmission, scale: arena.Radius * scaleMultiplier);
                 EnhancedDarknessSystem.AddLightSource(scale: 2f, opacity: MathHelper.Clamp(Main.LocalPlayer.Distance(projectile.Center) / 640f, 0, 1));
             }
         }

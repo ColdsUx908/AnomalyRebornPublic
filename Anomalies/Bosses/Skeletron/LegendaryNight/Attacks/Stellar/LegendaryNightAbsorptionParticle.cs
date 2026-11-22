@@ -8,9 +8,13 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class LegendaryNightAbsorptionParticle : Particle
 {
-    /// <summary>拖尾长度。</summary>
+    /// <summary>
+    /// 拖尾长度。
+    /// </summary>
     private const int TrailLength = 12;
-    /// <summary>暂停持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 暂停持续时间，单位为游戏帧。
+    /// </summary>
     internal const int PauseDuration = 3;
     private readonly Player _Target;
     private readonly bool _FadeInPlace;
@@ -106,7 +110,7 @@ public sealed class LegendaryNightAbsorptionParticle : Particle
                 new Vector2((segment.Length() + width * 2f) / bloom.Width, width / bloom.Height));
             newerPosition = olderPosition;
         }
-        spriteBatch.DrawFromCenter(Texture, Center + drawOffset - Main.screenPosition, null, Color, scale: Scale);
+        spriteBatch.DrawFromCenter(Texture, Center + drawOffset - Main.screenPosition, null, Color, scale: Scale * OrbParticle.LogicalDiameter / Texture.Width);
         return false;
     }
 }

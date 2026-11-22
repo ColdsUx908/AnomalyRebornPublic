@@ -1,4 +1,4 @@
-using Anomalies.Assets.Effects;
+using Anomalies.Visuals.Starburst;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -16,7 +16,7 @@ internal sealed class CoinCrossAssets : ILoadable
     [LoadTexture(TexturePath + "CrossWarp")]
     private static Asset<Texture2D> _Warp;
 
-    internal static bool IsLoaded => !Main.dedServ && LegendStarburstCircleAssets.IsLoaded
+    internal static bool IsLoaded => !Main.dedServ && StarburstCircleAssets.IsLoaded
         && _Outer?.IsLoaded == true && _Flow?.IsLoaded == true && _Streak?.IsLoaded == true
         && _Warp?.IsLoaded == true && _Star?.IsLoaded == true;
     internal static Effect BodyEffect => AnomalyClientConfig.Instance.EnableShaders
@@ -29,8 +29,8 @@ internal sealed class CoinCrossAssets : ILoadable
         && LegendaryNightEffects.LegendCoinCrossParticles?.Asset.IsLoaded == true
         ? LegendaryNightEffects.LegendCoinCrossParticles.Asset.Value : null;
     internal static CoinCrossVisuals.Textures Textures => new(_Outer.Value, _Flow.Value, _Streak.Value, _Warp.Value,
-        _Star.Value, LegendStarburstCircleAssets.Textures.SparkTail,
-        LegendStarburstCircleAssets.Textures.ShotLine);
+        _Star.Value, StarburstCircleAssets.Textures.SparkTail,
+        StarburstCircleAssets.Textures.ShotLine);
 
     public void Load(Mod mod) { }
 

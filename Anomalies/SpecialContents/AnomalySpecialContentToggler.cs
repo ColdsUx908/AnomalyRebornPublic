@@ -21,5 +21,7 @@ public static class AnomalySpecialContentToggler
 
     public static bool MeguminStaff { get; private set; } = true;
 
+    public static bool SnowHareValkyrie { get; private set; } = EnableUnfinishedContents;
+
     public static bool VacuousBlack { get; private set; } = true;
 }

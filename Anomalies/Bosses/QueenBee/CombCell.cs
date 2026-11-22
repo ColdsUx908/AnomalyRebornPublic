@@ -364,7 +364,21 @@ public sealed class CombCell : AnomalyModProjectile
 
     public override bool CanHitPlayer(Player target) => HasContactDamage;
 
-    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Hexagon(Projectile.Center, HexagonRadius * Projectile.scale, Projectile.rotation + TOMathUtils.PiOver6).Collides(targetHitbox);
+    private ProjectileDamageBounds DamageBounds => ProjectileDamageBounds.Around(Projectile.Center, HexagonRadius * Projectile.scale);
+
+    public override bool? CanHitNPC(NPC target) => target.friendly || Projectile.friendly
+        ? DamageBounds.CanHitNPC(Type, target) : null;
+
+    internal bool Overlaps(Rectangle target, float radiusMultiplier = 1f)
+    {
+        Hexagon hexagon = HitBox;
+        hexagon.CircumRadius *= radiusMultiplier;
+        return !ProjectileDamageBounds.Around(hexagon.Center, hexagon.CircumRadius).Excludes(target) && hexagon.Collides(target);
+    }
+
+    internal bool Contains(Rectangle target) => !DamageBounds.Excludes(target) && HitBox.Contains(target);
+
+    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => Overlaps(targetHitbox);
 
     public override Color? GetAlpha(Color lightColor)
     {

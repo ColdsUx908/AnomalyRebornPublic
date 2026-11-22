@@ -2,7 +2,9 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed class LegendaryNightCloudSystem : ModSystem
 {
-    /// <summary>清空云层时采用的风速值。</summary>
+    /// <summary>
+    /// 清空云层时采用的风速值。
+    /// </summary>
     private const float ClearingWindSpeed = 24f;
 
     public override void Load()

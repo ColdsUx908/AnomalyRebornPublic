@@ -67,9 +67,7 @@ public sealed class KillerBeeSmall : AnomalyModProjectile
         {
             if (combCell.BehaviorType == CombCell.Behavior.BeeSwarm2_Safe)
             {
-                Hexagon hitBox = combCell.HitBox;
-                hitBox.CircumRadius *= 1.1f;
-                if (hitBox.Collides(Projectile.Hitbox))
+                if (combCell.Overlaps(Projectile.Hitbox, 1.1f))
                     Projectile.Kill();
                 else if (specialCombCell.Timer2 > 10)
                 {
@@ -81,15 +79,14 @@ public sealed class KillerBeeSmall : AnomalyModProjectile
             }
             else if (combCell.BehaviorType == CombCell.Behavior.BeeSwarm4_Huge)
             {
-                Hexagon hitBox = combCell.HitBox;
                 switch ((int)Projectile.ai[2])
                 {
                     case 1:
-                        if (!hitBox.Contains(Projectile.Hitbox))
+                        if (!combCell.Contains(Projectile.Hitbox))
                             Projectile.Kill();
                         break;
                     case 2:
-                        if (hitBox.Contains(Projectile.Hitbox))
+                        if (combCell.Contains(Projectile.Hitbox))
                             Projectile.Kill();
                         break;
                 }
@@ -106,7 +103,7 @@ public sealed class KillerBeeSmall : AnomalyModProjectile
             if (specialCombCell.active
                 && specialCombCell.ModProjectile is CombCell combCell
                 && combCell.BehaviorType == CombCell.Behavior.BeeSwarm2_Safe
-                && combCell.HitBox.Contains(target.Hitbox))
+                && combCell.Contains(target.Hitbox))
                 return false;
         }
         {
@@ -116,8 +113,8 @@ public sealed class KillerBeeSmall : AnomalyModProjectile
             {
                 return (int)Projectile.ai[2] switch
                 {
-                    1 => combCell.HitBox.Collides(target.Hitbox), //从内出发时，若目标位于巨型蜂巢外，返回false
-                    2 => !combCell.HitBox.Contains(target.Hitbox), //从外出发时，若目标位于巨型蜂巢内，返回false
+                    1 => combCell.Overlaps(target.Hitbox), //从内出发时，若目标位于巨型蜂巢外，返回false
+                    2 => !combCell.Contains(target.Hitbox), //从外出发时，若目标位于巨型蜂巢内，返回false
                     _ => true
                 };
             }

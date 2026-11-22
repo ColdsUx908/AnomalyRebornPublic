@@ -1,40 +1,35 @@
 # Anomalies 构建模块
 
-模块使用构建时开关：MSBuild 属性默认全部为 `true`，启用时加入对应的条件编译标签。修改 `AnomaliesModules.props` 中的默认值，或通过 `dotnet build` 的 `-p:` 参数覆盖；属性只接受 `true` / `false`。切换后需要重新构建并打包模组，不是游戏运行时配置。
+主内容始终编译和加载：异象难度、开启物品、Boss 行为及专属实体、GameContents 具体内容及商店/掉落接入。原 ANOMALY_MODE、GAME_CONTENTS 标签及构建属性已移除。世界难度、Boss 独立开关及音乐依赖等逐项条件仍适用。
 
-| 标签 | 构建属性 | 内容 |
+| 标签 | MSBuild 属性 | 内容 |
 | --- | --- | --- |
-| `ANOMALY_MODE` | `AnomaliesEnableAnomalyMode` | 异象难度、裂天金冕、Boss 修改及其专属实体、难度兼容、故事/极限模式、相关模式机制 |
-| `TWEAK` | `AnomaliesEnableTweak` | `Tweaks/` 下的武器修改和修改标识（太空枪、蜂膝弓、蜜蜂枪、蜜蜂手雷和养蜂人），以及玩家基础属性配置和对应行为 |
-| `GAME_CONTENTS` | `AnomaliesEnableGameContents` | `GameContents/` 的具体内容及旅行商店接入 |
-| `SPECIAL_CONTENTS` | `AnomaliesEnableSpecialContents` | `SpecialContents/` 的内容及其出生物品、玩家同步接入 |
+| `TWEAK` | `AnomaliesEnableTweak` | Tweaks 武器修改、修改标识、玩家基础属性配置与行为 |
+| `SPECIAL_CONTENTS` | `AnomaliesEnableSpecialContents` | SpecialContents 内容、出生赠送及同步接入 |
 
-例如，保留其他模块并关闭异象难度：
+两个属性默认 true，仅接受 true / false。关闭两个可选模块：
 
 ```powershell
-dotnet build Anomalies/Anomalies.csproj -p:AnomaliesEnableAnomalyMode=false
+dotnet build Anomalies/Anomalies.csproj -p:AnomaliesEnableTweak=false -p:AnomaliesEnableSpecialContents=false
 ```
 
-全部关闭：
+C# 检查可追加 `-p:BuildMod=false`；实际进入游戏前须重新打包。全关仍保留全部主内容、菜单、星空、血条与公共支持。
 
-```powershell
-dotnet build Anomalies/Anomalies.csproj -p:AnomaliesEnableAnomalyMode=false -p:AnomaliesEnableTweak=false -p:AnomaliesEnableGameContents=false -p:AnomaliesEnableSpecialContents=false
-```
+## 内容与接入边界
 
-C# 检查可以追加 `-p:BuildMod=false`，实际进入游戏前须完成正常打包。
+props 只按整个目录排除 Tweaks、SpecialContents，不处理单文件或恢复例外。目录外接入使用对应条件编译标签；共享基类位于 BaseContents，Testing 物品仅要求 DEBUG。新增模块只能由项目所有者 ColdsUx 最终决定并提交。
 
-`AnomaliesModules.props` 只按目录筛选整组源码，不列举单文件例外；单文件归属和跨模块接入统一使用源码 `#if`。SpecialContents 普通内容按整个目录由 props 筛选，无需逐文件包裹 `#if SPECIAL_CONTENTS`。所有受模块筛选的目录只容纳该模块的内容，不设置子目录恢复例外；共享基类位于 `BaseContents/`，测试物品位于 `Testing/` 并仅使用 `#if DEBUG`。目录外的公共接入继续使用 `SPECIAL_CONTENTS` 条件编译。新增模块内容应放入对应目录；新增公共接入时应显式处理模块关闭的情况。四个模块互不要求对方开启。菜单、星空和血条为默认内容，不另设模块；公共层原则上不自行产生可见副作用。除明确的默认内容和测试物品外，所有额外内容必须归属现有模块。新增模块只能由项目所有者 ColdsUx 最终决定并提交，代理不得自行新增或代为提交。
+- 古战场祭坛、坠星精华、星星之神的记忆、钱币袋及叩星均为主内容。仪式、激活音效和专属掉落接入留在骷髅王目录；保留可选部分类方法以支持单独移除该 Boss。关闭 `AnomalyBossChangeToggler.LegendaryNight` 时右键祭坛不会激活仪式。已持有的钱币袋不依赖 Boss 开关。
+- 普通超凡骷髅王掉落坠星精华，传说之夜掉落钱币袋，保留原运行时掉落条件。
+- HoneyedWildbloom、宠物与 Buff 始终存在，蜂后掉落保留异象世界条件。
+- 世界模式存档、网络与 Mod.Call 始终提供主内容逻辑；不保留旧模块关闭时的 false 回退。网络协议不变。
+- 测试物品的 Boss 专属操作继续通过可选接入支持 Boss 目录移除。
 
-特殊内容另有逐项常量开关，集中于 `Anomalies/SpecialContents/AnomalySpecialContentToggler.cs`（`EventideReunion`、`ImmaculateWhite`、`MeguminStaff`、`VacuousBlack`）。它们使用带私有 setter 的静态布尔属性；落日遗逢默认值取 `EnableUnfinishedContents`（Debug 开启、Release 关闭），其余默认 `true`。将对应初始值改为 `false` 后重新构建并打包，对应物品、专属弹幕和 Buff 不再加载，出生赠送也跳过关闭的物品。落日遗逢的专属行为与绘制接入同时停止加载。这些开关仍受 `SPECIAL_CONTENTS` 总模块约束；测试物品仍仅由 `DEBUG` 控制。
+## 逐项内容开关
 
-跨模块内容的归属：
+特殊内容另有逐项加载开关，集中于 `Anomalies/SpecialContents/AnomalySpecialContentToggler.cs`（`EventideReunion`、`ImmaculateWhite`、`MeguminStaff`、`VacuousBlack`）。它们使用带私有 setter 的静态布尔属性；落日遗逢默认值取 `EnableUnfinishedContents`（Debug 开启、Release 关闭），其余默认 `true`。将对应初始值改为 `false` 后重新构建并打包，对应物品、专属弹幕和 Buff 不再加载，出生赠送也跳过关闭的物品。落日遗逢的专属行为与绘制接入同时停止加载。这些开关仍受 `SPECIAL_CONTENTS` 总模块约束；测试物品仍仅由 `DEBUG` 控制。
 
-- CoinBag 钱币袋由 `GAME_CONTENTS` 控制；传说之夜骷髅王的专属掉落入口留在骷髅王模块，同时要求 `ANOMALY_MODE`、`GAME_CONTENTS` 和超凡难度。关闭异象难度或移除骷髅王模块后，已持有的钱币袋仍可开启。普通超凡骷髅王继续掉落坠星精华，传说之夜不再掉落坠星精华。
-- HoneyedWildbloom、宠物弹幕与 Buff 由 `GAME_CONTENTS` 控制；蜂后掉落入口同时要求 `GAME_CONTENTS` 和 `ANOMALY_MODE`，并保留世界已开启异象模式的运行时条件。仅关闭难度时，物品仍存在，原有物品仍可使用，但不会注册其掉落。
-- 异象掉落条件位于 `Common/AnomalyLootConditions.cs`，由 `ANOMALY_MODE` 控制。传奇骷髅王不依赖普通游戏内容的掉落入口。
-- `BaseContents/` 存放共享抽象基类，不受内容模块目录筛选控制，不包含独立加载的具体内容。跨模块的物品标识契约、稀有度和提示绘制支持位于 `Common/Items/`，保留原命名空间；具体稀有度与提示行为只在至少一个内容模块开启时编译，单独开启 `TWEAK` 不会引入它们。
-- `Testing/` 中的测试物品只要求 `DEBUG`，不叠加功能模块开关。测试物品的骷髅王专属操作通过 Boss 模块内的可选部分类方法接入；关闭 `ANOMALY_MODE` 或移除骷髅王模块时，测试物品仍存在，但不执行这些操作。
-- 关闭 `ANOMALY_MODE` 时，世界难度查询始终为 `false`，存档读取、网络收包与 Mod.Call 不能激活难度。公共网络入口仍消费已定义消息的固定载荷。
-- 全关时除 `DEBUG` 测试物品外，不编译新增物品、NPC、弹幕、Buff 或具体实体修改行为；菜单、星空和血条保持默认开启，保留必要的公共数据容器、接口及视觉支持。
 
-验证脚本随独立验证资料包提供：`pwsh -NoProfile -File Validation/Tests/Anomalies/Integration/Modules/Verify.ps1`。它构建全部 16 种组合，检查实际输出 DLL 中的类型，并恢复仓库默认构建。构建和元数据检查不替代游戏内加载、战斗和联机验证。
+## 验证
+
+运行独立资料包的 `Validation/Tests/Anomalies/Integration/Modules/Verify.ps1`：构建全部 4 种组合并检查实际程序集中的主内容、可选内容及配置/行为边界，最后恢复默认构建。游戏加载、战斗和联机仍须实际验收。

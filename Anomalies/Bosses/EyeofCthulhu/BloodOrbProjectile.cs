@@ -142,7 +142,12 @@ public class BloodOrbProjectile : AnomalyModProjectile
         Destination = new Vector2(reader.ReadSingle(), reader.ReadSingle());
     }
 
-    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, 27f * Projectile.scale).Collides(targetHitbox);
+    private float DamageRadius => 27f * Projectile.scale;
+
+    public override bool? CanHitNPC(NPC target) => (target.friendly || Projectile.friendly) && GetType() == typeof(BloodOrbProjectile)
+        ? ProjectileDamageBounds.Around(Projectile.Center, DamageRadius).CanHitNPC(Type, target) : null;
+
+    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, DamageRadius).Collides(targetHitbox);
 
     public override void OnHitPlayer(Player target, Player.HurtInfo info)
     {

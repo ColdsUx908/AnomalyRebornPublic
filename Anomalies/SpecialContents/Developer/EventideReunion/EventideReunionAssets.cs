@@ -10,6 +10,10 @@ public static class EventideReunionAssets
     private static Asset<Texture2D> _Item;
     public static Texture2D Item => _Item.Value;
 
+    [LoadTexture(AssetPath + "Star/RiftStar")]
+    private static Asset<Texture2D> _StarFlare;
+    public static Texture2D StarFlare => _StarFlare.Value;
+
     public const string WeaponPath = AssetPath + "EventideReunion_NoStreamer";
 
     [LoadTexture(WeaponPath)]

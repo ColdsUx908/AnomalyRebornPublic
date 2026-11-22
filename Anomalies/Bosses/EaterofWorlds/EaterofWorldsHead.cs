@@ -1,40 +1,49 @@
-using Anomalies.Assets.Effects;
 using Anomalies.Visuals.BossBar;
 
 namespace Anomalies.Bosses.EaterofWorlds;
 
 public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorldsHead>
 {
-    protected override int AI32Capacity => 5;
+    protected override int AI32Capacity => 6;
 
-    protected override int AI64Capacity => 4;
+    protected override int AI64Capacity => 5;
 
     #region 数据
     public enum Phase : byte
     {
         Initialize,
         Phase1,
+        Phase1_Duet,
+        Phase1_Trio,
+        PhaseChange_1To2,
+        Phase2,
+        Phase2_Relay,
     }
 
     public enum Behavior : byte
     {
-        Despawn = byte.MaxValue,
-
         None = 0,
-
         Phase1_Hunt = 1,
+        Phase1_Charge = 2,
         Phase1_Split = 3,
-        Phase1_Combine = 6,
+        Phase1_Foldback = 4,
+        UltraTransition,
+        ShortWormFormation,
+        Despawn = byte.MaxValue,
     }
 
     public const string AnomalyEaterofWorldsPath = AnomalySharedData.ModPath + "Bosses/EaterofWorlds/";
 
     public const float DespawnDistance = 8000f;
 
+    public const int UltraLongWormSegmentCount = 60;
+    public const int UltraShortWormCount = 10;
+    public const int UltraShortWormSegmentCount = 3;
+
     public static int BodyCount => Ultra ? 88 : 58;
     public static int TotalSegmentCount => BodyCount + 2;
 
-    public List<EaterofWorldsSegmentContainer> AllSegments => AnomalyNPC.EaterOfWorlds_Segments;
+    public List<NPC> AllSegments => AnomalyNPC.EaterOfWorlds_Segments;
 
     public Phase CurrentPhase
     {
@@ -139,17 +148,19 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
 
     public override bool CheckDead()
     {
+        if (!base.CheckDead())
+            return false;
         if (!IsFirstSegment || !TONetworkEnvironment.NotClient)
             return true;
         // Remove children before vanilla loot/progression examines the remaining Eater segments.
-        foreach (EaterofWorldsSegmentContainer segment in AllSegments)
+        foreach (NPC segment in AllSegments)
         {
-            if (segment.NPC == NPC || !segment.NPC.active)
+            if (segment == NPC || !segment.active)
                 continue;
-            segment.NPC.life = 0;
-            segment.NPC.active = false;
+            segment.life = 0;
+            segment.active = false;
             if (Main.netMode == NetmodeID.Server)
-                NetMessage.SendData(MessageID.SyncNPC, number: segment.NPC.whoAmI);
+                NetMessage.SendData(MessageID.SyncNPC, number: segment.whoAmI);
         }
         return true;
     }
@@ -187,43 +198,64 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
     /// <returns>由所有转换后的独立蠕虫的头部组成的列表，按顺序排列。</returns>
     public List<NPC> TransformToWorms(int amount)
     {
+        if (!TONetworkEnvironment.NotClient || !IsFirstSegment)
+            return [];
+        return ApplyWormTopology(EaterofWorldsTopology.Create(AllSegments.Count, amount));
+    }
+
+    /// <summary>
+    /// 将 Ultra 的 90 个体节重组为一条 60 节长虫及十条 3 节短虫；节数包含头尾。
+    /// 仅转换拓扑，不改变阶段、位置或运动；调用方负责安排转换时机与出场。
+    /// </summary>
+    /// <returns>长虫头在首位，其后为按全局体节顺序排列的短虫头；无法转换时返回空列表且不修改实体。</returns>
+    public List<NPC> TransformToUltraWorms()
+    {
+        if (!Ultra || !TONetworkEnvironment.NotClient || !IsFirstSegment)
+            return [];
+        int[] lengths = new int[UltraShortWormCount + 1];
+        lengths[0] = UltraLongWormSegmentCount;
+        Array.Fill(lengths, UltraShortWormSegmentCount, 1, UltraShortWormCount);
+        return ApplyWormTopology(EaterofWorldsTopology.Create(AllSegments.Count, lengths));
+    }
+
+    private List<NPC> ApplyWormTopology(EaterofWorldsTopology.Link[] links)
+    {
         if (!TONetworkEnvironment.NotClient || !IsFirstSegment) //只有服务端的真正头部能执行转换操作
             return [];
 
         NPC owner = NPC;
-        List<EaterofWorldsSegmentContainer> segments = AllSegments;
+        List<NPC> segments = AllSegments;
         int count = segments.Count;
         // Validate the entire graph before mutating any entity; a partial conversion cannot be recovered safely.
-        if (amount <= 0 || count != TotalSegmentCount || count % amount != 0 || count / amount < 2
-            || segments.Any(s => !s.NPC.active || !s.NPC.EoW))
+        if (count != TotalSegmentCount || links.Length != count
+            || segments.Any(s => !s.active || !s.EoW))
             return [];
 
         for (int i = 0; i < count; i++)
         {
-            IEaterofWorldsSegment segment = segments[i].SegmentBehavior;
+            IEaterofWorldsSegment segment = EaterofWorldsHandler.TryGetSegment(segments[i]);
             if (segment.Head != owner || segment.SegmentIndex != i + 1)
                 return [];
         }
 
-        EaterofWorldsTopology.Link[] links = EaterofWorldsTopology.Create(count, amount);
-        int length = count / amount;
+        StopEncounterCircularMovement();
+        bool split = links.Any(link => link.Head != 0);
         List<NPC> heads = [];
         for (int i = 0; i < count; i++)
         {
-            NPC segment = segments[i].NPC;
-            int offset = i % length;
+            NPC segment = segments[i];
             EaterofWorldsTopology.Link link = links[i];
-            NPC localHead = segments[link.Head].NPC;
-            int type = offset == 0 ? NPCID.EaterofWorldsHead
-                : offset == length - 1 ? NPCID.EaterofWorldsTail : NPCID.EaterofWorldsBody;
+            NPC localHead = segments[link.Head];
+            int type = link.Previous < 0 ? NPCID.EaterofWorldsHead
+                : link.Next < 0 ? NPCID.EaterofWorldsTail : NPCID.EaterofWorldsBody;
             // Do not SetDefaults: it would reset health, global data and the shared-life relationship.
             segment.type = segment.netID = type;
             IEaterofWorldsSegment behavior = EaterofWorldsHandler.TryGetSegment(segment);
             behavior.Head = owner;
             behavior.LocalHead = localHead;
             behavior.SegmentIndex = i + 1;
-            behavior.Previous = link.Previous < 0 ? null : segments[link.Previous].NPC;
-            behavior.Next = link.Next < 0 ? null : segments[link.Next].NPC;
+            behavior.Previous = link.Previous < 0 ? null : segments[link.Previous];
+            behavior.Next = link.Next < 0 ? null : segments[link.Next];
             segment.realLife = i == 0 ? -1 : owner.whoAmI;
             segment.target = owner.target;
             if (i != 0)
@@ -237,7 +269,7 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
             segment.Timer1 = owner.Timer1;
             segment.Timer2 = owner.Timer2;
             segment.Timer3 = owner.Timer3;
-            segment.Anomaly.AnomalyAI32[0].Bits[0] = amount > 1;
+            segment.Anomaly.AnomalyAI32[0].Bits[0] = split;
             segment.Anomaly.AnomalyAI32[0].Bits[1] = true; // initialized trajectory, independent of form
             segment.Anomaly.AIChanged32[0] = true;
             segment.damage = 0;
@@ -245,10 +277,10 @@ public sealed partial class EaterofWorldsHead : EaterofWorldsSegment<EaterofWorl
             Array.Fill(segment.oldPos, segment.position);
             Array.Fill(segment.oldRot, segment.rotation);
             segment.netUpdate = true;
-            if (offset == 0)
+            if (link.Previous < 0)
                 heads.Add(segment);
         }
-        CurrentlySplit = amount > 1;
+        CurrentlySplit = split;
         return heads;
     }
 }

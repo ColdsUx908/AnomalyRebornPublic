@@ -2,54 +2,98 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead
 {
-    /// <summary>机制 1 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 1 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。
+    /// </summary>
     public static class Mechanic1Timeline
     {
-        /// <summary>本机制开始的音乐绝对帧（包含此帧）。</summary>
+        /// <summary>
+        /// 本机制开始的音乐绝对帧（包含此帧）。
+        /// </summary>
         public const int StartMusicTime = PhaseChangeDuration;
-        /// <summary>本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。</summary>
+        /// <summary>
+        /// 本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。
+        /// </summary>
         public const int EndMusicTime = 47 * 60 + 10;
-        /// <summary>自转结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 自转结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int SpinEndMusicTime = 15 * 60 + 40;
-        /// <summary>史莱姆冲击波的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 史莱姆冲击波的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int SlimeShockwaveMusicTime = 22 * 60;
-        /// <summary>星体冲击波的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 星体冲击波的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int StarShockwaveMusicTime = 28 * 60 + 20;
-        /// <summary>铂金币冲击波的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 铂金币冲击波的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int PlatinumCoinShockwaveMusicTime = 34 * 60 + 40;
-        /// <summary>史莱姆结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 史莱姆结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int SlimeEndMusicTime = 41 * 60;
-        /// <summary>恶魔之影结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 恶魔之影结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int DemonShadowEndMusicTime = 42 * 60 + 33;
-        /// <summary>铂金币结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 铂金币结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int PlatinumCoinEndMusicTime = 44 * 60 + 6;
-        /// <summary>落星雨结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 落星雨结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int StarRainEndMusicTime = 45 * 60 + 39;
-        /// <summary>二阶段场地召唤音效的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 二阶段场地召唤音效的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int Phase2ArenaSoundMusicTime = 46 * 60 + 45;
     }
 
-    /// <summary>机制 1 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 1 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。
+    /// </summary>
     public static class Mechanic1Parameters
     {
-        /// <summary>攻击节拍持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 攻击节拍持续时间，单位为游戏帧。
+        /// </summary>
         public const int AttackBeatDuration = Mechanic1Timeline.StarShockwaveMusicTime - Mechanic1Timeline.SlimeShockwaveMusicTime;
-        /// <summary>攻击每拍间隔数。</summary>
+        /// <summary>
+        /// 攻击每拍间隔数。
+        /// </summary>
         public const int AttackIntervalsPerBeat = 8;
-        /// <summary>攻击动画持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 攻击动画持续时间，单位为游戏帧。
+        /// </summary>
         public const int AttackAnimationDuration = (AttackBeatDuration + AttackIntervalsPerBeat - 1) / AttackIntervalsPerBeat;
-        /// <summary>铂金币间隔，单位为游戏帧。</summary>
+        /// <summary>
+        /// 铂金币间隔，单位为游戏帧。
+        /// </summary>
         public const int PlatinumCoinInterval = 16;
-        /// <summary>落星雨间隔，单位为游戏帧。</summary>
+        /// <summary>
+        /// 落星雨间隔，单位为游戏帧。
+        /// </summary>
         public const int StarRainInterval = 48;
-        /// <summary>弹幕存活时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 弹幕存活时间，单位为游戏帧。
+        /// </summary>
         public const int ProjectileLifetime = 300;
-        /// <summary>铂金币速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 铂金币速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float PlatinumCoinSpeed = 16f;
-        /// <summary>史莱姆初始速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 史莱姆初始速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float SlimeInitialSpeed = 0.75f;
 
-        /// <summary>首拍生成第1个，每个冲击波间隔生成8次；整数帧间隔均匀分配，停止帧不再生成。</summary>
+        /// <summary>
+        /// 首拍生成第1个，每个冲击波间隔生成8次；整数帧间隔均匀分配，停止帧不再生成。
+        /// </summary>
         public static bool IsAttackSpawnTime(int musicTime, int start, int end)
         {
             int age = musicTime - start;

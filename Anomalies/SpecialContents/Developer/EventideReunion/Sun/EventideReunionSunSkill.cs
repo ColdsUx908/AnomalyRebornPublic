@@ -237,6 +237,13 @@ public sealed partial class EventideReunionSunSkill : AnomalyModProjectile
             _DashStart = Projectile.Center;
             _WeaponDirection = motion / DashSpeed;
             _WeaponScale = 1f;
+            if (Projectile.IsOnOwnerClient && EventideReunionInput.StopPressed(ownerPlayer))
+            {
+                ownerPlayer.Center = Projectile.Center;
+                _WeaponCenter = ownerPlayer.MountedCenter + _WeaponDirection * 48f;
+                BeginFinisher();
+                return;
+            }
             // 参考 Fargo 洞察者：以弹幕位置为冲刺锚点，而不是叠加已被玩家物理修改过的速度。
             // 高速位移逐小步检测玩家完整碰撞箱，碰到薄墙立即停止，不沿墙滑行。
             Projectile.Center = EventideReunionSunGeometry.SweepDash(Projectile.Center, motion,

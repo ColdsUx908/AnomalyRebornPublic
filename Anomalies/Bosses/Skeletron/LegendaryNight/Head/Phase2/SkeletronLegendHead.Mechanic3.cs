@@ -2,59 +2,109 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead
 {
-    /// <summary>机制 3 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 3 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。
+    /// </summary>
     public static class Mechanic3Timeline
     {
-        /// <summary>本机制开始的音乐绝对帧（包含此帧）。</summary>
+        /// <summary>
+        /// 本机制开始的音乐绝对帧（包含此帧）。
+        /// </summary>
         public const int StartMusicTime = 63 * 60;
-        /// <summary>本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。</summary>
+        /// <summary>
+        /// 本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。
+        /// </summary>
         public const int EndMusicTime = Mechanic4Timeline.StartMusicTime;
-        /// <summary>扇形的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 扇形的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int FanMusicTime = 66 * 60 + 10;
-        /// <summary>首次环形的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 首次环形的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int FirstRingMusicTime = 69 * 60 + 20;
-        /// <summary>第二次环形的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 第二次环形的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int SecondRingMusicTime = 70 * 60 + 55;
-        /// <summary>跳跃的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 跳跃的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int JumpMusicTime = 72 * 60 + 30;
-        /// <summary>落地的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 落地的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int LandingMusicTime = JumpMusicTime + Mechanic3Parameters.JumpDuration;
     }
 
-    /// <summary>机制 3 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 3 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。
+    /// </summary>
     public static class Mechanic3Parameters
     {
-        /// <summary>跳跃持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 跳跃持续时间，单位为游戏帧。
+        /// </summary>
         public const int JumpDuration = 90;
-        /// <summary>回归持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 回归持续时间，单位为游戏帧。
+        /// </summary>
         public const int ReturnDuration = 90;
-        /// <summary>雨幕持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 雨幕持续时间，单位为游戏帧。
+        /// </summary>
         public const int RainDuration = 20;
-        /// <summary>雨幕存活时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 雨幕存活时间，单位为游戏帧。
+        /// </summary>
         public const int RainLifetime = 600;
-        /// <summary>雨幕层数。</summary>
+        /// <summary>
+        /// 雨幕层数。
+        /// </summary>
         public const int RainLayers = 3;
-        /// <summary>终幕雨幕层数。</summary>
+        /// <summary>
+        /// 终幕雨幕层数。
+        /// </summary>
         public const int FinalRainLayers = 9;
-        /// <summary>雨幕生成高度，单位为世界像素。</summary>
+        /// <summary>
+        /// 雨幕生成高度，单位为世界像素。
+        /// </summary>
         public const float RainSpawnHeight = 800f;
-        /// <summary>雨幕层间距，单位为世界像素。</summary>
+        /// <summary>
+        /// 雨幕层间距，单位为世界像素。
+        /// </summary>
         public const float RainLayerSpacing = 125f;
-        /// <summary>雨幕半宽，单位为世界像素。</summary>
+        /// <summary>
+        /// 雨幕半宽，单位为世界像素。
+        /// </summary>
         public const float RainHalfWidth = 40f;
-        /// <summary>雨幕速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 雨幕速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float RainSpeed = 20f;
-        /// <summary>扇形数量。</summary>
+        /// <summary>
+        /// 扇形数量。
+        /// </summary>
         public const int FanCount = 11;
-        /// <summary>环形数量。</summary>
+        /// <summary>
+        /// 环形数量。
+        /// </summary>
         public const int RingCount = 24;
-        /// <summary>蓄力持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 蓄力持续时间，单位为游戏帧。
+        /// </summary>
         public const int ChargeDuration = 90;
-        /// <summary>坐骑速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 坐骑速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float MountSpeed = 16f;
-        /// <summary>自转或公转角速度，单位为弧度/游戏帧。</summary>
+        /// <summary>
+        /// 自转或公转角速度，单位为弧度/游戏帧。
+        /// </summary>
         public const float MountSpinSpeed = 0.12f;
-        /// <summary>跳跃重力，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 跳跃重力，以世界像素和游戏帧计量。
+        /// </summary>
         public const float JumpGravity = 1.6f;
     }
 

@@ -1,6 +1,3 @@
-using Anomalies.Assets.Effects;
-using Anomalies.GameContents;
-
 namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
 [LegacyName("MeguminExplosion")]
@@ -22,7 +19,7 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizati
     {
         Item.width = 64;
         Item.height = 88;
-        Item.damage = 400;
+        Item.damage = 300;
         Item.DamageType = DamageClass.Magic;
         Item.mana = 160;
         Item.useTime = Item.useAnimation = 30;
@@ -122,8 +119,11 @@ public sealed class MeguminStaff : AnomalyModItem, IContributorItem, ILocalizati
 
     public override void AddRecipes()
     {
-        CreateRecipe().AddIngredient(ItemID.InfernoFork).AddIngredient(ItemID.Ruby, 999)
-            .AddIngredient(ItemID.LunarBar, 40).AddIngredient(ItemID.FragmentSolar, 400)
+        CreateRecipe()
+            .AddIngredient(ItemID.InfernoFork)
+            .AddIngredient(ItemID.LargeRuby, 9)
+            .AddIngredient(ItemID.LunarBar, 40)
+            .AddIngredient(ItemID.FragmentSolar, 400)
             .AddTile(TileID.LunarCraftingStation).Register();
     }
 }

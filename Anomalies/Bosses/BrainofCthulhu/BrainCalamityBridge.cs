@@ -7,7 +7,9 @@ internal static class BrainCalamityBridge
     [ExtendsFromMod(CalamityModName)]
     public sealed class Support : ILoadable
     {
-        /// <summary>在所属模组加载时登记灾厄 AI 策略与换皮委托，配置在运行期读取。</summary>
+        /// <summary>
+        /// 在所属模组加载时登记灾厄 AI 策略与换皮委托，配置在运行期读取。
+        /// </summary>
         /// <param name="mod">由 tML 提供的所属模组。</param>
         void ILoadable.Load(Mod mod)
         {

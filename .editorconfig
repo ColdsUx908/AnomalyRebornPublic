@@ -52,7 +52,8 @@ dotnet_style_parentheses_in_other_operators = never_if_unnecessary
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity
 
 # 修饰符首选项
-dotnet_style_require_accessibility_modifiers = for_non_interface_members
+# 接口成员保留默认可访问性；冗余 abstract 的省略由设计规范约定。
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
 
 # 表达式级首选项
 dotnet_prefer_system_hash_code = true
@@ -267,7 +268,7 @@ dotnet_style_qualification_for_field = false:silent
 dotnet_style_qualification_for_property = false:silent
 dotnet_style_qualification_for_method = false:silent
 dotnet_style_qualification_for_event = false:silent
-dotnet_style_require_accessibility_modifiers = always:suggestion
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
 dotnet_code_quality_unused_parameters = all:silent
 dotnet_style_readonly_field = true:suggestion
 dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:silent
@@ -314,6 +315,9 @@ dotnet_diagnostic.IDE0044.severity = silent
 
 # CA1707: 标识符不应包含下划线
 dotnet_diagnostic.CA1707.severity = none
+
+# IDE0028: 简化集合初始化
+dotnet_diagnostic.IDE0028.severity = silent
 
 # IDE0305: 简化集合初始化
 dotnet_diagnostic.IDE0305.severity = silent

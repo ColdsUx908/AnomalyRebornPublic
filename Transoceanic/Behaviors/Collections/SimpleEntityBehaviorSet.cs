@@ -354,7 +354,9 @@ public class SimpleEntityBehaviorSet<TEntity, TBehavior>
     /// </summary>
     private readonly Dictionary<string, TBehavior[]> _Data = [];
     // 生成的 Handler 持有分组句柄；清理和重新填充时更新同一对象，避免缓存过期。
-    /// <summary>可缓存的方法分组句柄；集合清理或重新填充时自动刷新，枚举仍动态检查 ShouldProcess。</summary>
+    /// <summary>
+    /// 可缓存的方法分组句柄；集合清理或重新填充时自动刷新，枚举仍动态检查 ShouldProcess。
+    /// </summary>
     /// <remarks>仅在游戏主线程使用；句柄不锁定实体，也不缓存筛选结果。</remarks>
     public sealed class DispatchGroup
     {
@@ -362,16 +364,24 @@ public class SimpleEntityBehaviorSet<TEntity, TBehavior>
 
         internal TBehavior[] Behaviors = [];
 
-        /// <summary>枚举当前适用行为，保持方法分组和优先级。</summary>
+        /// <summary>
+        /// 枚举当前适用行为，保持方法分组和优先级。
+        /// </summary>
         public BehaviorProcesser Enumerate() => new(Behaviors);
 
-        /// <summary>枚举当前适用行为，并在枚举期间绑定指定实体。</summary>
+        /// <summary>
+        /// 枚举当前适用行为，并在枚举期间绑定指定实体。
+        /// </summary>
         public ConnectedBehaviorProcesser Enumerate(TEntity entity) => new(Behaviors, entity);
 
-        /// <summary>枚举指定派生类型的当前适用行为。</summary>
+        /// <summary>
+        /// 枚举指定派生类型的当前适用行为。
+        /// </summary>
         public TypedBehaviorProcesser<T> Enumerate<T>() where T : TBehavior => new(Behaviors);
 
-        /// <summary>枚举指定派生类型的当前适用行为，并绑定指定实体。</summary>
+        /// <summary>
+        /// 枚举指定派生类型的当前适用行为，并绑定指定实体。
+        /// </summary>
         public TypedConnectedBehaviorProcesser<T> Enumerate<T>(TEntity entity) where T : TBehavior => new(Behaviors, entity);
     }
 
@@ -465,17 +475,19 @@ public class SimpleEntityBehaviorSet<TEntity, TBehavior>
     /// <param name="methodName">由 <see cref="CallerMemberNameAttribute"/> 自动填充的调用方法名。</param>
     /// <returns>第一个满足 <see cref="EntityBehavior{TEntity}.ShouldProcess"/> 条件的行为实例；如果不存在，则为 <see langword="null"/>。</returns>
     public TBehavior GetFirstOrDefault(TEntity entity, [CallerMemberName] string methodName = null)
+        => GetFirstOrDefault(entity, GetCandidates(methodName));
+
+    internal TBehavior[] GetCandidates(string methodName) =>
+        _Data.TryGetValue(methodName, out TBehavior[] behaviors) ? behaviors : [];
+
+    internal static TBehavior GetFirstOrDefault(TEntity entity, TBehavior[] behaviors)
     {
-        if (_Data.TryGetValue(methodName, out TBehavior[] behaviors))
+        foreach (TBehavior behavior in behaviors)
         {
-            for (int i = 0; i < behaviors.Length; i++)
-            {
-                TBehavior behavior = behaviors[i];
-                behavior.Entity = entity;
-                using EntityBehavior<TEntity>.EntityLock entityLock = behavior.LockEntity();
-                if (behavior.ShouldProcess)
-                    return behavior;
-            }
+            behavior.Entity = entity;
+            using EntityBehavior<TEntity>.EntityLock entityLock = behavior.LockEntity();
+            if (behavior.ShouldProcess)
+                return behavior;
         }
         return null;
     }

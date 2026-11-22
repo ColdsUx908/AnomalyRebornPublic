@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron;
 
-/// <summary>预警结束后，沿预警方向发射带光束拖尾的直线头骨。</summary>
+/// <summary>
+/// 预警结束后，沿预警方向发射带光束拖尾的直线头骨。
+/// </summary>
 public sealed class SkeletronSkullWarning : AnomalyModProjectile
 {
     internal const int WarningTime = 60;
@@ -17,7 +19,9 @@ public sealed class SkeletronSkullWarning : AnomalyModProjectile
     public override string LocalizationCategory => "Bosses.Skeletron";
     public override string Texture => TOTextures.InvisibleTexturePath;
 
-    /// <summary>预警年龄达到此帧数后固定方向；0 表示始终跟踪。</summary>
+    /// <summary>
+    /// 预警年龄达到此帧数后固定方向；0 表示始终跟踪。
+    /// </summary>
     public int StopTrackingTime { get; set; }
 
     protected override void SendAnomalyExtraAI(BinaryWriter writer)
@@ -49,7 +53,7 @@ public sealed class SkeletronSkullWarning : AnomalyModProjectile
         int headIndex = SourceHeadIndex;
         if ((uint)headIndex >= Main.maxNPCs || Main.npc[headIndex] is not { active: true, type: NPCID.SkeletronHead }
             || SkeletronHead.GetInstance(Main.npc[headIndex]) is not
-                { ShouldProcess: true, CurrentBehavior: not SkeletronHead.Behavior.Despawn } head
+            { ShouldProcess: true, CurrentBehavior: not SkeletronHead.Behavior.Despawn } head
             || !Player.TryGetPlayerFromIndex(TargetPlayerIndex, out Player target) || !target.active || target.dead)
         {
             if (TONetworkEnvironment.NotClient)

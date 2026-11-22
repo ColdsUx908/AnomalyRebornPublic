@@ -1,6 +1,4 @@
 using Anomalies.Assets.Effects;
-
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendBlueStar;
 using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Timeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;

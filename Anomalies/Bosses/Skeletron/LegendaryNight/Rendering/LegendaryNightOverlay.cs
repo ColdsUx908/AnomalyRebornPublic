@@ -5,10 +5,14 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class LegendaryNightOverlay : CustomOverlay
 {
-    /// <summary>主贴图资源路径。</summary>
+    /// <summary>
+    /// 主贴图资源路径。
+    /// </summary>
     private const string TexturePath = "Anomalies/Bosses/Skeletron/LegendaryNight/Arena/";
 
-    /// <summary>实体化星体。</summary>
+    /// <summary>
+    /// 实体化星体。
+    /// </summary>
     [LoadTexture(TexturePath + "MaterializedStar")]
     private static Asset<Texture2D> _MaterializedStar;
 

@@ -1,5 +1,6 @@
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstTimeline;
+using Anomalies.Visuals.Starburst;
 using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstParameters;
+using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendaryNightStarburstTimeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -11,8 +12,10 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// <para>localAI：未使用；框架 Timer1..5：未使用；年龄由主体音乐帧减去星爆节点计算。</para>
 /// <para>无实体专属 ExtraAI；爆点与半径通过所属竞技场几何恢复，服务器生成。</para>
 /// </remarks>
-public sealed class LegendStarburst : AnomalyModProjectile
+public sealed class LegendStarburst : AnomalyModProjectile, IStarburstImpactSource
 {
+    bool IStarburstImpactSource.TryGetImpactFrame(bool includeCross, out StarburstVisuals.Burst frame) => TryGetVisualFrame(out frame);
+
     internal const float ImpactMaxOpacity = 0.65f;
     private const int ImpactFadeIn = 10;
     private const int ImpactEndAge = StarburstDamageDuration + StarburstFadeDuration;
@@ -29,10 +32,10 @@ public sealed class LegendStarburst : AnomalyModProjectile
     private bool IsWarningTime => Age < (IsStepped || UsesCircleVisuals || UsesRingVisuals ? 0 : -ImpactFadeIn);
     private int WarningDuration => (IsStepped ? ImpactTime - GetStepSpawnTime(Index, Step) : StarburstWarningDuration) - ImpactFadeIn;
     private bool IsRing => IsStepped ? Step > 1 : Index % 2 == 1;
-    private int VisualEndAge => IsRing ? LegendStarburstRingVisuals.EndAge : LegendStarburstCircleVisuals.EndAge;
+    private int VisualEndAge => IsRing ? LegendStarburstRingVisuals.EndAge : StarburstCircleVisuals.EndAge;
 
     private static int GetNormalEndAge(int index) => index % 2 == 0
-        ? LegendStarburstCircleVisuals.EndAge : LegendStarburstRingVisuals.EndAge;
+        ? StarburstCircleVisuals.EndAge : LegendStarburstRingVisuals.EndAge;
     private float Opacity
     {
         get
@@ -161,7 +164,7 @@ public sealed class LegendStarburst : AnomalyModProjectile
                 {
                     if (time >= GetStepSpawnTime(round, step)
                         && time < GetStepImpactTime(round, step)
-                            + (step == 1 ? LegendStarburstCircleVisuals.EndAge : LegendStarburstRingVisuals.EndAge))
+                            + (step == 1 ? StarburstCircleVisuals.EndAge : LegendStarburstRingVisuals.EndAge))
                         EnsureBurst(round, step, arena.Projectile.Center);
                 }
             }
@@ -183,15 +186,15 @@ public sealed class LegendStarburst : AnomalyModProjectile
                 });
         }
     }
-    internal bool UsesCircleVisuals => !IsRing && LegendStarburstCircleAssets.IsLoaded;
+    internal bool UsesCircleVisuals => !IsRing && StarburstCircleAssets.IsLoaded;
 
     internal bool UsesRingVisuals => IsRing && LegendStarburstRingAssets.IsLoaded;
 
-    internal bool TryGetVisualFrame(out LegendStarburstVisuals.Burst burst)
+    internal bool TryGetVisualFrame(out StarburstVisuals.Burst burst)
     {
         burst = default;
         int age = Age;
-        bool visible = UsesCircleVisuals ? LegendStarburstCircleVisuals.IsVisible(age)
+        bool visible = UsesCircleVisuals ? StarburstCircleVisuals.IsVisible(age)
             : UsesRingVisuals && LegendStarburstRingVisuals.IsVisible(age);
         if ((IsStepped && age < 0) || !visible || Arena is not LegendaryNightPhase2Arena arena || !IsActive(Head))
             return false;
@@ -212,10 +215,10 @@ public sealed class LegendStarburst : AnomalyModProjectile
         {
             // Keep the full hazard boundary readable while the gold wave expands from its center.
             // This is a fading warning outline, not a second early explosion or damage change.
-            if (Age < LegendStarburstCircleVisuals.ExpansionDuration && IsActive(Head)
+            if (Age < StarburstCircleVisuals.ExpansionDuration && IsActive(Head)
                 && Arena is LegendaryNightPhase2Arena circleArena)
-                AnomalyDrawUtils.DrawGlowingCircle(spriteBatch, GetCenter(circleArena), GetRadii(circleArena).X,
-                    Color.Red, 0.22f * (1f - LegendStarburstCircleVisuals.Expansion(Age)), 3f);
+                StarburstPresentation.DrawBoundary(spriteBatch, new StarburstVisuals.Burst(
+                    GetCenter(circleArena), GetRadii(circleArena).X, 0f, 0f, Age));
             return;
         }
         if (Arena is not LegendaryNightPhase2Arena arena || (IsStepped && !IsActive(Head))

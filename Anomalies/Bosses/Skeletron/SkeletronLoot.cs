@@ -1,4 +1,4 @@
-using Anomalies.Bosses.Skeletron.LegendaryNight;
+using Anomalies.GameContents.LegendaryNight;
 using Terraria.GameContent.ItemDropRules;
 
 namespace Anomalies.Bosses.Skeletron;
@@ -21,9 +21,7 @@ public sealed class SkeletronLoot : AnomalyGlobalNPCBehavior
         if (npc.type == NPCID.SkeletronHead)
         {
             npcLoot.Add(ItemDropRule.ByCondition(new SkeletronLootCondition(false), ModContent.ItemType<FallenStarEssence>()));
-#if GAME_CONTENTS
-            npcLoot.Add(ItemDropRule.ByCondition(new SkeletronLootCondition(true), ModContent.ItemType<GameContents.AnomalyItems.CoinBag>()));
-#endif
+            npcLoot.Add(ItemDropRule.ByCondition(new SkeletronLootCondition(true), ModContent.ItemType<CoinBag>()));
         }
     }
 

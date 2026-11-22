@@ -14,7 +14,9 @@ public static partial class TOMathUtils
     /// </remarks>
     public static class Interpolation
     {
-        /// <summary>以 2 为底、跨度为 10 的指数缓出；终点保持精确为 1。</summary>
+        /// <summary>
+        /// 以 2 为底、跨度为 10 的指数缓出；终点保持精确为 1。
+        /// </summary>
         /// <param name="ratio">插值进度。</param>
         /// <param name="clamped">是否先将进度限制在 [0, 1]；不夹取时仍将大于等于 1 的进度视为终点。</param>
         public static float BinaryExponentialEaseOut(float ratio, bool clamped = true)

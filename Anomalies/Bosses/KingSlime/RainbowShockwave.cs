@@ -32,7 +32,9 @@ public sealed class RainbowShockwave : BaseShockwaveProjectile
 
     public override Color? GetAlpha(Color lightColor) => Color.LerpMany(Color.RainbowColors, TOMathUtils.Interpolation.QuadraticEaseOut(LifeCompletion));
 
-    /// <summary>在 tML 内容加载时建立仅包含原版 NPC 常量的命中集合。</summary>
+    /// <summary>
+    /// 在 tML 内容加载时建立仅包含原版 NPC 常量的命中集合。
+    /// </summary>
     public override void Load()
     {
         TOCleanup.Register(() => _NpcTypesToHit = null);

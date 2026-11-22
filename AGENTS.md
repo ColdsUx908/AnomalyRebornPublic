@@ -33,14 +33,14 @@
 
 ## Anomalies 功能模块
 
-- 修改 Anomalies 前遵循设计规范 2.9 及 `Anomalies/MODULES.md`。模块通过 `Anomalies/AnomaliesModules.props` 管理，使用构建时布尔属性和条件编译标签，默认全部开启。
-- 仅有四个模块：`ANOMALY_MODE`（异象难度、开启物品、全部异象 Boss 修改及相关机制）、`TWEAK`（武器修改、玩家基础属性配置及对应行为）、`GAME_CONTENTS`（GameContents 具体内容；共享基类位于 BaseContents）、`SPECIAL_CONTENTS`（SpecialContents 内容及接入）。
-- 菜单、星空和血条是默认开启内容，不随四个模块关闭，也不另设默认模块。除这三类默认内容及测试物品之外，所有额外内容（物品、NPC、弹幕、Buff、行为修改、配置对应功能、独立视觉等）必须归属现有模块；目录位置不能作为不受模块控制的理由。测试物品只要求 DEBUG 标签，不叠加模块标签；测试操作仍须安全处理被关闭的依赖。
-- 公共层原则上只提供无独立可见副作用的通用支持。玩家移速、跳跃、下落、攀绳与放置速度等配置和行为统一由 TWEAK 控制，不得留在默认公共行为中。
-- **不得私自新增模块。新增模块只能由项目所有者 ColdsUx 最终决定并提交，代理不得自行决定或代为提交。** 不得通过新标签、属性或隐式分组绕过此约束。
-- 四个模块独立开关；全关时除 DEBUG 测试物品外，不得增加物品、NPC、弹幕或实体行为修改。保留默认菜单、星空、血条和必要公共支持。跨模块分别控制内容存在与获取入口：HoneyedWildbloom 的存在由 GAME_CONTENTS 控制，蜂后掉落同时要求 GAME_CONTENTS、ANOMALY_MODE 及世界开启异象模式。
-- `AnomaliesModules.props` 只按目录处理全部文件，不处理单个文件；单文件归属和跨模块接入使用源码 `#if`。受模块筛选的目录只容纳该模块内容，不使用 Include 恢复例外；共享抽象基类位于 `Anomalies/BaseContents/`，DEBUG 测试物品位于 `Anomalies/Testing/`。
-- 修改模块归属或公共接入后，运行独立资料包的 `pwsh -NoProfile -File Validation/Tests/Anomalies/Integration/Modules/Verify.ps1`，检查 16 种组合、实际程序集内容及配置/行为边界；仍需区分构建检查和游戏内验收。
+- 仅保留 `TWEAK`（`AnomaliesEnableTweak`）和 `SPECIAL_CONTENTS`（`AnomaliesEnableSpecialContents`）两个构建模块，默认开启，属性仅接受 `true` / `false`。切换后重新构建并打包。
+- 原 ANOMALY_MODE 和 GAME_CONTENTS 内容属于模组主内容，始终参与编译和加载，不再提供对应构建属性或条件编译标签。异象世界条件、Boss 独立开关、音乐依赖等既有逐项生效条件仍保留。
+- 两个模块独立开关，共 4 种组合。全关仍保留主内容、菜单、星空、血条及公共支持。玩家基础属性配置和对应行为由 TWEAK 控制；特殊内容及接入由 SPECIAL_CONTENTS 控制。
+- HoneyedWildbloom 及其宠物、Buff 为主内容，蜂后掉落保留异象世界条件。传说之夜召唤物、祭坛和钱币袋为主内容；关闭传说之夜独立开关时，右键祭坛不激活仪式。Boss 目录可独立移除的约束仍适用，专属接入留在 Boss 目录。
+- 公共入口不得请求已关闭可选模块的内容 ID、资源或处理器；网络入口仍消费固定消息载荷，不改变协议。
+- `AnomaliesModules.props` 仅按目录排除 Tweaks 和 SpecialContents，不列举单文件，不用 Include 恢复例外。目录外接入使用对应 `#if`；共享抽象基类位于 BaseContents，测试物品位于 Testing 并仅由 DEBUG 控制。
+- 内容明确归属主内容或两个可选模块。不得私自新增模块或等价隐式分组；新增模块只能由项目所有者 **ColdsUx 最终决定并提交**。
+- 修改模块边界后运行 `Validation/Tests/Anomalies/Integration/Modules/Verify.ps1`，检查全部 4 种组合、实际程序集及配置/行为边界。编译和元数据检查不能替代游戏内加载、战斗和联机验收。详见 `Anomalies/MODULES.md`。
 
 ## Tools 与离线资源流程
 
@@ -53,11 +53,18 @@
 - 替换资源时保留生成源码、配方、种子和必要备份，独立重生成后核对哈希、尺寸、通道与透明度，再检查实际资源路径、调用处及着色器采样和亮度补偿。离线预览与统计不能证明游戏内视觉等价。
 - `Tools/`、`Backup/` 沿用现有忽略规则，不为本地工具、候选或备份添加忽略例外。交付依赖这些工具的改动时，随独立验证资料包保存必要源码和配方；缺少本地工具时明确报告，不将其视为产品源码缺陷。
 
+## 第三方许可与授权索引
+
+- 按[设计规范第 5 节](DESIGN_GUIDELINES.md#5-第三方许可与授权索引)将许可和可公开的授权记录归档到 `Anomalies/Licenses/`。变更第三方内容、使用位置或授权条件时，同步维护 [INDEX.tsv](Anomalies/Licenses/INDEX.tsv) 和相关引用，明确标注待核实的授权范围。
+- 交付前核对索引中的使用路径和凭据；涉及发布包时，检查实际 `.tmod` 中的索引、许可及应随包分发的声明。
+
 ## 命名、属性与资源
 
 - 类型、属性、方法、事件和对外直接访问的字段使用 `PascalCase`；不期望外部直接访问的字段、事件封装成员使用 `_PascalCase`。
 - 参数、局部变量使用 `camelCase`；所有常量（包括私有与局部常量）使用 `PascalCase`，不加下划线。
 - 无自定义逻辑时使用自动属性；自定义访问器能够使用 `field` 时必须使用，不另建后备实例字段。
+- XML 文档注释优先将 `<summary>` 与 `</summary>` 各自独占一行，正文置于两者之间；单句说明也优先采用此格式。
+- 接口成员优先省略冗余的 `public` 和 `abstract`，保留默认约定；普通公共实例成员直接声明签名。非公共访问级别和影响语义的修饰符必须保留，例如静态抽象成员保留 `static abstract`。此规则不改变接口类型自身或类、结构体成员的声明要求，详见设计规范 1.6。
 - 遵循 `.editorconfig`：C# 四空格缩进、CRLF、文件范围命名空间、显式类型优先，花括号换行。
 - 命名空间与目录不一致的内容类型必须显式重写 `Texture`。移动文件或重命名时同步核查主材质、发光材质、其他资源、显式请求路径及类型引用；无材质加载职责的辅助类无需添加 `Texture`。
 
@@ -65,7 +72,7 @@
 
 - GlobalType 实例数据归入 `AnomalyGlobalInstances` 的对应容器：`AnomalyGlobalNPC`、`AnomalyGlobalProjectile` 等；玩家实例数据统一放在 `AnomalyPlayer`。客户端视觉数据也遵守此规则，不另建仅存储数据的 GlobalType 或 ModPlayer。
 - `ModNPC`、`ModProjectile`、`ModItem` 等实体自身可以持有各自数据。
-- `AnomalyGlobalInstances.cs` 只保留稳定的通用逻辑与框架入口。独立实例数据放入 `Common/GlobalInstances/<类名>/<类名>.ExtraData.cs`，AI 槽位映射放入同目录的 `.AIData.cs`，无内容不创建空文件。
+- `AnomalyGlobalInstances.cs` 只保留稳定的通用逻辑与框架入口。独立实例数据放入 `GlobalInstances/<类名>/<类名>.ExtraData.cs`，AI 槽位映射放入同目录的 `.AIData.cs`，无内容不创建空文件。
 - 独立实例数据按 `分类_名称` 命名，私有字段保留前导下划线。同一机制使用一致前缀；使用 `独立实例数据` region，分类和组内成员按字母排序，排序忽略前导下划线。AI 映射使用 `AI 数组映射数据` region，按用途分组。
 - 额外数据的克隆、重置和同步实现分别放入容器目录的 `.Clone.cs`、`.ResetEffects.cs`、`.NetSync.cs`，通过部分类方法连接主文件入口；通用 AI 数组克隆、快照读写仍留在主文件。
 - 克隆可变容器时独立复制或重置，防止实体间共享状态。仅绘制数据不得进入网络快照。
@@ -73,7 +80,7 @@
 
 ### 全局命中与碰撞入口
 
-- 设计规范 2.2.1 列出的高频全局 `Can...` 回调，以及全局弹幕 `Colliding`，统一由 `Anomalies/Common/AnomalyGlobalInstances.CanHit.cs` 内对应容器实现，不在全局 Behavior 或其他全局类型中重复声明。
+- 设计规范 2.2.1 列出的高频全局 `Can...` 回调，以及全局弹幕 `Colliding`，统一由 `Anomalies/GlobalInstances/AnomalyGlobalInstances.CanHit.cs` 内对应容器实现，不在全局 Behavior 或其他全局类型中重复声明。
 - 新增判定先核对设计规范的完整回调表，只实现有实际逻辑的回调；保持适用范围、短路顺序及可空布尔语义，不能将“不作决定”的 `null` 改成 `true`。
 - 单实体 Behavior 与实体自身的专属判定按现有调用路径实现，不因同名迁入全局入口。
 
@@ -117,7 +124,7 @@
 - 兼容专用服务器、关闭着色器及资源未加载的情况，跳过效果或使用已有回退。共享 Effect 每次绘制都设置所需参数，防止状态串用。
 - 屏幕归一化效果以 16:9 为视觉基准，必要时对 X 乘 `(width / height) / (16.0 / 9.0)`；世界坐标、像素坐标或已有修正不得重复处理。区分空间坐标与采样 UV。
 - 修改后验证 16:9 的表现兼容，以及 4:3、16:10、超宽屏、竖屏下的比例和动画速度。
-- 当前 Anomalies 项目禁用了统一着色器预编译入口；修改 `.fx` 时检查现有编译器与调用方式，不能将 C# 构建通过视为着色器编译成功。
+- 当前 Anomalies 项目在 PreBuild 中调用部署的 EffectCompiler；修改 `.fx` 时检查编译器退出码、日志和对应 XNB，不能将 C# 构建通过视为着色器编译成功。
 
 ## 验证与交付
 
@@ -140,7 +147,7 @@ dotnet run --project Validation/Tests/Transoceanic/Behaviors/BehaviorGenerator.T
 # 世界吞噬者链拓扑
 dotnet run --project Validation/Tests/Anomalies/Bosses/EaterofWorlds.Topology/EaterofWorlds.Topology.csproj
 
-# 编译当前配置指向的着色器树；统一 PreBuild 入口当前禁用
+# 编译当前配置指向的着色器树；当前 PreBuild 也会调用此入口
 & ./Anomalies/PreBuild/EffectCompiler/EffectCompiler.exe
 
 # 修改编译器源码时先构建；部署方法见 Tools/EffectCompiler/README.md
@@ -160,6 +167,7 @@ pwsh -File Validation/Tests/Anomalies/Bosses/BossIsolation/Verify.ps1
 - 每次新增噪声，必须同步修改 `Validation/Tests/Tools/NoiseGenerator/Verify-All.ps1` 及 `Validation/Tests/Tools/NoiseGenerator/Baseline.json` 的噪声清单、当前文件哈希和统一检查要求，并运行全量验证；不得只增加生成入口或仅运行单张检查。全量验证必须核对部署资源与生成入口清单一致，覆盖独立重生成、部署哈希、尺寸、通道、透明度、灰度范围及相关运行时资源路径。
 - 噪声验证使用 `Validation/Tests/Tools/NoiseGenerator/Baseline.json` 固定当前生成器、配方、部署资源、着色器产物与调用代码的哈希；相关文件变化后审核并显式更新基线，验证脚本不得自动接受新哈希。旧迁移参数和日志仅作历史记录，不作当前文件预期。配方噪声通过通用 `Verify-Recipe.ps1` 按 `Recipe.json` 加载类型与参数并检查周期边界，不按噪声名称添加专属分支或脚本。
 - `BuildMod=false` 仅用于 C# 构建检查；游戏调试或验收前须完成模组打包，让 tModLoader 加载本次构建的 DLL 与资源。
+- 当前已验证的打包警告 `WARN: Image loading failed: unknown image type` 是由 tModLoader 无法正确处理模组小图标 `icon_small.png` 造成的：比较默认图标时读到流末尾，却未在后续图片转换前复位。该警告不是新增物品或图格材质损坏的证据，不应为消除它而删除或改写正常资源。此结论针对已验证的小图标问题，不能据此忽略其他图片错误；更换 tML 版本或出现不同症状时重新核实。对照验证入口为独立资料包的 `Validation/Tests/Tools/TModLoader/IconWarning/Verify.ps1`，记录见 `Validation/docs/tml-small-icon-warning-2026-11-16.md`。
 - 已还原依赖时可用 `--no-restore`；缺少还原产物时先解决依赖，不把环境失败当作代码验证通过。
 - 编译和静态测试不能替代游戏内战斗、多人同步、动态资源加载与视觉验证。只报告实际执行的检查及结果，明确尚未验证的部分。
 - 纯文档修改检查内容、引用路径及差异即可；代码修改运行与风险相称的验证。交付说明修改内容、验证结果及剩余限制。

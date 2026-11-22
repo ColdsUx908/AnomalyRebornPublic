@@ -5,7 +5,9 @@ namespace Anomalies.Bosses.Skeletron;
 
 public sealed class SkeletronHandler : ILoadable
 {
-    /// <summary>在 tML 内容加载时安装手部死亡 IL 修改，失败日志使用加载入口的所属模组。</summary>
+    /// <summary>
+    /// 在 tML 内容加载时安装手部死亡 IL 修改，失败日志使用加载入口的所属模组。
+    /// </summary>
     /// <param name="mod">由 tML 提供的所属模组。</param>
     void ILoadable.Load(Mod mod) => IL_NPC.checkDead += il => RestrictHandDeathCasters(il, mod);
 

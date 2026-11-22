@@ -71,7 +71,7 @@ public sealed class LegendFinalShockwave : LegendStellarShockwave
 
     private void DrawFireworkBurst(int age, float radiusRatio, int sparkCount)
     {
-        if (age < 0 || age >= 156)
+        if (age is < 0 or >= 156)
             return;
 
         float radius = Projectile.ai[1];
@@ -141,8 +141,12 @@ public sealed class LegendFinalShockwave : LegendStellarShockwave
         if (player.active && !player.dead && !player.ghost && new Circle(Projectile.Center, radius).Collides(player.Hitbox))
         {
             _Hit = true;
-            player.KillMe(PlayerDeathReason.ByCustomReason(Language.GetText(
-                "Mods.Anomalies." + LegendaryNightHandler.LocalizationCategory + ".TrialFailedDeath").ToNetworkText(player.name)), SkeletronLegendHead.TrialFailedDamage, 0);
+            PlayerDeathReason deathReason = PlayerDeathReason.ByCustomReason(Language.GetText(
+                "Mods.Anomalies." + LegendaryNightHandler.LocalizationCategory + ".TrialFailedDeath").ToNetworkText(player.name));
+            const int TrialFailedHitDamage = 1_000_000;
+            player.Hurt(deathReason, TrialFailedHitDamage, 0);
+            if (!player.dead)
+                player.KillMe(deathReason, SkeletronLegendHead.TrialFailedDamage, 0);
         }
 
         void PlayImpactOnce()

@@ -3,6 +3,10 @@ namespace Anomalies.GameContents.AnomalyItems.HoneyedWildbloom;
 
 public sealed class FriendlyBeePet : AnomalyModProjectile
 {
+    private const int TurnConfirmationTicks = 12;
+    private int _FollowDirection;
+    private int _OppositeDirectionTicks;
+
     public override LocalizedText DisplayName => Language.GetText("Mods.Anomalies.Bosses.QueenBee.FriendlyBee.DisplayName");
     public override string Texture => AnomalySharedData.ModPath + "GameContents/AnomalyItems/HoneyedWildbloom/FriendlyBeePet";
 
@@ -37,13 +41,26 @@ public sealed class FriendlyBeePet : AnomalyModProjectile
                 Projectile.frame = 0;
         }
 
-        if (!Owner.Alive)
+        Player player = Owner;
+        if (Projectile.owner == Main.myPlayer && (!player.Alive || !player.HasBuff<HoneyedWildbloomBuff>()))
         {
-            Projectile.timeLeft = 2;
+            Projectile.Kill();
             return;
         }
 
-        Projectile.FloatingPetAI(false, 0.03f);
+        // 沙暴瓶会连续翻转玩家朝向，只有持续的转向才切换跟随侧。
+        if (_FollowDirection == 0)
+            _FollowDirection = player.direction;
+
+        if (player.direction == _FollowDirection)
+            _OppositeDirectionTicks = 0;
+        else if (++_OppositeDirectionTicks >= TurnConfirmationTicks)
+        {
+            _FollowDirection = player.direction;
+            _OppositeDirectionTicks = 0;
+        }
+
+        Projectile.FloatingPetAI(false, 0.03f, lightPet: false, ownerDirection: _FollowDirection);
         Projectile.timeLeft = 300;
     }
 

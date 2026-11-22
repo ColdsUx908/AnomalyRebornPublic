@@ -4,7 +4,7 @@ namespace AnomaliesMusic.Scenes;
 
 public sealed class OceanMusicScene : BiomeMusicScene
 {
-    protected override string TrackName => "EchoesoftheAzure";
+    protected override string TrackName => "Deep Blue — Echoes of the Azure";
 
     protected override bool IsEnabled(AnomaliesMusicConfig config) => config.EchoesoftheAzure;
 

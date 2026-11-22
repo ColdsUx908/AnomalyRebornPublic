@@ -46,7 +46,9 @@ public sealed class QueenBeeHandler
             HoneyWetCombCells.Clear();
         }
 
-        /// <summary>在 tML 内容加载时安装蜂蜜碰撞钩子，不提前访问弹幕内容。</summary>
+        /// <summary>
+        /// 在 tML 内容加载时安装蜂蜜碰撞钩子，不提前访问弹幕内容。
+        /// </summary>
         public override void Load()
         {
             On_Collision.WetCollision += On_Collision_WetCollision;
@@ -65,7 +67,7 @@ public sealed class QueenBeeHandler
             {
                 if (Projectile.TryGetProjectileFromIndex(cellIndex, out Projectile projectile) && projectile.active && projectile.TryGetModProjectile(out CombCell cell))
                 {
-                    if (cell.HitBox.Collides(hitbox))
+                    if (cell.Overlaps(hitbox))
                     {
                         Collision.honey = true;
                         return true;

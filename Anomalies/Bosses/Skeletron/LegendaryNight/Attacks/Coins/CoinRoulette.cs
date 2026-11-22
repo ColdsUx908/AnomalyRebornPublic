@@ -10,21 +10,29 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class CoinRoulette : AnomalyModProjectile
 {
-    /// <summary>切换音效。</summary>
+    /// <summary>
+    /// 切换音效。
+    /// </summary>
     public static readonly SoundStyle SwitchSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Coins/CoinRouletteSwitch") { PitchVariance = 0.5f };
-    /// <summary>锁定音效。</summary>
+    /// <summary>
+    /// 锁定音效。
+    /// </summary>
     public static readonly SoundStyle LockSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Coins/CoinRouletteLock");
 
     private int _LastVisualCoinType = -1;
     private int _LastVisualLockFrame = -1;
 
-    /// <summary>自转时刻。</summary>
+    /// <summary>
+    /// 自转时刻。
+    /// </summary>
     private const int SpinTime = 24;
     internal const int FirstLockFrame = 90;
     internal const int RoundDuration = FirstLockFrame + CoinJudgment.WarningDuration;
     internal const int RotationDuration = RoundDuration * 2;
     private const float CoinScale = 3f;
-    /// <summary>玩家上方高度。</summary>
+    /// <summary>
+    /// 玩家上方高度。
+    /// </summary>
     public const float HeightAbovePlayer = 64f;
     private bool IsMechanic5 => Projectile.ai[1] < 0f;
     private int RoundStartMusicTime => -(int)Projectile.ai[1];

@@ -2,9 +2,13 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed class LegendaryNightTimeSystem : ModSystem
 {
-    /// <summary>午夜。</summary>
+    /// <summary>
+    /// 午夜。
+    /// </summary>
     private const double Midnight = 16200d; // 原版夜晚从19:30开始，零点对应经过4.5小时。
-    /// <summary>过渡持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 过渡持续时间，单位为游戏帧。
+    /// </summary>
     private const int TransitionDuration = 180;
 
     private int _HeadIndex = -1;

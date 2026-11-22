@@ -2,7 +2,9 @@ using Anomalies.BaseContents;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>传说之夜音乐场景，沿用音乐距离与资源回退，共用场景主体选择规则。</summary>
+/// <summary>
+/// 传说之夜音乐场景，沿用音乐距离与资源回退，共用场景主体选择规则。
+/// </summary>
 public abstract class LegendaryNightMusicScene : BaseMusicSceneEffect
 {
     protected abstract bool Phase2Music { get; }
@@ -22,7 +24,7 @@ public sealed class SkeletronLegendScene : LegendaryNightMusicScene
     protected override bool Phase2Music => false;
     public override SceneEffectPriority Priority => SceneEffectPriority.BossHigh;
 
-    public override int MusicModMusic => AnomaliesMusicHandler.CurseoftheDungeon;
+    public override int MusicModMusic => ModContent.GetInstance<SkeletronLegendMusicSystem>().DungeonMusic;
     public override int VanillaMusic => MusicID.Boss1;
 }
 
@@ -31,7 +33,7 @@ public sealed class SkeletronLegendScene2 : LegendaryNightMusicScene
     protected override bool Phase2Music => true;
     public override SceneEffectPriority Priority => SceneEffectPriority.BossHigh;
 
-    public override int MusicModMusic => AnomaliesMusicHandler.TornfromtheHeavens;
+    public override int MusicModMusic => ModContent.GetInstance<SkeletronLegendMusicSystem>().Phase2Music;
     public override int VanillaMusic => MusicID.EmpressOfLight;
 
     public override bool IsSceneEffectActive(Player player)

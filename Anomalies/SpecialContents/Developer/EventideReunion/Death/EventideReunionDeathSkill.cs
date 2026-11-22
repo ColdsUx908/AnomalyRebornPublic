@@ -186,17 +186,21 @@ public sealed partial class EventideReunionDeathSkill : AnomalyModProjectile
                 _SafePosition = player.position;
                 _HasSafePosition = !OverlapsEnemy(player.Hitbox);
             }
-            Vector2 start = player.position;
-            Vector2 motion = Aim * DashSpeed;
+            bool stopPressed = EventideReunionInput.StopPressed(player);
             bool hitTerrain = false;
-            player.position = EventideReunionDeathGeometry.SweepDash(start, motion,
-                (position, step) =>
-                {
-                    Vector2 actual = Collision.TileCollision(position, step, player.width, player.height, false, false, (int)player.gravDir);
-                    hitTerrain |= Vector2.DistanceSquared(actual, step) > 0.001f;
-                    return actual;
-                },
-                InspectPosition);
+            if (!stopPressed)
+            {
+                Vector2 start = player.position;
+                Vector2 motion = Aim * DashSpeed;
+                player.position = EventideReunionDeathGeometry.SweepDash(start, motion,
+                    (position, step) =>
+                    {
+                        Vector2 actual = Collision.TileCollision(position, step, player.width, player.height, false, false, (int)player.gravDir);
+                        hitTerrain |= Vector2.DistanceSquared(actual, step) > 0.001f;
+                        return actual;
+                    },
+                    InspectPosition);
+            }
             player.velocity = Vector2.Zero;
             player.fallStart = (int)(player.position.Y / 16f);
             if (TargetIndex >= 0 && TargetIndex < Main.maxNPCs)
@@ -210,9 +214,9 @@ public sealed partial class EventideReunionDeathSkill : AnomalyModProjectile
             }
             bool overlapping = OverlapsEnemy(player.Hitbox);
             bool needsClearance = TargetIndex >= 0 && !EventideReunionDeathGeometry.HasPassedTarget(player.Hitbox, _TargetBounds, Aim);
-            bool finish = EventideReunionDeathGeometry.ShouldFinishDash(Timer + 1, _HitTimer, overlapping || needsClearance, DashDuration);
+            bool finish = stopPressed || EventideReunionDeathGeometry.ShouldFinishDash(Timer + 1, _HitTimer, overlapping || needsClearance, DashDuration);
             bool hitTimeout = _HitTimer >= 0 && Timer - _HitTimer >= EventideReunionDeathGeometry.HitDashDuration;
-            if (hitTerrain || hitTimeout)
+            if (!stopPressed && (hitTerrain || hitTimeout))
             {
                 // 目标与地形夹住玩家时退回最后安全位置，不在敌人体内结束。
                 if (overlapping && _HasSafePosition)

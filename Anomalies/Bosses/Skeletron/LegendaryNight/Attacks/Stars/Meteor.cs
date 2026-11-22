@@ -12,12 +12,18 @@ public sealed class Meteor : AnomalyModProjectile
 {
     public override string Texture => LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/Meteor";
 
-    /// <summary>拖尾长度。</summary>
+    /// <summary>
+    /// 拖尾长度。
+    /// </summary>
     public const int TrailLength = 50;
 
-    /// <summary>召唤音效。</summary>
+    /// <summary>
+    /// 召唤音效。
+    /// </summary>
     public static readonly SoundStyle SummonSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/MeteorSummon") { MaxInstances = 0 };
-    /// <summary>爆炸音效。</summary>
+    /// <summary>
+    /// 爆炸音效。
+    /// </summary>
     public static readonly SoundStyle ExplosionSound = new(LegendaryNightHandler.LegendaryNightPath + "Attacks/Stars/MeteorExplosion") { MaxInstances = 0 };
 
     // ai[0]：目标玩家索引（1-based，0 表示未指定目标）。
@@ -123,7 +129,12 @@ public sealed class Meteor : AnomalyModProjectile
         }
     }
 
-    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, 50f * Projectile.scale).Collides(targetHitbox);
+    private float DamageRadius => 50f * Projectile.scale;
+
+    public override bool? CanHitNPC(NPC target) => target.friendly || Projectile.friendly
+        ? ProjectileDamageBounds.Around(Projectile.Center, DamageRadius).CanHitNPC(Type, target) : null;
+
+    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, DamageRadius).Collides(targetHitbox);
 
     public override bool PreDraw(ref Color lightColor)
     {

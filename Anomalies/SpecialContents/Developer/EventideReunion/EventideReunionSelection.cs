@@ -14,6 +14,9 @@ public sealed class EventideReunionSelectionPlayer : AnomalyPlayerBehavior
         if (!pressed || Main.gameMenu || Main.playerInventory || Main.blockMouse || Player.mouseInterface
             || Player.dead || Player.noItems || Player.CCed
             || Player.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSunSkill>()] > 0
+            || Player.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionLifeSkill>()] > 0
+            || Player.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSacrednessSkill>()] > 0
+            || EventideReunionStarSkill.IsBlockingActions(Player)
             || EventideReunionDeathSkill.IsBlockingActions(Player)
             || Player.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSamsaraSkill>()] > 0
             || Player.HeldItem.type != ModContent.ItemType<EventideReunion>())
@@ -148,6 +151,9 @@ public sealed class EventideReunionSelection : AnomalyModProjectile
         }
         Projectile.timeLeft = 2;
         if (canHold && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSunSkill>()] == 0
+            && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionLifeSkill>()] == 0
+            && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSacrednessSkill>()] == 0
+            && !EventideReunionStarSkill.IsBlockingActions(ownerPlayer)
             && !EventideReunionDeathSkill.IsBlockingActions(ownerPlayer)
             && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSamsaraSkill>()] == 0)
         {
@@ -260,7 +266,10 @@ public sealed class EventideReunionSelection : AnomalyModProjectile
                 EventideReunionResonanceDrawing.DrawGlow(batch, rune, position, runeScale, currentProgress, (EventideReunionAspect)i);
             int cooldown = i == 0 ? Projectile.Owner.Anomaly.EventideReunion_SunCooldown
                 : i == 1 ? Projectile.Owner.Anomaly.EventideReunion_SamsaraCooldown
-                : i == 3 ? Projectile.Owner.Anomaly.EventideReunion_DeathCooldown : 0;
+                : i == 2 ? Projectile.Owner.Anomaly.EventideReunion_LifeCooldown
+                : i == 3 ? Projectile.Owner.Anomaly.EventideReunion_DeathCooldown
+                : i == (int)EventideReunionAspect.Sacredness ? Projectile.Owner.Anomaly.EventideReunion_SacrednessCooldown
+                : i == (int)EventideReunionAspect.Star ? Projectile.Owner.Anomaly.EventideReunion_StarCooldown : 0;
             Color tint = cooldown > 0 ? new Color(140, 110, 85) : Color.White;
             batch.Draw(rune, position - Main.screenPosition, null, tint * currentProgress,
                 0f, rune.Size() * 0.5f, runeScale, SpriteEffects.None, 0f);
@@ -272,6 +281,9 @@ public sealed class EventideReunionSelection : AnomalyModProjectile
         Player ownerPlayer = Projectile.Owner;
         if (ownerPlayer.active && !ownerPlayer.dead && ownerPlayer.HeldItem.type == ModContent.ItemType<EventideReunion>()
             && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSunSkill>()] == 0
+            && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionLifeSkill>()] == 0
+            && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSacrednessSkill>()] == 0
+            && !EventideReunionStarSkill.IsBlockingActions(ownerPlayer)
             && !EventideReunionDeathSkill.IsBlockingActions(ownerPlayer)
             && ownerPlayer.ownedProjectileCounts[ModContent.ProjectileType<EventideReunionSamsaraSkill>()] == 0)
         {

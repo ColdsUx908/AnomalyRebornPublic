@@ -41,24 +41,20 @@ public sealed class EventideReunionSunExplosion : AnomalyModProjectile
             0.2f, 2.7f, 32, lifeEndRatio: 0.1f, useLargeTexture: true));
         ParticleHandler.SpawnParticle(new BloomParticle(Projectile.Center, Vector2.Zero, Color.LightGoldenrodYellow,
             0.1f, 1.6f, 20, lifeEndRatio: 0.05f, useLargeTexture: true));
-        for (int i = 0; i < 3; i++)
+        ParticleHandler.SpawnParticle(new PulseRing(Projectile.Center, Vector2.Zero,
+            Color.LightGoldenrodYellow, 0.05f, 2.7f, 20));
+        ParticleHandler.SpawnParticle(new PulseRing(Projectile.Center, Vector2.Zero,
+            Color.DarkOrange, 0.05f, 3.55f, 28));
+        for (int i = 0; i < 48; i++)
         {
-            ParticleHandler.SpawnParticle(new PulseRing(Projectile.Center, Vector2.Zero,
-                i == 0 ? Color.LightYellow : Color.Orange, 0.05f, 2.7f + i * 0.85f, 20 + i * 5));
-            ParticleHandler.SpawnParticle(new DetailedExplosion(Projectile.Center, Vector2.Zero,
-                i == 0 ? Color.LightYellow : Color.DarkOrange, Vector2.One,
-                Main.rand.NextFloat(MathHelper.TwoPi), 0.05f, 1.1f + i * 0.4f, 22 + i * 5));
-        }
-        for (int i = 0; i < 120; i++)
-        {
-            Vector2 direction = (MathHelper.TwoPi * i / 120f + Main.rand.NextFloat(-0.04f, 0.04f)).ToRotationVector2();
+            Vector2 direction = (MathHelper.TwoPi * i / 48f + Main.rand.NextFloat(-0.04f, 0.04f)).ToRotationVector2();
             ParticleHandler.SpawnParticle(new PointingParticle(
-                Projectile.Center + direction * Main.rand.NextFloat(6f, 36f),
-                direction * Main.rand.NextFloat(9f, 38f), false,
+                Projectile.Center + direction * Main.rand.NextFloat(42f, 76f),
+                direction * Main.rand.NextFloat(6f, 20f), false,
                 Main.rand.Next(26, 50), Main.rand.NextFloat(0.6f, 1.35f),
                 i % 4 == 0 ? Color.LightYellow : Color.Lerp(Color.Gold, Color.OrangeRed, Main.rand.NextFloat())));
         }
-        for (int i = 0; i < 32; i++)
+        for (int i = 0; i < 12; i++)
         {
             Vector2 direction = Main.rand.NextVector2Unit();
             ParticleHandler.SpawnParticle(new MediumMistParticle(
@@ -75,8 +71,8 @@ public sealed class EventideReunionSunExplosion : AnomalyModProjectile
     {
         float progress = MathHelper.Clamp(Age / (float)Duration, 0f, 1f);
         float expansion = 1f - MathF.Pow(1f - progress, 4f);
-        float opacity = (1f - progress) * (1f - progress);
-        Texture2D glow = BloomParticle.BloomCircleLarge;
+        float opacity = 1f - MathHelper.SmoothStep(0f, 1f, progress);
+        Texture2D glow = BloomParticle.BloomCircleLargeEmission;
         Vector2 origin = glow.Size() * 0.5f;
         // 拉伸柔光形成尖细的日芒，长短交错并缓慢转动；零 Alpha 在现有批次中叠加发光。
         Color gold = new Color(255, 165, 35, 0) * opacity;
@@ -95,6 +91,12 @@ public sealed class EventideReunionSunExplosion : AnomalyModProjectile
             Main.spriteBatch.Draw(glow, center - Main.screenPosition, null, core, angle, origin,
                 scale, SpriteEffects.None, 0f);
         }
+        // 先点燃光球，日冕随即张开；收矛时光球收缩，喷出的金线继续向外运动。
+        float ignition = MathHelper.SmoothStep(0f, 1f, Age / 6f);
+        float cooling = MathHelper.SmoothStep(0f, 1f, (Age - 9f) / (Duration - 10f));
+        float diskRadius = EventideReunionSunSkill.BlastRadius * (0.30f + ignition * 0.55f) * (1f - cooling * 0.65f);
+        EventideReunionEffects.DrawPhotosphere(Projectile.Center, diskRadius * 3.5f,
+            Age * 0.055f + Projectile.identity % 17, (1f - ignition) * 0.8f, 1f - cooling, solar: true);
         return false;
     }
 }

@@ -24,7 +24,8 @@ public sealed class EaterEntryPortal : ModProjectile
         if (!owner.active || owner.type != NPCID.EaterofWorldsHead
             || EaterofWorldsHead.GetInstance(owner).CurrentBehavior == EaterofWorldsHead.Behavior.Despawn)
         {
-            Projectile.Kill();
+            if (TONetworkEnvironment.NotClient)
+                Projectile.Kill();
             return;
         }
         Projectile.scale = Utils.GetLerpValue(225f, 170f, Projectile.timeLeft, true)

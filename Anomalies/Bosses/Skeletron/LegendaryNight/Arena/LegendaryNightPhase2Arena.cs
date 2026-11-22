@@ -12,25 +12,43 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed partial class LegendaryNightPhase2Arena : BaseRingArenaProjectile
 {
-    /// <summary>显现持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 显现持续时间，单位为游戏帧。
+    /// </summary>
     public const int AppearanceDuration = 90;
-    /// <summary>主圆完整半径，单位为世界像素。</summary>
+    /// <summary>
+    /// 主圆完整半径，单位为世界像素。
+    /// </summary>
     public const float MainCircleFullRadius = 600f;
-    /// <summary>小圆半径比例。</summary>
+    /// <summary>
+    /// 小圆半径比例。
+    /// </summary>
     public const float SmallCircleRadiusRatio = 1f / 6f;
-    /// <summary>外圆半径比例。</summary>
+    /// <summary>
+    /// 外圆半径比例。
+    /// </summary>
     public const float OuterCircleRadiusRatio = 1f + 2f * SmallCircleRadiusRatio; //800f
-    /// <summary>自转或公转角速度，单位为弧度/游戏帧。</summary>
+    /// <summary>
+    /// 自转或公转角速度，单位为弧度/游戏帧。
+    /// </summary>
     public const float RotationSpeed = 0.006f;
-    /// <summary>首次小圆公转速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 首次小圆公转速度，以世界像素和游戏帧计量。
+    /// </summary>
     public static float FirstSmallCircleOrbitSpeed => SlowOrbitSpeed;
     public static float GetFastOrbitSpeed(int musicTime) => GetOrbitSpeed(2, musicTime);
-    /// <summary>自转或公转角速度，单位为弧度/游戏帧。</summary>
+    /// <summary>
+    /// 自转或公转角速度，单位为弧度/游戏帧。
+    /// </summary>
     public const float FirstSmallCircleSpinSpeed = RotationSpeed * 2f;
-    /// <summary>自转或公转角速度，单位为弧度/游戏帧。</summary>
+    /// <summary>
+    /// 自转或公转角速度，单位为弧度/游戏帧。
+    /// </summary>
     public const float SecondSmallCircleSpinSpeed = -RotationSpeed * 3f;
 
-    /// <summary>召唤音效。</summary>
+    /// <summary>
+    /// 召唤音效。
+    /// </summary>
     public static readonly SoundStyle SummonSound = new(LegendaryNightHandler.LegendaryNightPath + "Arena/Phase2ArenaSummon");
 
     // ai[0]：所属骷髅王索引（1-based）；ai[1]：法阵出现时的音乐帧数。
@@ -54,9 +72,13 @@ public sealed partial class LegendaryNightPhase2Arena : BaseRingArenaProjectile
     public float MainCircleRadius => Radius / OuterCircleRadiusRatio;
     public float SmallCircleRadius => MainCircleRadius * SmallCircleRadiusRatio;
     // 目标有效范围以完整法阵为准，不随入场缩放收缩，避免展开时误判脱战。
-    /// <summary>目标选择半径，单位为世界像素。</summary>
+    /// <summary>
+    /// 目标选择半径，单位为世界像素。
+    /// </summary>
     public static float TargetingRadius => MainCircleFullRadius * OuterCircleRadiusRatio * 2f;
-    /// <summary>激光宽度，单位为世界像素。</summary>
+    /// <summary>
+    /// 激光宽度，单位为世界像素。
+    /// </summary>
     public const float LaserWidth = 24f;
 
     public override string Texture => TOTextures.InvisibleTexturePath;

@@ -9,18 +9,18 @@ public enum EaterofWorldsSegmentType : byte
 
 public interface IEaterofWorldsSegment
 {
-    public abstract NPC Head { get; set; }
-    public abstract bool ValidHead { get; }
-    public abstract NPC LocalHead { get; set; }
-    public abstract bool ValidLocalHead { get; }
-    public abstract NPC Previous { get; set; }
-    public abstract bool ValidPrevious { get; }
-    public abstract NPC Next { get; set; }
-    public abstract bool ValidNext { get; }
-    public abstract int SegmentIndex { get; set; }
-    public abstract bool IsFirstSegment { get; }
-    public abstract bool IsLastSegment { get; }
-    public abstract EaterofWorldsSegmentType SegmentType { get; }
+    NPC Head { get; set; }
+    bool ValidHead { get; }
+    NPC LocalHead { get; set; }
+    bool ValidLocalHead { get; }
+    NPC Previous { get; set; }
+    bool ValidPrevious { get; }
+    NPC Next { get; set; }
+    bool ValidNext { get; }
+    int SegmentIndex { get; set; }
+    bool IsFirstSegment { get; }
+    bool IsLastSegment { get; }
+    EaterofWorldsSegmentType SegmentType { get; }
 }
 
 
@@ -105,12 +105,39 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
         _ => NPCID.None
     };
 
+    private EaterofWorldsHead LifeOwner => ValidHead ? HeadBehavior : IsFirstSegment && SegmentType == EaterofWorldsSegmentType.Head
+        ? EaterofWorldsHead.GetInstance(NPC) : null;
+
+    public bool DeathLocked => LifeOwner?.LocksUltraLife == true;
+
+    public override void Load() => BossDeathEffectRegistry.Register(ApplyingType,
+        npc => GetInstance(npc) is { ShouldProcess: true, DeathLocked: true });
+
+    public override void ModifyIncomingHit(ref NPC.HitModifiers modifiers)
+    {
+        if (LifeOwner is EaterofWorldsHead { LocksUltraLife: true } owner)
+            modifiers.SetMaxDamage(Math.Max(1, owner.NPC.life - owner.UltraEntryLife));
+    }
+
+    public override bool CheckDead()
+    {
+        if (!DeathLocked)
+            return true;
+        EaterofWorldsHead owner = LifeOwner;
+        owner.NPC.life = Math.Max(owner.NPC.life, owner.UltraEntryLife);
+        NPC.life = owner.NPC.life;
+        NPC.active = true;
+        if (TONetworkEnvironment.NotClient)
+            owner.NPC.netUpdate = NPC.netUpdate = true;
+        return false;
+    }
+
     protected int GetContactDamage()
     {
         if (!ValidHead)
             return 0;
         EaterofWorldsHead owner = HeadBehavior;
-        if (owner.ContactSuppressed)
+        if (owner.ContactSuppressed || !ValidLocalHead || !owner.ChainCanHit(EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex))
             return 0;
         if (IsUnderCoilMask)
             return 0;
@@ -118,6 +145,7 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
             return 0;
         return SegmentType switch
         {
+            EaterofWorldsSegmentType.Head when owner.UltraCombat && !IsFirstSegment => EaterofWorldsHead.BodyContactDamage,
             EaterofWorldsSegmentType.Head => EaterofWorldsHead.HeadContactDamage,
             EaterofWorldsSegmentType.Body => EaterofWorldsHead.BodyContactDamage,
             _ => EaterofWorldsHead.TailContactDamage,
@@ -131,12 +159,17 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
             if (!ValidHead)
                 return 1f;
             EaterofWorldsHead owner = HeadBehavior;
-            if (owner.CurrentBehavior is not (EaterofWorldsHead.Behavior.Phase1_Split or EaterofWorldsHead.Behavior.Phase1_Combine))
+            if (owner.InUltraTransition)
+            {
+                if (owner.CurrentLocalPhase == 1)
+                    return Utils.GetLerpValue(0f, 24f, owner.Timer1, true);
+                return 1f - Utils.GetLerpValue(10f, 80f, owner.Timer1, true);
+            }
+            if (owner.CurrentBehavior != EaterofWorldsHead.Behavior.Phase1_Split)
                 return 1f;
             if (owner.CurrentLocalPhase == 1)
             {
-                int length = EaterofWorldsHead.TotalSegmentCount / (owner.CurrentlySplit ? 3 : 1);
-                int offset = (SegmentIndex - 1) % length;
+                int offset = ValidLocalHead ? SegmentIndex - EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex : 0;
                 return 1f - Utils.GetLerpValue(offset * 1.5f + 4f, offset * 1.5f + 16f, owner.Timer1, true);
             }
             if (owner.CurrentLocalPhase == 3)
@@ -153,6 +186,7 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
 
     protected void UpdateCoilDR()
     {
+        NPC.dontTakeDamage = ValidHead && HeadBehavior.InUltraTransition;
         NPC.Opacity = PortalOpacity;
         AnomalyNPC.DR = PortalOpacity < 1f || IsUnderCoilMask ? 0.95f : 0f;
     }
@@ -161,12 +195,29 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
     {
         NPC.damage = GetContactDamage();
         NPC.defense = 8;
+        if (ValidLocalHead && EaterofWorldsHead.GetInstance(LocalHead).CircularMovementActive)
+        {
+            // The encounter owner places the entire local chain on its common circle.
+            NPC.velocity = Vector2.Zero;
+            return;
+        }
+        if (ValidHead && ValidLocalHead && SegmentIndex > EaterofWorldsHead.UltraLongWormSegmentCount
+            && (HeadBehavior.UltraCombat || HeadBehavior.InUltraTransition && HeadBehavior.CurrentLocalPhase == 1))
+        {
+            // A three-link lane stays straight, including its tail while staging or recovering.
+            EaterofWorldsHead local = EaterofWorldsHead.GetInstance(LocalHead);
+            float linkSpacing = Main.getGoodWorld ? 62f : NPC.width * NPC.scale;
+            NPC.Center = LocalHead.Center - local.LaunchDirection * ((SegmentIndex - local.SegmentIndex) * linkSpacing);
+            NPC.rotation = local.LaunchDirection.ToRotation() + MathHelper.PiOver2;
+            NPC.velocity = Vector2.Zero;
+            return;
+        }
         Vector2 delta = Previous.Center - NPC.Center;
         float spacing = Main.getGoodWorld ? 62f : NPC.width * NPC.scale;
         Vector2 direction = delta.SafeNormalize(Vector2.UnitY);
         // Pull only: pushing compressed segments apart unfolds a coil instantly, even with a stationary head.
         NPC.velocity = direction * Math.Max(0f, delta.Length() - spacing);
-        if (HeadBehavior.CurrentBehavior is EaterofWorldsHead.Behavior.Phase1_Split or EaterofWorldsHead.Behavior.Phase1_Combine
+        if (HeadBehavior.CurrentBehavior == EaterofWorldsHead.Behavior.Phase1_Split
             && delta.Length() <= spacing + Previous.velocity.Length() + 8f)
         {
             // Follow the predecessor's travelled arc, not a chord cutting across its tight orbit.

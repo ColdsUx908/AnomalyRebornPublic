@@ -1,6 +1,8 @@
 namespace TransoceanicCodeAssist.Generators;
 
-/// <summary>从编译实际引用的 tML API 生成行为钩子与 Handler 分发；手写成员始终优先。</summary>
+/// <summary>
+/// 从编译实际引用的 tML API 生成行为钩子与 Handler 分发；手写成员始终优先。
+/// </summary>
 [Generator]
 public sealed class BehaviorGenerator : IIncrementalGenerator
 {
@@ -15,7 +17,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         .WithMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
             SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
-    /// <summary>注册增量生成管线；从当前编译中的目标类型生成源码。</summary>
+    /// <summary>
+    /// 注册增量生成管线；从当前编译中的目标类型生成源码。
+    /// </summary>
     /// <param name="context">Roslyn 提供的增量生成器初始化上下文。</param>
     public void Initialize(IncrementalGeneratorInitializationContext context) =>
         context.RegisterSourceOutput(context.CompilationProvider, Generate);

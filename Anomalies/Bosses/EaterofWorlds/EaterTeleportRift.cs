@@ -1,13 +1,11 @@
-using Anomalies.Assets.Effects;
-
 // Adapted from CalamityMod; Copyright Azafure, LLC. See Portal/README.md.
 namespace Anomalies.Bosses.EaterofWorlds;
 
 public sealed class EaterTeleportRift : ModProjectile
 {
-    public static readonly SoundStyle CrackSound = new(EaterPortalAssets.Path + "CryogenHit", 3);
+    public static readonly SoundStyle CrackSound = new(EaterPortalAssets.Path + "RiftCrack", 3);
 
-    public static readonly SoundStyle BreakSound = new(EaterPortalAssets.Path + "CryogenPhaseTransitionCrack");
+    public static readonly SoundStyle BreakSound = new(EaterPortalAssets.Path + "RiftShatter");
 
     private bool _ExplosionShown;
     private bool _VisualsInitialized;
@@ -88,7 +86,8 @@ public sealed class EaterTeleportRift : ModProjectile
         if (!OwnerHead.active || OwnerHead.type != NPCID.EaterofWorldsHead
             || EaterofWorldsHead.GetInstance(OwnerHead).CurrentBehavior == EaterofWorldsHead.Behavior.Despawn)
         {
-            Projectile.Kill();
+            if (TONetworkEnvironment.NotClient)
+                Projectile.Kill();
             return;
         }
 
@@ -99,7 +98,7 @@ public sealed class EaterTeleportRift : ModProjectile
         if (AIState == 0f)
         {
             if (Timer == 0f && !Main.dedServ)
-                SoundEngine.PlaySound(new SoundStyle(EaterPortalAssets.Path + "DevourerRiftOpen") { Volume = 1.5f }, Projectile.Center);
+                SoundEngine.PlaySound(new SoundStyle(EaterPortalAssets.Path + "RiftOpen") { Volume = 1.5f }, Projectile.Center);
             int riftCrackInterval = Math.Max(1, RiftLifetime / 3);
             if (Timer % riftCrackInterval == 0f)
             {
@@ -145,7 +144,8 @@ public sealed class EaterTeleportRift : ModProjectile
             }
 
             // Perform the explosion on the topology-change and emergence boundary.
-            if (EaterofWorldsHead.GetInstance(OwnerHead).CurrentLocalPhase == 3 || Timer >= RiftLifetime)
+            EaterofWorldsHead owner = EaterofWorldsHead.GetInstance(OwnerHead);
+            if ((owner.CurrentBehavior == EaterofWorldsHead.Behavior.Phase1_Split && owner.CurrentLocalPhase == 3) || Timer >= RiftLifetime)
                 SwitchAIStates();
 
             if (Projectile.timeLeft < 45)

@@ -10,7 +10,7 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// <para>AnomalyAI32[6].I：拍击左右位图（bit3表示初始化）；[7].I：机制二音乐起点。</para>
 /// <para>AnomalyAI32[8].I：停靠锁定状态、已锁定拍击序号或机制三雨目标玩家索引 + 1，按机制复用。</para>
 /// <para>AnomalyAI64[1]：竞技场 owner + identity；[2]：停靠/拍击/跳跃/回中起点；[3]：终点、落点或冲刺速度；[4]：停靠初速度。[0]未使用。</para>
-/// <para>Skeletron_LegendaryNightHalfFieldHits：本机已消费的半场拍击位图，不加入网络快照，实体初始化及克隆时重置。</para>
+/// <para>Skeletron_LegendaryNightHalfFieldHits：服务器已结算的半场拍击及客户端已播放的震动位图，不加入网络快照，实体初始化及克隆时重置。</para>
 /// </remarks>
 public sealed partial class SkeletronLegendHead : AnomalyNPCBehavior<SkeletronLegendHead>
 {
@@ -18,13 +18,21 @@ public sealed partial class SkeletronLegendHead : AnomalyNPCBehavior<SkeletronLe
     protected override int AI32Capacity => 9;
     protected override int AI64Capacity => 5;
 
-    /// <summary>目标有效性的最大距离，单位为世界像素。</summary>
+    /// <summary>
+    /// 目标有效性的最大距离，单位为世界像素。
+    /// </summary>
     public const float DespawnDistance = 10000f;
-    /// <summary>进入二阶段的剩余生命比例阈值。</summary>
+    /// <summary>
+    /// 进入二阶段的剩余生命比例阈值。
+    /// </summary>
     public const float Phase2LifeRatio = 0.1f;
-    /// <summary>二阶段动态减伤采用的预期生存秒数。</summary>
+    /// <summary>
+    /// 二阶段动态减伤采用的预期生存秒数。
+    /// </summary>
     public const int Phase2ExpectedTimeInSeconds = 185;
-    /// <summary>二阶段动态减伤的累计生存帧上限。</summary>
+    /// <summary>
+    /// 二阶段动态减伤的累计生存帧上限。
+    /// </summary>
     public const int Phase2MinimumDuration = Phase2ExpectedTimeInSeconds * 60;
 
     public override int ApplyingType => NPCID.SkeletronHead;

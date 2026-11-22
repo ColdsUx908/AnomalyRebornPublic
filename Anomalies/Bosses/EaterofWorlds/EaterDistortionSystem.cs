@@ -193,7 +193,7 @@ public sealed class EaterDistortionSystem : ModSystem
 
         Main.spriteBatch.End();
         Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, Main.Rasterizer, null, Matrix.Identity);
-        
+
         // Draw a layer of rolling clouds in the background.
         DrawDistortionClouds_Foreground();
 

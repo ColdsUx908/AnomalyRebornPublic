@@ -35,7 +35,14 @@ Developer: {
 		EventideReunionSunExplosion.DisplayName: 日冕耀斑
 		EventideReunionDeathWave.DisplayName: 寂灭镰波
 		EventideReunionDeathSoul.DisplayName: 收割之魂
+		EventideReunionSacrednessSkill.DisplayName: 圣裁贯日
 		EventideReunionSamsaraEcho.DisplayName: 业轮回响
+		EventideReunionLifeFruit.DisplayName: 新生之果
+
+		EventideReunionLifeBlessing: {
+			DisplayName: 圣灵复愿
+			Description: 每拾取一颗生命果，临时最大生命提高 10%，累计最多 30%，每次拾取刷新 15 秒
+		}
 
 		EventideReunionResonance: {
 			DisplayName: 轮回共鸣
@@ -58,7 +65,7 @@ Contributor: {
 
 		MeguminExhaustion: {
 			DisplayName: 魔力耗竭
-			Description: 爆裂魔法耗尽了你的力量，暂时无法再次施放，移动速度降低
+			Description: 爆裂魔法耗尽了你的力量，你无法再次施放魔法
 		}
 	}
 
@@ -81,5 +88,21 @@ DeveloperItemIdentifier: - 开发者物品 -
 DeveloperItemOwnerIdentifier: 开发者: {0}
 ContributorItemIdentifier: - 贡献者物品 -
 ContributorItemOwnerIdentifier: 贡献者: {0}
+
+Donor: {
+	SnowHareValkyrie: {
+		DisplayName: 雪兔女武神
+		Tooltip:
+			'''
+			左键发射会爆炸的红色胡萝卜导弹，右键发射黄色导弹标记敌人或物块，引来兔弹。
+			黄色导弹最多黏附 10 秒。下一枚黄色导弹黏附时，引爆上一枚。
+			冰封世界的天尊 VS 一只可爱的兔子，谁会赢？
+			'''
+		MarchHare.DisplayName: 疯狂三月兔
+		CarrotBlast.DisplayName: 胡萝卜导弹爆炸
+		CarrotMissile.DisplayName: 胡萝卜导弹
+	}
+}
+
 DonorItemIdentifier: - 捐赠者物品 -
 DonorItemOwnerIdentifier: 捐赠者: {0}

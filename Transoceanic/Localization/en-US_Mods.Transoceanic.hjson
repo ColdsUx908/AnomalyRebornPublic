@@ -9,21 +9,10 @@ Core: {
 }
 
 Commands: {
-	GeneralCommand: {
-		Helper:
-			'''
-			No command input.
-			Use help keyword to see all available commands.
-			'''
-		Helper2:
-			'''
-			Command not found.
-			Use help keyword to see all available commands.
-			'''
-		InvalidArguments: Invalid arguments.
-	}
+	UnknownCommand: Unknown command {0}.
 
 	DebugMode: {
+		InvalidArguments: Invalid arguments.
 		Status: Debug Mode is now {0}.
 		On:
 			'''

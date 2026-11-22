@@ -379,3 +379,9 @@ FodyWeavers.xsd
 
 # Local developer identity
 /.local-developer
+
+# Local public snapshot publishing files
+/PUBLIC_SYNC.md
+/Sync-Public.bat
+/Sync-Public.ps1
+/LegendaryNightExtraMusic/

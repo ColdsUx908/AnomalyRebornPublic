@@ -1,10 +1,11 @@
-using Transoceanic.Graphics.Drawing;
-using Transoceanic.Primitives.Mathematics;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendStarburstVisuals;
+using Anomalies.Visuals.Starburst;
+using static Anomalies.Visuals.Starburst.StarburstVisuals;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>普通圆环星爆：内孔守护星、外扩亮环和依次绽放的星芒；游戏和 FNA 预览共用。</summary>
+/// <summary>
+/// 普通圆环星爆：内孔守护星、外扩亮环和依次绽放的星芒；游戏和 FNA 预览共用。
+/// </summary>
 internal static class LegendStarburstRingVisuals
 {
     public const int EndAge = 84;
@@ -66,12 +67,12 @@ internal static class LegendStarburstRingVisuals
                 (random.NextSingle() - 0.5f) * 0.4f);
     }
 
-    public static bool IsVisible(float age) => age >= 0f && age < EndAge;
+    public static bool IsVisible(float age) => age is >= 0f and < EndAge;
     public static float Front(float age, float innerRadius, float outerRadius) =>
         Lerp(innerRadius, outerRadius, OutExpo(Clamp(age / ExpansionDuration)));
 
     public static void Draw(SpriteBatch batch, Effect effect, in Textures textures,
-        in WorldView2D view, in LegendStarburstVisuals.Burst burst, BlendState blend)
+        in WorldView2D view, in StarburstVisuals.Burst burst, BlendState blend)
     {
         if (!IsVisible(burst.Age) || burst.OuterRadius <= burst.InnerRadius || burst.InnerRadius <= 0f)
             return;
@@ -177,7 +178,7 @@ internal static class LegendStarburstRingVisuals
             foreach (OuterStar star in _OuterStars)
             {
                 float a = age - 16f - star.Delay;
-                if (a < 0f || a > 24f)
+                if (a is < 0f or > 24f)
                     continue;
                 float t = a / 24f;
                 Vector2 position = star.UnitDirection * (ReferenceRadius * (star.Radius + 0.06f * t));

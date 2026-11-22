@@ -11,5 +11,5 @@ public interface ILocalizationPrefix
     /// 获取本地化键的前缀字符串。
     /// <br/>不需要以点号结尾，因为使用相关扩展方法时会自动添加点号。
     /// </summary>
-    public abstract string LocalizationPrefix { get; }
+    string LocalizationPrefix { get; }
 }

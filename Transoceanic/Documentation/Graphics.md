@@ -2,6 +2,12 @@
 
 粒子定义在客户端与专用服务器均注册并初始化；资源加载完成后，两端都可以正常调用粒子构造函数和请求纹理资产。专用服务器的纹理请求沿用 tModLoader 的占位资源行为，不创建 GPU 纹理。ParticleHandler、ParticleSet 和实体残影提交入口统一拒绝服务器提交，更新和绘制入口跳过服务器，因此普通调用点无需为了构造粒子额外判断 Main.dedServ。直接访问 GraphicsDevice、创建纹理或执行自定义绘制仍须只在客户端进行。运行 Particle 与注册 ParticleDefinition 分离；所属模组由定义提供。定义由 tML 自动加载流程注册，禁用类型不会进入缓存；缓存就绪前或定义禁用时，构造仍会抛出明确异常。
 
+## 内置光晕和球形粒子
+
+普通 BloomCircle（200×200）和 BloomCircleLarge（360×360）使用完整 8 位灰度。加法批次或预乘批次中的零 Alpha 发光使用 `BloomParticle.BloomCircleLargeEmission`。需要通过纹理透明度覆盖背景的绘制（包括黑色剪影）使用 `BloomParticle.BloomCircleLarge`，其 Alpha 来自同一个径向函数。两个大图接口的尺寸和中心相同。
+
+OrbParticle 的 288×288 纹理包含灰度和透明度，单位缩放对应 72 个世界像素。直接绘制其纹理时，给原世界缩放乘以 `OrbParticle.LogicalDiameter / texture.Width`。通过构造函数创建粒子时沿用原缩放。
+
 ## 全局粒子
 
 ParticleHandler.TrySpawnParticle 返回是否成功提交：容量不足、专用服务器、未初始化或 PreSpawn 否决时不提交。PostSpawn 是提交到缓冲后的通知，抛错不撤销已经提交的对象。

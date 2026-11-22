@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>星神祝福和压制图标的共享绘制入口。</summary>
+/// <summary>
+/// 星神祝福和压制图标的共享绘制入口。
+/// </summary>
 internal static class AstralBuffDrawing
 {
     public static void DrawGlow(SpriteBatch spriteBatch, ref BuffDrawParams drawParams, Color color)

@@ -1,5 +1,3 @@
-using Anomalies.Assets.Effects;
-
 namespace Anomalies.SpecialContents.Contributor.MeguminStaff;
 
 internal static class MeguminDrawing

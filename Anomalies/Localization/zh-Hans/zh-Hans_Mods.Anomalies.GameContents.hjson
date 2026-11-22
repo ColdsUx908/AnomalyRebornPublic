@@ -1,7 +1,24 @@
-AnomalyItems: {
-	AnomalyLoot: 异象模式掉落
-	AnomalyUltramundaneLoot: 异象超凡掉落
-	LegendaryNightLoot: 异象超凡传说之夜骷髅王掉落
+LegendaryNight: {
+	SummonFailed: 传说之夜未能开始。它需要一个超凡的夜晚。
+
+	AncientBattlefieldAltarItem: {
+		DisplayName: 古战场祭坛
+		Tooltip: 复现传说之夜所必须的祭坛
+	}
+
+	FallenStarEssence: {
+		DisplayName: 坠星精华
+		Tooltip:
+			'''
+			复现传说之夜所必需的材料
+			它曾经历无数次的坠落
+			'''
+	}
+
+	MemoryofAstraeus: {
+		DisplayName: 星星之神的记忆
+		Tooltip: 放置在祭坛上即可复现传说之夜
+	}
 
 	CoinBag: {
 		DisplayName: 钱币袋
@@ -12,6 +29,25 @@ AnomalyItems: {
 			“你没有让历史重演”
 			'''
 	}
+}
+
+StarfallKnockerHoldout.DisplayName: 叩星
+StarfallKnockerBurst.DisplayName: 叩星星爆
+
+StarfallKnocker: {
+	DisplayName: 叩星
+	Tooltip:
+		'''
+		按住左键蓄力4.5秒，松开将叩星砸向前方
+		提前松开会取消攻击；蓄力期间可以自由移动
+		锤头到位时引发星爆，直接命中的敌人额外承受一次等额伤害
+		'''
+}
+
+AnomalyItems: {
+	AnomalyLoot: 异象模式掉落
+	AnomalyUltramundaneLoot: 异象超凡掉落
+	LegendaryNightLoot: 异象超凡传说之夜骷髅王掉落
 
 	HoneyedWildbloom: {
 		DisplayName: 蜜渍野花
@@ -41,6 +77,28 @@ Drinks: {
 		DisplayName: 树莓红茶
 		Tooltip: 来自异世界的绝妙饮品
 		BuffDescription: 能量爆棚
+	}
+}
+
+MusicBoxes: {
+	PathwaytoReverieMusicBox: {
+		DisplayName: 八音盒（雨径——入梦之径）
+		Tooltip: ""
+	}
+
+	EchoesoftheAzureMusicBox: {
+		DisplayName: 八音盒（深蓝——深蓝回响）
+		Tooltip: ""
+	}
+
+	ForsakenBloodlandMusicBox: {
+		DisplayName: 八音盒（神弃——神唾血地）
+		Tooltip: ""
+	}
+
+	DivineLamentMusicBox: {
+		DisplayName: 八音盒（神泣——神叹魂泣）
+		Tooltip: ""
 	}
 }
 

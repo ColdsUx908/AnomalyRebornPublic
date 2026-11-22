@@ -10,7 +10,9 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class SkullWarning : AnomalyModProjectile
 {
-    /// <summary>预警时刻。</summary>
+    /// <summary>
+    /// 预警时刻。
+    /// </summary>
     public const int WarningTime = 60;
 
     // ai[0]：目标玩家索引 + 1；ai[1]：预警计时；ai[2]：所属骷髅王索引 + 1。

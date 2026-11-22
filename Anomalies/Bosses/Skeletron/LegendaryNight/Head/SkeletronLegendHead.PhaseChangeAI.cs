@@ -2,23 +2,41 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead
 {
-    /// <summary>转阶段化身渐隐持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 转阶段化身渐隐持续时间，单位为游戏帧。
+    /// </summary>
     private const int PhaseChangeAvatarFadeDuration = 60;
-    /// <summary>转阶段落星生成帧。</summary>
+    /// <summary>
+    /// 转阶段落星生成帧。
+    /// </summary>
     private const int PhaseChangeStarSpawnTime = 60;
-    /// <summary>转阶段星体下落持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 转阶段星体下落持续时间，单位为游戏帧。
+    /// </summary>
     private const int PhaseChangeStarFallDuration = 120;
-    /// <summary>转阶段光晕渐隐持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 转阶段光晕渐隐持续时间，单位为游戏帧。
+    /// </summary>
     private const int PhaseChangeGlowFadeDuration = 90;
-    /// <summary>转阶段冲击波时刻。</summary>
+    /// <summary>
+    /// 转阶段冲击波时刻。
+    /// </summary>
     private const int PhaseChangeShockwaveTime = 180;
-    /// <summary>转阶段回血开始。</summary>
+    /// <summary>
+    /// 转阶段回血开始。
+    /// </summary>
     private const int PhaseChangeHealStart = PhaseChangeStarSpawnTime + PhaseChangeStarFallDuration;
-    /// <summary>转阶段手部召唤帧。</summary>
+    /// <summary>
+    /// 转阶段手部召唤帧。
+    /// </summary>
     private const int PhaseChangeHandsTime = 290;
-    /// <summary>转阶段祝福时刻。</summary>
+    /// <summary>
+    /// 转阶段祝福时刻。
+    /// </summary>
     private const int PhaseChangeBlessingTime = 370;
-    /// <summary>转阶段持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 转阶段持续时间，单位为游戏帧。
+    /// </summary>
     private const int PhaseChangeDuration = 475;
 
     private void ResetCombatStateForTransition()

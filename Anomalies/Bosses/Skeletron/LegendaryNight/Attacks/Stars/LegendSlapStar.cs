@@ -67,14 +67,15 @@ public sealed class LegendSlapStar : AnomalyModProjectile
         {
             Player player = Main.LocalPlayer;
             // 高速落星使用本帧扫掠体积，避免越过玩家；半场边界仍以竞技场圆心为准。
+            if (_Hit || !player.active || player.dead || player.ghost ||
+                ProjectileDamageBounds.Swept(Projectile.Center, Projectile.Center + Projectile.velocity, 12f).Excludes(player.Hitbox))
+                return;
             RotatedRectangle sweep = new(Projectile.Center + Projectile.velocity * 0.5f,
                 Projectile.velocity.Length(), 24f, Projectile.velocity.ToRotation());
             bool hit = sweep.Collides(player.Hitbox);
             if (hit && Math.Sign(player.Center.X - arena.Projectile.Center.X) == (int)Projectile.ai[1]
                 && player.Distance(arena.Projectile.Center) <= arena.Radius)
             {
-                if (_Hit || !Main.LocalPlayer.active || Main.LocalPlayer.dead || Main.LocalPlayer.ghost)
-                    return;
                 _Hit = true;
                 LegendaryNightDamage.HurtLocalPlayer(Projectile, Projectile.damage, false, ignoreAllImmunity: true);
             }

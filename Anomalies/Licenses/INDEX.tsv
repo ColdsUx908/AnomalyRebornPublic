@@ -1,0 +1,59 @@
+使用位置（仓库相对路径）	用途	来源或署名	许可或记录（本目录）	适用条件或核实状态
+Anomalies/Assets/Effects/EventideReunion/EventideStarNebula.fx	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects/EventideReunion/EventideStarShockwave.fx	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects/EventideReunion/EventideSweep.fx	落日遗逢枪弧着色器	MEAC · Effects/Trail.fx	—	改编授权待核实
+Anomalies/Assets/Effects/LegendaryNight/LegendStellarExplosion.fx	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects/LegendaryNight/LegendStellarLightOrb.fx	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects/LegendaryNight/LegendStellarSphere.fx	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects_Compiled/EventideReunion/EventideStarNebula.xnb	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects_Compiled/EventideReunion/EventideStarShockwave.xnb	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects_Compiled/EventideReunion/EventideSweep.xnb	落日遗逢枪弧着色器	MEAC · Effects/Trail.fx	—	改编授权待核实
+Anomalies/Assets/Effects_Compiled/LegendaryNight/LegendStellarExplosion.xnb	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects_Compiled/LegendaryNight/LegendStellarLightOrb.xnb	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Effects_Compiled/LegendaryNight/LegendStellarSphere.xnb	光晕或爆炸着色器的改编、派生或参考，具体来源见同名 .fx 注释	Javyz · https://github.com/Fargo-Team/FargosSoulsDLC	FargowiltasCrossmod-MIT.txt	上游 MIT 声明
+Anomalies/Assets/Sounds/MetalPipeFalling.ogg	特殊世界玩家死亡时播放的钢管落地声；截取并叠加录音、变调回弹、共振与均衡、立体声混响、动态调整、淡出及转码	dheming · https://freesound.org/people/dheming/sounds/177783/	MetalPipe-CC-BY-4.0.txt	CC BY 4.0；随包署名、链接来源并说明改动
+Anomalies/Assets/Textures/Config/BallAndChain.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Assets/MammothParticle.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/FalseBrain.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/README.md	Boss 行为与裂隙改编，详见对应来源说明	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/BrainofCthulhu/ReferenceBrainOfCthulhu.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/BloodBomb.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/BloodShot.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/DeathRoar.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Explosion1.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Explosion2.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Growl1.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Growl2.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Laugh.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/Roar.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/ShieldDown.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/ShieldUp.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/ShortRoar.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/StunHit1.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/StunHit2.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/BrainofCthulhu/Sounds/StunHit3.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/EaterofWorlds/EaterDistortionSystem.cs	世吞裂隙改编代码	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/EaterEntryPortal.cs	世吞裂隙改编代码	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/EaterRiftBloom.cs	世吞裂隙改编代码	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/EaterRiftLight.cs	世吞裂隙改编代码	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/EaterTeleportRift.cs	世吞裂隙改编代码	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/Portal/README.md	Boss 行为与裂隙改编，详见对应来源说明	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/EaterofWorlds/README.md	Boss 行为与裂隙改编，详见对应来源说明	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	代码摘用依上游条款署名并链接来源
+Anomalies/Bosses/KingSlime/JewelShoot.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/KingSlime/RubyJewel.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/KingSlime/RubyJewelShards.png	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/QueenSlime/JewelShoot.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/Skeletron/LegendaryNight/Attacks/Coins/CoinRouletteLock.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/Skeletron/LegendaryNight/Attacks/Coins/CoinRouletteSwitch.ogg	与灾厄仓库文件相同的纹理或音效	Azafure, LLC · https://github.com/CalamityTeam/CalamityModPublic	Calamity-LICENSE.txt	独立分发授权待核实
+Anomalies/Bosses/Skeletron/LegendaryNight/Attacks/Slime/LegendSlimeRain.png	传说之夜史莱姆雨动画	Fargo Team · https://github.com/Fargowilta/FargowiltasSouls	FargosSoulsMod-MIT.txt	上游仓库采用 MIT，贴图适用范围待核实
+Anomalies/Bosses/Skeletron/LegendaryNight/Attacks/Slime/LegendSlimeRain_Green.png	传说之夜史莱姆雨动画	Fargo Team · https://github.com/Fargowilta/FargowiltasSouls	FargosSoulsMod-MIT.txt	上游仓库采用 MIT，贴图适用范围待核实
+Anomalies/Bosses/Skeletron/LegendaryNight/Attacks/Slime/LegendSlimeRain_Round.png	传说之夜史莱姆雨动画	Fargo Team · https://github.com/Fargowilta/FargowiltasSouls	FargosSoulsMod-MIT.txt	上游仓库采用 MIT，贴图适用范围待核实
+Anomalies/UI/BossBar/Textures/BigLifeFont.xnb	Boss 血条 Fireye GF 3 Headline 字体；百分号由项目绘制	Grayfire Fonts · https://www.dafont.com/fireye-gf.font	Fireye-LICENSE.txt	作者允许个人与商业使用，商用须邮件告知
+Anomalies/UI/BossBar/Textures/BossBarTextures.cs	Boss 血条 Fireye GF 3 Headline 字体；百分号由项目绘制	Grayfire Fonts · https://www.dafont.com/fireye-gf.font	Fireye-LICENSE.txt	作者允许个人与商业使用，商用须邮件告知
+AnomaliesMusic/Music/Deep Blue — Echoes of the Azure.mp3	音乐包收录录音	烙、被被子星	AnomaliesMusic-Permission.txt	已获授权；使用范围、使用限制及创作者对作品去留的决定权见许可书
+AnomaliesMusic/Music/Godforsaken — Forsaken Bloodland.mp3	音乐包收录录音	烙、被被子星	AnomaliesMusic-Permission.txt	已获授权；使用范围、使用限制及创作者对作品去留的决定权见许可书
+AnomaliesMusic/Music/Gods Weep — Divine Lament.mp3	音乐包收录录音	烙、被被子星	AnomaliesMusic-Permission.txt	已获授权；使用范围、使用限制及创作者对作品去留的决定权见许可书
+AnomaliesMusic/Music/Rainpath — Pathway to Reverie.mp3	音乐包收录录音	烙、被被子星	AnomaliesMusic-Permission.txt	已获授权；使用范围、使用限制及创作者对作品去留的决定权见许可书
+AnomaliesMusic/description.txt	音乐权属与授权范围公示	烙、被被子星	AnomaliesMusic-Permission.txt	据创作者聊天授权整理
+AnomaliesMusic/description_workshop.txt	音乐权属与授权范围公示	烙、被被子星	AnomaliesMusic-Permission.txt	据创作者聊天授权整理
+AnomaliesMusic/description_workshop_zh-Hans.txt	音乐权属与授权范围公示	烙、被被子星	AnomaliesMusic-Permission.txt	据创作者聊天授权整理

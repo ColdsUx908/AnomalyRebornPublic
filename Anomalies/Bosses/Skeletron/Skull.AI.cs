@@ -9,7 +9,7 @@ public sealed partial class Skull
         if ((uint)headIndex < Main.maxNPCs
             && Main.npc[headIndex] is { active: true, type: NPCID.SkeletronHead }
             && SkeletronHead.GetInstance(Main.npc[headIndex]) is
-                { ShouldProcess: true, CurrentBehavior: SkeletronHead.Behavior.Despawn })
+            { ShouldProcess: true, CurrentBehavior: SkeletronHead.Behavior.Despawn })
         {
             if (TONetworkEnvironment.NotClient)
             {

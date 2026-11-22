@@ -20,6 +20,7 @@ EyeofCthulhu: {
 }
 
 EaterofWorlds: {
+	CorruptionShockwave.DisplayName: Corruption Shockwave
 	EaterCursedFlame.DisplayName: Eater Cursed Flame
 	EaterEntryPortal.DisplayName: Eater Entry Portal
 	EaterTeleportRift.DisplayName: Eater Teleport Rift
@@ -62,7 +63,6 @@ Skeletron: {
 	SkeletronSkullWarning.DisplayName: Skull Warning
 
 	LegendaryNight: {
-		SummonFailed: Legendary night has failed to begin. It requires an Ultramundane night.
 		Summon: The legendary night has begun!
 		AstralBlessingAnnouncement: The mysterious power of the Star God blesses you, granting you the ability to soar freely.
 		InterceptStarPower: Intercept the Star God's power drifting toward it!
@@ -95,25 +95,6 @@ Skeletron: {
 		SkullWarning.DisplayName: Skull Warning
 		LegendUmbrellaSlime.DisplayName: Umbrella Slime
 		SlimeMount.DisplayName: Slime Mount
-
-		AncientBattlefieldAltarItem: {
-			DisplayName: Altar of the Ancient Battlefield
-			Tooltip: The altar required to recreate the legendary night
-		}
-
-		FallenStarEssence: {
-			DisplayName: Fallen Star Essence
-			Tooltip:
-				'''
-				The material required to recreate the legendary night
-				It has fallen countless times
-				'''
-		}
-
-		MemoryofAstraeus: {
-			DisplayName: Memory of Astraeus
-			Tooltip: Place it on the altar to recreate the legendary night
-		}
 
 		AstralBlessing: {
 			DisplayName: Astral Blessing

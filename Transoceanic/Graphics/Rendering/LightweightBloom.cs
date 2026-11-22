@@ -1,6 +1,8 @@
 namespace Transoceanic.Graphics.Rendering;
 
-/// <summary>按最终屏幕像素配置的双尺度辉光；关闭宽光晕可减少一组滤波。</summary>
+/// <summary>
+/// 按最终屏幕像素配置的双尺度辉光；关闭宽光晕可减少一组滤波。
+/// </summary>
 /// <param name="NearRadius">紧密光晕的高斯标准差，单位为最终画面像素。</param>
 /// <param name="FarRadius">扩散光晕的高斯标准差。</param>
 /// <param name="NearStrength">紧密光晕强度。</param>
@@ -11,22 +13,34 @@ namespace Transoceanic.Graphics.Rendering;
 public readonly record struct BloomSettings(float NearRadius, float FarRadius, float NearStrength,
     float FarStrength, bool WideHalo = true, bool AdditiveBody = false, int BodyPasses = 1)
 {
-    /// <summary>近光晕 Screen 合成次数，限制为 1～3。</summary>
+    /// <summary>
+    /// 近光晕 Screen 合成次数，限制为 1～3。
+    /// </summary>
     public int NearPasses { get; init; } = 1;
-    /// <summary>远光晕 Screen 合成次数，限制为 1～3。</summary>
+    /// <summary>
+    /// 远光晕 Screen 合成次数，限制为 1～3。
+    /// </summary>
     public int FarPasses { get; init; } = 1;
 
-    /// <summary>省略全目标不透明滤波前的清屏。仅当 Effect 的滤波 Pass 完整写入目标且不使用 discard 时启用。</summary>
+    /// <summary>
+    /// 省略全目标不透明滤波前的清屏。仅当 Effect 的滤波 Pass 完整写入目标且不使用 discard 时启用。
+    /// </summary>
     public bool SkipFilterClear { get; init; }
 
-    /// <summary>对应两层 8px/26px 光晕的默认设置。</summary>
+    /// <summary>
+    /// 对应两层 8px/26px 光晕的默认设置。
+    /// </summary>
     public static BloomSettings Default => new(8f, 26f, 0.85f, 0.9f);
 }
 
-/// <summary>主动提交图层的轻量 Bloom。滤波核心只依赖 FNA，可在独立预览中复用。</summary>
+/// <summary>
+/// 主动提交图层的轻量 Bloom。滤波核心只依赖 FNA，可在独立预览中复用。
+/// </summary>
 public static partial class LightweightBloom
 {
-    /// <summary>预乘颜色的加色混合，同时累加覆盖度；适用于透明特效层的捕获。</summary>
+    /// <summary>
+    /// 预乘颜色的加色混合，同时累加覆盖度；适用于透明特效层的捕获。
+    /// </summary>
     public static BlendState AdditiveBlend
     {
         get => field ??= new BlendState
@@ -165,7 +179,9 @@ public static partial class LightweightBloom
         }
     }
 
-    /// <summary>释放工具自己持有的混合状态；游戏卸载时自动调用，独立宿主退出时可调用。</summary>
+    /// <summary>
+    /// 释放工具自己持有的混合状态；游戏卸载时自动调用，独立宿主退出时可调用。
+    /// </summary>
     public static void ReleaseResources()
     {
         ScreenBlend = null;

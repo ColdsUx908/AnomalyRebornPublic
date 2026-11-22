@@ -8,6 +8,7 @@ AnomalyClientConfig: {
 
 	Headers: {
 		Visuals: Visual Effects
+		Controls: Controls
 		BaseBoosts: Base Stat Boosts
 	}
 
@@ -31,6 +32,11 @@ AnomalyClientConfig: {
 			Shaders require a graphics card that supports at least DirecX 9.0c.
 			Shaders will be forcibly disabled regardless of this setting if "Lighting" is set to Retro or Trippy, or if "Wave Quality" is set to Off.
 			'''
+	}
+
+	DisableDoubleTapDash: {
+		Label: Disable Double-Tap Dash
+		Tooltip: Disables double-tapping a direction to trigger standard Terraria dashes. The dash hotkey remains available.
 	}
 
 	FasterBaseSpeed: {

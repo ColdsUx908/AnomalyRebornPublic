@@ -29,10 +29,33 @@
 - 命名空间与文件夹结构不一致时，tModLoader 为物品、弹幕、NPC、物块等内容类型推导的默认材质路径可能与资源实际位置不符；每个受影响的类都必须显式重写 `Texture`，指定实际资源路径，不得依赖默认推导。
 - 移动文件或调整命名空间时，逐类检查主材质、发光材质及其他附属资源的加载方式，并同步更新 `LoadTexture`、`ModContent.Request` 等显式引用和外部类型引用。共享资源、原版材质或透明材质应继续显式指向其真实路径；无材质加载职责的行为类和辅助类无需添加材质属性。
 
+- Buff 专用图标尚未完成时，可将 Texture 临时指向原版占位图标 Terraria/Images/Buff_203。按 HUD 的实际显示尺寸验收正式图标。
+
 ### 1.4 显式类型
 
 - 始终偏好显式类型，禁止使用 `var`，包括局部变量、`foreach`、`using`、`out`、解构及模式匹配；源生成器输出的代码同样遵守此规则。
 - 模式匹配绑定变量时显式写出类型，例如 `followVelocity is Vector2 ownerVelocity`，不得使用 `is { } ownerVelocity` 或 `is var ownerVelocity` 隐藏类型；带属性条件时使用 `is Type { Property: value } variable`，保留原有判空和属性判定语义。
+
+### 1.5 XML 文档注释
+
+- XML 文档注释优先采用多行格式：`<summary>` 与 `</summary>` 各自独占一行，说明正文写在两者之间；即使正文只有一句，也优先保持这一格式，便于阅读和后续扩展。
+
+```csharp
+/// <summary>
+/// 更新实体状态。
+/// </summary>
+```
+
+### 1.6 接口成员声明
+
+- 接口成员优先省略冗余的 `public` 和 `abstract`，保留语言的默认约定。普通接口成员（无默认实现的公共实例方法、属性、索引器和事件）直接声明签名，不显式标记 `public abstract`。
+- 默认实现和静态成员同样优先省略可由语言默认规则确定的 `public`；非公共访问级别及影响成员语义的修饰符必须保留。例如静态抽象成员保留 `static abstract`，不得因省略 `abstract` 而改变接口契约。
+- 此规则只针对接口成员，不改变接口类型自身或类、结构体成员的可访问性声明要求；显式接口实现等声明继续遵循相应语法限制。
+
+### 1.7 武器专属内容的本地化
+
+- 武器专属弹幕、Buff 等内容的本地化条目统一归入对应武器节点。`zh-Hans` 与 `en-US` 使用相同的键名和层级。
+- 专属内容类的 `LocalizationCategory` 指向所属武器节点；调整节点时同步更新两种语言的条目和代码中的分类路径。例如，雪兔女武神的专属弹幕使用 `SpecialContents.Donor.SnowHareValkyrie` 作为分类，弹幕名称在该节点下写作 `CarrotMissile.DisplayName`。
 
 ## 2. 实体架构与行为组织
 
@@ -46,7 +69,8 @@
 #### 2.1.1 GlobalInstances 数据组织
 
 - `AnomalyGlobalInstances.cs` 仅保留稳定的通用代码：实体实例配置、调试数据、AI 数组与变化标记、框架回调入口、AI 数组克隆和通用网络读写。
-- 独立于 AI 数组声明的实例字段、自动属性及相关派生属性，按实体类型放入 `Common/GlobalInstances/<类名>/<类名>.ExtraData.cs`，作为对应数据容器的部分类。AI 数组槽位映射属性放入同目录的 `<类名>.AIData.cs`，不混入独立实例数据文件。没有相应数据或逻辑时不创建空文件。
+- 独立于 AI 数组声明的实例字段、自动属性及相关派生属性，按实体类型放入 `GlobalInstances/<类名>/<类名>.ExtraData.cs`，作为对应数据容器的部分类。AI 数组槽位映射属性放入同目录的 `<类名>.AIData.cs`，不混入独立实例数据文件。没有相应数据或逻辑时不创建空文件。
+- 主内容数据使用上述文件名；调整与特殊内容的实例字段分别放在同目录下的 `<类名>.ExtraData.Tweak.cs` 和 `<类名>.ExtraData.SpecialContents.cs`，整个文件分别受 `TWEAK` 和 `SPECIAL_CONTENTS` 控制。克隆、重置和同步中的相应引用使用同一开关。
 - 独立实例数据按机制或用途采用 `分类_名称` 命名，两部分均使用 `PascalCase`，例如 `BrainOfCthulhu_AfterImages`、`BossBar_IsSmall`、`EventideReunion_DeathCooldown`；不期望外部直接访问的字段保留前导下划线，例如 `_Network_ProjectileReferenceCache`。这是对通用命名规则的专门约定。
 - 同一机制使用统一分类前缀；通用数据按实际用途分类，例如 `AnomalyAI`、`BossBar`、`DamageReduction`、`Depth`、`Network`、`Progression`、`Visual`。避免将已有明确归属的数据放入笼统的通用分类。
 - 独立实例数据使用外层 `#region 独立实例数据`，内部按机制或用途适量分组；分类按英文前缀的字母顺序排列，组内按成员名称的字母顺序排列，排序忽略私有字段的前导下划线。注释随对应成员移动，保留客户端专用、临时状态及同步边界等说明。
@@ -65,7 +89,7 @@
 - 全局 Behavior 抽象类不提供下表中的 `Can...` 接口；这些判定直接由对应的 GlobalType 或 `ModPlayer` 集中实现。
 - 命中及碰撞检查本质上需要遍历两类实体的候选配对，即两个实体集合的笛卡尔积。若两类实体的数量分别为 n 和 m，配对检查的复杂度为 O(nm)。
 - 每次配对检查都可能调用相应的全局判定钩子；若有 k 个 GlobalType 或 `ModPlayer` 分别声明同一回调，钩子遍历与调用开销会叠加到这些配对上，最坏可达 O(knm)。因此，重复声明会显著放大高密度实体场景的性能开销；每种实体的同名回调应只在一个全局类型中实现，集中合并各机制的判定条件。
-- 本项目的相关实现统一放在 `Anomalies/Common/AnomalyGlobalInstances.CanHit.cs`，玩家使用 `AnomalyPlayer`，NPC 使用 `AnomalyGlobalNPC`，弹幕使用 `AnomalyGlobalProjectile`，物品使用 `AnomalyGlobalItem`。新增实现时只应在这些类中添加代码，不得将逻辑散放在其他位置。
+- 本项目的相关实现统一放在 `Anomalies/GlobalInstances/AnomalyGlobalInstances.CanHit.cs`，玩家使用 `AnomalyPlayer`，NPC 使用 `AnomalyGlobalNPC`，弹幕使用 `AnomalyGlobalProjectile`，物品使用 `AnomalyGlobalItem`。新增实现时只应在这些类中添加代码，不得将逻辑散放在其他位置。
 - 全局 Behavior 不提供的 `Can...` 接口如下；新增同类限制时同步维护此表。
 
 | 对应全局类型 | 集中实现的 Can 回调 |
@@ -126,7 +150,7 @@
 - Boss 模块不得引用其他 Boss 模块的类型、静态成员或资源路径。通过原版 NPC/弹幕 ID 交互时，不得依赖另一模块的自定义实现必然存在。宝石等相似机制按所属 Boss 拆分专属 Handler、状态与资源；独立使用的音效或贴图应放入公共资源目录或各自拥有完整副本。
 - 可复用且不依赖 Anomalies 的寻敌、运动、几何、插值及实体工具放入 Transoceanic 对应 API；依赖变种模式、Anomaly 数据或视觉系统的通用逻辑放入 Anomalies 对应公共层。Boss 的攻击参数、AI 槽位布局和专属兼容逻辑保留在本模块，不能仅重命名后整体移入公共层。
 - 公共层和其他内容不得直接引用 Boss 类型。Boss 专属的掉落、血条扩展、网络处理、测试物品等集成实现放入所属 Boss 文件夹，通过可选部分类方法或明确的注册接口接入公共入口；缺失模块时入口自然不执行，不得用反射按名称查找类型掩盖硬依赖。
-- Boss 专属 GlobalType 数据仍由统一数据容器持有。作为 2.1.1 文件位置规则的特例，涉及 Boss 类型的字段及其克隆等处理放入 Boss 文件夹中的容器部分类文件，公共容器只声明可选连接方法。删除模块后不得遗留公共字段对 Boss 类型的引用。此例外不允许另建存储数据的 GlobalType，也不改变同步槽位或网络协议。
+- Boss 专属 GlobalType 数据由统一数据容器持有，优先使用公共类型承载状态，所属 Boss 负责专属行为解析和绘制。作为 2.1.1 文件位置规则的特例，涉及 Boss 类型的字段及其克隆等处理放入 Boss 文件夹中的容器部分类文件，公共容器只声明可选连接方法。删除模块后不得遗留公共字段对 Boss 类型的引用。此例外不允许另建存储数据的 GlobalType，也不改变同步槽位或网络协议。
 - 模块移除后，公共网络入口仍应消费已定义消息的固定载荷，保持消息 ID 与读取顺序不变；Boss 专属处理通过可选入口接入。注册逻辑保持原调用时机，避免内容加载先后顺序改变其他 Boss 的行为。
 - 调整目录和资源归属时遵循 1.3，逐一核对默认 Texture 路径、特效、粒子、音效和本地化。修改后运行完整构建，并用 `Validation/Tests/Anomalies/Bosses/BossIsolation/Verify.ps1` 逐模块排除源码进行编译验证；同时检查跨模块资源引用。编译检查不能代替游戏内战斗、联机与资源加载验证。
 
@@ -144,23 +168,14 @@
 
 ### 2.9 Anomalies 功能模块
 
-- Anomalies 使用构建时模块机制，通过 `Anomalies/AnomaliesModules.props` 中的 MSBuild 布尔属性生成条件编译标签，默认全部开启。属性仅允许 `true` / `false`，可通过命令行覆盖；切换后重新构建并打包，不使用运行时配置代替模块开关。
-
-| 标签 | MSBuild 属性 | 归属 |
-| --- | --- | --- |
-| `ANOMALY_MODE` | `AnomaliesEnableAnomalyMode` | 异象难度及开启物品、故事/极限等相关机制、全部异象 Boss 修改与专属实体、难度兼容 |
-| `TWEAK` | `AnomaliesEnableTweak` | 武器修改、修改标识、玩家基础属性配置及其对应行为（移速、跳跃、下落、攀绳、放置速度等） |
-| `GAME_CONTENTS` | `AnomaliesEnableGameContents` | GameContents 下的具体内容及其商店等接入 |
-| `SPECIAL_CONTENTS` | `AnomaliesEnableSpecialContents` | SpecialContents 下的内容及出生物品、同步等接入 |
-
-- 菜单、星空和血条是项目所有者明确指定的默认开启内容，不受上述开关控制，也不为它们另设模块。除这三类默认内容及测试物品之外，所有额外内容（包括物品、NPC、弹幕、Buff、行为修改、配置所对应的功能和独立视觉效果）必须明确归属现有模块；不能因代码放在 Common、Visuals 或兼容层而绕过模块开关。测试物品是明确例外，只要求 DEBUG 标签，不叠加功能模块开关；其对可关闭模块的测试操作仍须安全处理依赖。
-- 公共层原则上只提供数据容器、接口、基类、工具、资源与调度支持，不应自行产生独立可见副作用。确有玩家属性、实体行为或其他可见效果的实现，必须由所属模块控制；共享基础设施按实际消费方保留，不能将功能伪装成基础设施。共享支持可由多个现有模块共同使用，不构成新的模块。
-- 不得私自新增模块，也不得以新标签、属性或隐式分组引入等价模块。新增模块只能由项目所有者 **ColdsUx 最终决定并提交**；代理不得自行决定或代为提交新增模块。
-- 四个模块必须能够独立开关，所有 16 种组合均应编译并加载。全关时保留上述默认内容及必要的公共支持，但除 DEBUG 测试物品外，不得引入新增物品、NPC、弹幕或实体行为修改。默认视觉内容不能成为附带游戏机制的入口。
-- 跨模块内容分别控制“是否存在”与“是否接入”。例如 HoneyedWildbloom 物品、Buff 和宠物弹幕归 GAME_CONTENTS；其蜂后掉落同时要求 GAME_CONTENTS、ANOMALY_MODE，并保留世界开启异象模式的条件。仅关闭 ANOMALY_MODE 时物品仍存在，已持有物品仍可使用，但不注册掉落。
-- 公共入口不得无条件请求已关闭模块的内容 ID、资源或处理器。关闭 ANOMALY_MODE 后世界模式查询恒为 false，存档、网络和 Mod.Call 不得重新激活难度；关闭模块时公共网络入口仍按原顺序消费固定消息载荷，不顺带修改协议。
-- `AnomaliesModules.props` 只处理特定目录下的全部文件，不列举单个文件或单文件例外；单文件归属和跨模块接入使用源码中的 `#if`。受模块条件编译控制的目录必须只包含该模块的内容，关闭时整目录排除，不通过 Include 恢复子目录或文件；共享抽象基类放在 `Anomalies/BaseContents/`，测试物品放在 `Anomalies/Testing/` 并仅使用 `#if DEBUG`。SpecialContents 普通内容文件不再逐个添加模块标签。
-- 新增或修改内容时同步维护模块归属及公共接入；共享基础设施和具体内容分开组织，保留既有命名空间与资源路径。实现与使用方式见 `Anomalies/MODULES.md`。模块改动须验证全部 16 种组合、实际输出程序集的内容边界，以及配置与行为的一致开关；验证脚本放在 Tests 并随独立资料包交付。编译和元数据检查不能替代真实游戏加载、战斗及联机验收。
+- 仅保留 `TWEAK`（`AnomaliesEnableTweak`）和 `SPECIAL_CONTENTS`（`AnomaliesEnableSpecialContents`）两个构建模块，默认开启，属性仅接受 `true` / `false`。切换后重新构建并打包。
+- 原 ANOMALY_MODE 和 GAME_CONTENTS 内容属于模组主内容，始终参与编译和加载，不再提供对应构建属性或条件编译标签。异象世界条件、Boss 独立开关、音乐依赖等既有逐项生效条件仍保留。
+- 两个模块独立开关，共 4 种组合。全关仍保留主内容、菜单、星空、血条及公共支持。玩家基础属性配置和对应行为由 TWEAK 控制；特殊内容及接入由 SPECIAL_CONTENTS 控制。
+- HoneyedWildbloom 及其宠物、Buff 为主内容，蜂后掉落保留异象世界条件。传说之夜召唤物、祭坛和钱币袋为主内容；关闭传说之夜独立开关时，右键祭坛不激活仪式。Boss 目录可独立移除的约束仍适用，专属接入留在 Boss 目录。
+- 公共入口不得请求已关闭可选模块的内容 ID、资源或处理器；网络入口仍消费固定消息载荷，不改变协议。
+- `AnomaliesModules.props` 仅按目录排除 Tweaks 和 SpecialContents，不列举单文件，不用 Include 恢复例外。目录外接入使用对应 `#if`；共享抽象基类位于 BaseContents，测试物品位于 Testing 并仅由 DEBUG 控制。
+- 内容明确归属主内容或两个可选模块。不得私自新增模块或等价隐式分组；新增模块只能由项目所有者 **ColdsUx 最终决定并提交**。
+- 修改模块边界后运行 `Validation/Tests/Anomalies/Integration/Modules/Verify.ps1`，检查全部 4 种组合、实际程序集及配置/行为边界。编译和元数据检查不能替代游戏内加载、战斗和联机验收。详见 `Anomalies/MODULES.md`。
 
 ## 3. 着色器规范
 
@@ -211,6 +226,7 @@
 - 着色器资源统一存放在 `Assets/Effects/<归属>/`，编译产物在 `Assets/Effects_Compiled/` 保持相同相对路径。通用资源归 `Common`，血条归 `BossBars`，专属资源按 Boss 或整体项目归档，默认扁平存放；需要时允许增加子目录。公共资源使用符合用途的名称，不保留特定项目的前缀。引用分别存储在 `AnomalyCommonEffects`、`AnomalyBossBarEffects` 和所属项目的 Effects 提供者中；专属提供者源码放在所属项目目录，随目录参与模块筛选与移除。提供者继承 `AnomalyEffectProvider`、实现 `IAnomalyEffectProvider`，通过原生 ILoadable 流程及 IsLoadingEnabled 筛选，由 AnomalyEffects 统一加载和清理。公共加载器不得集中引用专属提供者。公开静态嵌套类逐级对应资源子目录，字段按字母排序、名称与资源文件一致；字段类型区分普通 shader 与 Filter，注册键使用模组名加完整资源相对路径。
 - 可沿用现有加载方式的着色器，复用 `AnomalyEffects` 的统一加载、注册和卸载流程；绘制类从对应容器的 `Asset.Value` 获取 `Effect`，不得另行保存静态 `Asset<Effect>` 或在绘制时重复请求同一资源。确需特殊加载方式时，应说明原因及生命周期管理方式。
 - 调用方必须兼容专用服务器、关闭着色器配置或资源尚未加载时容器为空的情况；无可用着色器时跳过对应效果，或沿用已有的不依赖着色器的绘制路径。
+- 通过 `MiscShaderData` 应用着色器时，统一使用链式调用。例如，从 `MiscShaderContainer.Data` 开始，按需连续调用 `SetCustomParameter(...)` 设置自定义参数，最后调用 `Apply()` 应用对应 Pass。保留 `MiscShaderData.Apply()` 对 `uTime` 等标准参数的自动绑定，避免绕过该入口直接调用底层 `EffectPass.Apply()`。
 - 同一着色器在不同效果间复用时，每次绘制显式设置所需参数和 Pass，避免共享状态影响后续绘制。
 
 ### 3.4 噪声资源验证
@@ -225,3 +241,11 @@
 - `Validation/Tests/` 测试文件和 `Validation/docs/` 改动记录不作为 Git 项目成员，通过项目维护者提供的独立验证资料包获取；不得为新测试或改动记录添加忽略例外。已有被跟踪文件不能仅靠 .gitignore 取消跟踪，调整索引时保留本地文件。
 - 验证资料包应与源码构建对应，包含测试源码、项目、验证脚本、必要审计资料及改动记录；未取得资料包时明确报告验证不可用，不将缺失文件认定为产品源码缺陷。
 - 面向框架使用者的 README、接入指南和迁移文档放在 Transoceanic 项目内，随源码维护；生成的 Transoceanic.xml 为构建产物，不纳入 Git。
+
+## 5. 第三方许可与授权索引
+
+- 全仓库共用 [Anomalies/Licenses/](Anomalies/Licenses/) 归档第三方许可原文、署名声明和可公开的授权凭据。保留权利人名称、原文条款及要求附带的声明。依据项目所有者确认整理的授权记录，应写明作品、获准用途、分发范围和确认依据；私下通信只归档可公开的记录。
+- [INDEX.tsv](Anomalies/Licenses/INDEX.tsv) 按实际使用位置逐行登记。沿用现有五列：仓库相对路径、用途、来源或署名、许可或记录（相对于许可目录）、适用条件或核实状态。路径使用正斜杠。同一授权覆盖多个文件时，各行复用同一份凭据；源码和随包分发的编译资源均涉及该授权时，分别登记两者。
+- 引入、改编、移动、重命名、替换或移除第三方代码及素材时，在同一次改动中更新对应行和文档引用。替换素材时按新来源重新核对；移除使用位置时检查其他行是否仍引用同一凭据。授权范围或署名要求变化时，同步更新受影响的全部条目。
+- 核实状态以具体作品及用途为准。只有上游仓库条款、来源注释或文件哈希匹配，而素材分发权尚无依据时，在状态列标明待核实事项；尚无凭据文件时，许可列填 `—`。
+- 修改索引后，核对使用路径、凭据文件和来源说明。涉及打包或发布时，以实际交付的各个 `.tmod` 为准，核对主包中的索引与归档文件，并检查独立分发的模组是否携带其许可要求随附的声明。

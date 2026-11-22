@@ -1,4 +1,3 @@
-using Anomalies.Assets.Effects;
 using Anomalies.Visuals.BossBar;
 using Terraria.Graphics.Shaders;
 

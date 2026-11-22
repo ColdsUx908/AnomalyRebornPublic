@@ -1,4 +1,5 @@
 using Anomalies.BaseContents;
+using Anomalies.Visuals.Starburst;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -10,8 +11,10 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// <para>localAI：未使用；Timer1（OceanAI32[2].I）：基类扩张累计帧；其余 Timer 未使用。</para>
 /// <para>无实体专属 ExtraAI；继承 BaseShockwaveProjectile 的几何与生命周期。</para>
 /// </remarks>
-public sealed class LegendShockwave : BaseShockwaveProjectile
+public sealed class LegendShockwave : BaseShockwaveProjectile, IStarburstImpactSource
 {
+    bool IStarburstImpactSource.TryGetImpactFrame(bool includeCross, out StarburstVisuals.Burst frame) => TryGetImpactFrame(out frame);
+
     public override string LocalizationCategory => LegendaryNightHandler.LocalizationCategory;
 
     private const int ExpansionMultiplier = 3;
@@ -25,8 +28,8 @@ public sealed class LegendShockwave : BaseShockwaveProjectile
     public override float FinalScale => TargetScale * ExpansionMultiplier;
     public override bool UseHDTexture => true;
 
-    internal bool TryGetImpactFrame(out LegendStarburstVisuals.Burst frame) =>
-        LegendStarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, PulseRing.TextureRadiusHD * FinalScale, Timer1,
+    internal bool TryGetImpactFrame(out StarburstVisuals.Burst frame) =>
+        StarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, PulseRing.TextureRadiusHD * FinalScale, Timer1,
             MathHelper.Clamp(TargetScale / 2.25f * 0.45f, 0.2f, 0.7f), 24, out frame);
 
     public override void AI()

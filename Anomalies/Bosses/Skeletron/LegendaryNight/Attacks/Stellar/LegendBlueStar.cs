@@ -11,22 +11,38 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed partial class LegendBlueStar : AnomalyModProjectile
 {
-    /// <summary>伴星半径比例。</summary>
+    /// <summary>
+    /// 伴星半径比例。
+    /// </summary>
     internal const float CompanionRadiusRatio = 0.55f;
-    /// <summary>伴星初始公转半径，单位为世界像素。</summary>
+    /// <summary>
+    /// 伴星初始公转半径，单位为世界像素。
+    /// </summary>
     private const float CompanionInitialOrbitRadius = 1900f;
-    /// <summary>自转或公转角速度，单位为弧度/游戏帧。</summary>
+    /// <summary>
+    /// 自转或公转角速度，单位为弧度/游戏帧。
+    /// </summary>
     private const float CompanionInitialAngularSpeed = 0.009f;
-    /// <summary>伴星相机距离，单位为世界像素。</summary>
+    /// <summary>
+    /// 伴星相机距离，单位为世界像素。
+    /// </summary>
     internal const float CompanionCameraDistance = 1400f;
-    /// <summary>伴星相机倾角。</summary>
+    /// <summary>
+    /// 伴星相机倾角。
+    /// </summary>
     private const float CompanionCameraInclination = 0.24f;
-    /// <summary>伴星表面颜色。</summary>
+    /// <summary>
+    /// 伴星表面颜色。
+    /// </summary>
     internal static Vector3 CompanionSurfaceColor => new(0.36f, 0.56f, 1f);
-    /// <summary>伴星核心颜色。</summary>
+    /// <summary>
+    /// 伴星核心颜色。
+    /// </summary>
     internal static Vector3 CompanionCoreColor => new(0.85f, 0.92f, 1f);
 
-    /// <summary>伴星公转角度缓存。</summary>
+    /// <summary>
+    /// 伴星公转角度缓存。
+    /// </summary>
     private static readonly float[] _CompanionOrbitAngles = CreateCompanionOrbitAngles();
 
     private ProjectileNetReference _PrimaryReference;
@@ -130,7 +146,9 @@ public sealed partial class LegendBlueStar : AnomalyModProjectile
         return CompanionInitialAngularSpeed * CompanionInitialOrbitRadius * CompanionInitialOrbitRadius / (radius * radius);
     }
 
-    /// <summary>计算伴星公转角度缓存。</summary>
+    /// <summary>
+    /// 计算伴星公转角度缓存。
+    /// </summary>
     private static float[] CreateCompanionOrbitAngles()
     {
         const int Duration = SkeletronLegendHead.Mechanic6Timeline.CompanionImpactMusicTime - SkeletronLegendHead.Mechanic6Timeline.CompanionStartMusicTime;

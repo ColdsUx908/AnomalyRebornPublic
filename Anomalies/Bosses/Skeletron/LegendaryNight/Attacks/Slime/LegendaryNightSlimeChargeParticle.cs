@@ -8,15 +8,25 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class LegendaryNightSlimeChargeParticle : CustomSpriteParticle
 {
-    /// <summary>蓄力存活时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 蓄力存活时间，单位为游戏帧。
+    /// </summary>
     public const int ChargeLifetime = 32;
-    /// <summary>生成数量。</summary>
+    /// <summary>
+    /// 生成数量。
+    /// </summary>
     public const int SpawnCount = 2;
-    /// <summary>渐隐持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 渐隐持续时间，单位为游戏帧。
+    /// </summary>
     private const int FadeDuration = 4;
-    /// <summary>拖尾长度。</summary>
+    /// <summary>
+    /// 拖尾长度。
+    /// </summary>
     private const int TrailLength = 8;
-    /// <summary>初始缩放。</summary>
+    /// <summary>
+    /// 初始缩放。
+    /// </summary>
     private const float InitialScale = 1f;
 
     private readonly NPC _Master;

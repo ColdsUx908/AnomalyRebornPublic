@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron;
 
-/// <summary>三阶段小守卫：直落雨幕、十六边形巡卫和向中心收束的骨潮。</summary>
+/// <summary>
+/// 三阶段小守卫：直落雨幕、十六边形巡卫和向中心收束的骨潮。
+/// </summary>
 /// <remarks>
 /// <para>ai[0]：头部索引 + 1；ai[1]：年龄，负值为最终阶段淡出帧数的相反数；ai[2]：2 雨幕、3 巡卫、4 骨潮、5 最终阶段径向直射。</para>
 /// <para>localAI、框架 Timer 未使用。ExtraAI：中心、初始偏移、角速度、场地半径。</para>
@@ -232,9 +234,16 @@ public sealed class SkeletronPhase3Guardian : AnomalyModProjectile
         }
     }
 
+    // 两端各延长半宽，加上横向半宽；整宽是两个分量在任意轴上的保守上限。
+    private ProjectileDamageBounds DamageBounds => ProjectileDamageBounds.Swept(
+        Projectile.Center - Projectile.velocity, Projectile.Center, Projectile.width * Projectile.scale);
+
+    public override bool? CanHitNPC(NPC target) => target.friendly || Projectile.friendly
+        ? DamageBounds.CanHitNPC(Type, target) : null;
+
     public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
     {
-        if (CanDamage() == false)
+        if (DamageBounds.Excludes(targetHitbox) || CanDamage() == false)
             return false;
         float width = Projectile.width * Projectile.scale;
         Vector2 extent = Projectile.velocity.SafeNormalize(Vector2.UnitY) * (width * 0.5f);

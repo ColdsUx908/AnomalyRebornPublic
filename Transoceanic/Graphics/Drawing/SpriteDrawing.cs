@@ -1,6 +1,8 @@
 namespace Transoceanic.Graphics.Drawing;
 
-/// <summary>按像素尺寸提交中心对齐的精灵；调用方持有纹理并负责 SpriteBatch 的 Begin/End 和混合状态。</summary>
+/// <summary>
+/// 按像素尺寸提交中心对齐的精灵；调用方持有纹理并负责 SpriteBatch 的 Begin/End 和混合状态。
+/// </summary>
 public static class SpriteDrawing
 {
     /// <summary>

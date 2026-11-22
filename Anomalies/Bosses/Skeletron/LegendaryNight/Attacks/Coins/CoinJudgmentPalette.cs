@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>四种钱币共用的鲜亮金属层次；亮芯保留币色，不将所有审判染成金色。</summary>
+/// <summary>
+/// 四种钱币共用的鲜亮金属层次；亮芯保留币色，不将所有审判染成金色。
+/// </summary>
 internal readonly record struct CoinJudgmentPalette(Color Shade, Color Body, Color Light, Color Spark)
 {
     public static CoinJudgmentPalette For(int coinType) => coinType switch

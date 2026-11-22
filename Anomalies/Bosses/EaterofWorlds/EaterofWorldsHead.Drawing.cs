@@ -6,11 +6,11 @@ public sealed partial class EaterofWorldsHead
     {
         get
         {
-            // Keep the original birth cloud duration independent of the teleport interval.
-            const int BirthCloudDuration = 270;
-            if (CurrentBehavior == Behavior.Phase1_Hunt && CycleIndex == 0)
-                return MathHelper.SmoothStep(0f, 1f, Math.Clamp(Timer1 / 18f, 0f, 1f))
-                    * MathHelper.SmoothStep(0f, 1f, Math.Clamp((BirthCloudDuration - Timer1) / 30f, 0f, 1f));
+            const int BirthCloudDuration = HuntDuration + UppercutDuration;
+            int birthAge = CurrentLocalPhase == 0 ? Timer1 : HuntDuration + Timer1;
+            if (CurrentPhase == Phase.Phase1 && CurrentBehavior == Behavior.Phase1_Hunt && CycleIndex == 0)
+                return MathHelper.SmoothStep(0f, 1f, Math.Clamp(birthAge / 18f, 0f, 1f))
+                    * MathHelper.SmoothStep(0f, 1f, Math.Clamp((BirthCloudDuration - birthAge) / 30f, 0f, 1f));
             return 0f;
         }
     }
@@ -59,40 +59,94 @@ public sealed partial class EaterofWorldsHead
 
     internal void DrawAttackWarnings(SpriteBatch spriteBatch, Vector2 screenPos)
     {
-        if (!IsFirstSegment || CurrentPhase == Phase.Initialize)
+        if (!IsFirstSegment)
             return;
-        Color color = new(128, 78, 159);
         switch (CurrentBehavior)
         {
-            case Behavior.Phase1_Split:
-            case Behavior.Phase1_Combine:
-                bool combine = CurrentBehavior == Behavior.Phase1_Combine;
-                if (CurrentLocalPhase == 1)
+            case Behavior.Phase1_Split when CurrentLocalPhase == 1:
+                for (int i = 0; i < RegularHeadCount; i++)
+                    DrawLane(CoilingCenter, PortalExitDirection(i), OutwardChargeDistance, PortalExitDistance,
+                        Timer1, PortalChargeDuration - Timer1, true, false);
+                break;
+            case Behavior.Phase1_Charge:
+                foreach (NPC head in GetEncounterHeads())
                 {
-                    for (int i = 0; i < (combine ? 1 : 3); i++)
-                        Warning(CoilingCenter, CoilLaunchDirection(i, combine), Timer1, PortalChargeDuration,
-                            warningColor: color);
+                    EaterofWorldsHead worm = GetInstance(head);
+                    int rank = RegularRank(worm.SegmentIndex);
+                    if (rank >= 2)
+                        continue;
+                    bool locked = CurrentLocalPhase == 1;
+                    Vector2 origin = locked ? worm.LaunchOrigin : head.Center;
+                    Vector2 focus = locked ? AttackCenter : Target.Center;
+                    Vector2 direction = locked ? worm.LaunchDirection : (focus - origin).SafeNormalize(Vector2.UnitY);
+                    int remaining = locked ? LockDuration + rank * ChargeDuration - Timer1 : AimDuration;
+                    float length = locked ? LockedChargeSpeed(origin) * ChargeDuration : ChargeSpeed * ChargeDuration;
+                    DrawLane(origin, direction, length, Vector2.Distance(origin, focus),
+                        Timer1, remaining, locked, false);
+                }
+                break;
+            case Behavior.ShortWormFormation when CurrentLocalPhase is 0 or 1:
+                foreach (NPC head in GetEncounterHeads())
+                {
+                    if (head == NPC)
+                        continue;
+                    EaterofWorldsHead worm = GetInstance(head);
+                    bool locked = CurrentLocalPhase == 1;
+                    int remaining = locked ? -WaveAge(ShortIndex(worm.SegmentIndex)) : FormationDuration;
+                    DrawLane(worm.LaunchOrigin, worm.LaunchDirection, WaveSpeed * WaveTravelDuration, WaveApproachDistance,
+                        Timer1, remaining, locked, true);
                 }
                 break;
         }
 
-        // Same layered beam as SlimeMount; keep the shared renderer independent of Boss modules.
-        // Ease both ends of the warning window and grow the beam without a one-frame length jump.
-        void Warning(Vector2 start, Vector2 direction, float elapsed, float duration, float maxLength = 520f, Color? warningColor = null)
+        // Thin violet filaments cross at the aimed point. Only the luminous spine is the actual route.
+        void DrawLane(Vector2 start, Vector2 direction, float length, float focusDistance,
+            int elapsed, int remaining, bool locked, bool shortWorm)
         {
-            if (direction.LengthSquared() < 0.001f)
+            if (remaining <= 0 || direction.LengthSquared() < 0.5f)
                 return;
-            float growth = Smooth(elapsed / 16f);
-            Color tint = warningColor ?? color;
-            AnomalyDrawUtils.DrawLayeredWarning(spriteBatch, start, direction.ToRotation(),
-                maxLength * growth, MathHelper.Lerp(20f, 60f, growth), tint,
-                Color.Lerp(tint, new Color(198, 163, 215), 0.65f), Envelope(elapsed, duration) * 0.85f,
-                startFadeLength: 120f, coreWidth: 5f);
+            Vector2 normal = new(-direction.Y, direction.X);
+            float focus = Math.Clamp(focusDistance, 64f, length - 64f);
+            float appear = MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((elapsed + 1f) / 10f, 0f, 1f));
+            float fade = MathHelper.Clamp(remaining / 5f, 0f, 1f);
+            float nextBeat = MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((60f - remaining) / 20f, 0f, 1f));
+            float opacity = (locked ? MathHelper.Lerp(0.46f, 1f, nextBeat) : 0.48f * appear) * fade;
+            float tighten = locked ? MathHelper.Clamp(elapsed / 16f, 0f, 1f) : 0f;
+            float spread = (shortWorm ? 8f : 24f) * MathHelper.Lerp(1.4f, 0.65f, tighten);
+            Vector2 end = start + direction * length;
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D glow = AnomalyTextures.Extra.LaserTelegraphBeam ?? pixel;
+            Color violet = new(155, 65, 225);
+            Color lilac = new(230, 187, 255);
+            float haloWidth = shortWorm ? 11f : 17f;
+            for (int layer = 0; layer < 6; layer++)
+            {
+                float inner = layer / 5f;
+                Stroke(start, end, MathHelper.Lerp(haloWidth, 3f, inner), glow,
+                    violet * (opacity * MathHelper.Lerp(0.025f, 0.14f, inner * inner)));
+            }
+            int pairs = shortWorm ? 1 : 2;
+            for (int i = -pairs; i <= pairs; i++)
+            {
+                float slope = i * Math.Min(spread / focus, 0.055f);
+                Vector2 a = start + normal * (slope * focus);
+                Vector2 b = end - normal * (slope * (length - focus));
+                Stroke(a, b, i == 0 ? 1.8f : 1.15f, pixel,
+                    (i == 0 ? lilac : new Color(190, 120, 249)) * (opacity * (i == 0 ? 0.96f : 0.66f)));
+            }
+            Vector2 intersection = start + direction * focus;
+            Stroke(intersection - direction * 16f, intersection + direction * 16f, 2.8f, glow, lilac * (opacity * 0.5f));
+            float pulse = (elapsed % 30) / 30f;
+            Vector2 glint = start + direction * (focus * pulse);
+            Stroke(glint, glint + direction * 23f, 3f, glow, lilac * (opacity * (1f - pulse)));
+
+            void Stroke(Vector2 a, Vector2 b, float width, Texture2D texture, Color color)
+            {
+                Vector2 edge = b - a;
+                spriteBatch.Draw(texture, a - screenPos, null, color, edge.ToRotation(),
+                    new Vector2(0f, texture.Height * 0.5f), new Vector2(edge.Length() / texture.Width, width / texture.Height),
+                    SpriteEffects.None, 0f);
+            }
         }
-
-        static float Smooth(float value) => MathHelper.SmoothStep(0f, 1f, Math.Clamp(value, 0f, 1f));
-
-        static float Envelope(float elapsed, float duration) => Smooth(elapsed / 10f) * Smooth((duration - elapsed) / 8f);
-
     }
 }

@@ -345,10 +345,14 @@ internal class FieldSymbolInfoBase : SymbolInfoBase<IFieldSymbol>
 /// </summary>
 internal class PropertySymbolInfoBase : SymbolInfoBase<IPropertySymbol>
 {
-    /// <summary>获取属性的 get 访问器方法（可能为 null）。</summary>
+    /// <summary>
+    /// 获取属性的 get 访问器方法（可能为 null）。
+    /// </summary>
     public IMethodSymbol GetMethod { get; }
 
-    /// <summary>获取属性的 set 访问器方法（可能为 null）。</summary>
+    /// <summary>
+    /// 获取属性的 set 访问器方法（可能为 null）。
+    /// </summary>
     public IMethodSymbol SetMethod { get; }
 
     /// <summary>
@@ -414,22 +418,34 @@ internal class PropertySymbolInfoBase : SymbolInfoBase<IPropertySymbol>
 /// </summary>
 internal class MethodSymbolInfoBase : SymbolInfoBase<IMethodSymbol>
 {
-    /// <summary>返回类型的完全限定名字符串表示。</summary>
+    /// <summary>
+    /// 返回类型的完全限定名字符串表示。
+    /// </summary>
     public string ReturnTypeString { get; private set; }
 
-    /// <summary>类型参数列表的字符串表示（例如 "&lt;T&gt;"），无泛型时为空字符串。</summary>
+    /// <summary>
+    /// 类型参数列表的字符串表示（例如 "&lt;T&gt;"），无泛型时为空字符串。
+    /// </summary>
     public string TypeParametersString { get; private set; }
 
-    /// <summary>每个参数的完整声明字符串数组（例如 "int x", "ref string s"），使用原始类型完全限定名。</summary>
+    /// <summary>
+    /// 每个参数的完整声明字符串数组（例如 "int x", "ref string s"），使用原始类型完全限定名。
+    /// </summary>
     public string[] ParameterDeclarations { get; private set; }
 
-    /// <summary>每个参数的完整声明字符串数组，但在类型不可访问时使用 <see langword="object"/> 代替。</summary>
+    /// <summary>
+    /// 每个参数的完整声明字符串数组，但在类型不可访问时使用 <see langword="object"/> 代替。
+    /// </summary>
     public string[] ParameterDeclarationsWithObjectForNonPublic { get; private set; }
 
-    /// <summary>每个参数的标识符字符串数组（例如 "x", "s"）。</summary>
+    /// <summary>
+    /// 每个参数的标识符字符串数组（例如 "x", "s"）。
+    /// </summary>
     public string[] ParameterNames { get; private set; }
 
-    /// <summary>每个参数为调用准备的标识符字符串数组（例如 "x", "ref s"），包含 ref/out 等修饰符。</summary>
+    /// <summary>
+    /// 每个参数为调用准备的标识符字符串数组（例如 "x", "ref s"），包含 ref/out 等修饰符。
+    /// </summary>
     public string[] ParameterNamesForCall { get; private set; }
 
     /// <summary>

@@ -8,22 +8,22 @@ Configs: {
 		}
 
 		PathwaytoReverie: {
-			Label: Pathway to Reverie
+			Label: Rainpath — Pathway to Reverie
 			Tooltip: Author: 烙、被被子星
 		}
 
 		EchoesoftheAzure: {
-			Label: Echoes of the Azure
+			Label: Deep Blue — Echoes of the Azure
 			Tooltip: Author: 烙、被被子星
 		}
 
 		ForsakenBloodland: {
-			Label: Forsaken Bloodland
+			Label: Godforsaken — Forsaken Bloodland
 			Tooltip: Author: 烙、被被子星
 		}
 
 		DivineLament: {
-			Label: Divine Lament
+			Label: Gods Weep — Divine Lament
 			Tooltip: Author: 烙、被被子星
 		}
 	}

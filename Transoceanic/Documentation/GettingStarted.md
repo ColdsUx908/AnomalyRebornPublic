@@ -88,3 +88,9 @@ EnableSync 只启用框架实体数据的 ExtraAI 段，不会自动同步任意
 句柄只缓存方法分组，不缓存当前适用的行为、实体或 ShouldProcess 结果。每次枚举仍保留优先级和绑定保护；布尔结果仍由调用方按业务规则合并。框架清理时句柄变为空分组，重新填充后原句柄自动读取新内容，因此不要自行缓存枚举器或行为数组。接口仅在游戏主线程使用，不提供线程同步。
 
 单实体集合对连续相同实体类型的查询复用类型分组；每次查询仍重新绑定实体并检查 ShouldProcess，清理和填充会使类型缓存失效。
+
+命中等高频回调可在初始化时从单实体集合取得 `GetMethodGroup(nameof(...))` 句柄。`HasCandidates(type)` 只查询该类型是否登记了这个方法。`TryGetBehavior(entity, out behavior)` 在每次调用时绑定实体并按优先级检查 `ShouldProcess`，返回的行为沿用相同的绑定保护。原句柄在集合清理后变空，重新填充后自动刷新。
+
+将全局弹幕碰撞转发给单实体集合的适配器可覆写 `HasCollisionHandler(int projectileType)`，使用上述句柄排除没有碰撞候选的类型。此查询发生在全局行为的绑定保护和 `ShouldProcess` 之前，只能依赖类型与已登记的候选。普通全局行为默认对所有类型参与调度。
+
+在 NPC 命中资格阶段用弹幕自身形状提前否决时，先检查 `BehaviorQueries.MayOverrideProjectileCollision(type)`。返回 true 表示应让完整碰撞流程处理该配对。框架在 `PostAddRecipes` 读取 tML 按弹幕类型登记的原生全局碰撞回调，同时纳入框架 Behavior 的候选。会在运行中重新填充的适配器保留默认的 `HasFixedCollisionTypes = false`。只有类型注册从配方加载完成到卸载都固定的适配器才可覆写为 true，允许框架对其按类型建立索引。实体状态和 `ShouldProcess` 仍在碰撞分派时读取。

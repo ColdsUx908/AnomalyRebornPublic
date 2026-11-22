@@ -1,35 +1,34 @@
 # 世界吞噬怪
 
-## 战斗与数值
+## 启用与战斗流程
 
-当前为重新设计前的基础版本：移除游猎火球、犁地冲锋、三首轮猎与交错封路，仅保留追踪移动和定期传送分合。旧模块完整快照保存在本地 Git 忽略的 `Backup/EaterofWorlds/2026-11-15T05-37-48-845Z/`，不参与编译与打包。
+世吞属于主内容，需要异象世界与 `AnomalyBossChangeToggler.EaterofWorlds`。该独立开关默认 Debug 开启、Release 关闭。各链共享主头生命，基础为 9000（启用灾厄时为 12000），沿用现有多人缩放。普通异象有 60 节，Ultra 有 90 节，节数含头尾。
 
-所有头部使用从 CalamityMod `NPCs/VanillaNPCAIOverrides/Bosses/EaterOfWorldsAI.cs` 移植的逐轴加速与转向逻辑，固定采用可穿行分支，不检测物块，也没有空中下坠分支。普通异象使用 Revengeance 移动参数，Ultra 使用 Death 移动参数；原实现的剩余体节比例改为本项目共享生命比例。保留低血量加速、Ultra 极低血量预判和特殊种子速度修正，不调用灾厄 AI，也不要求安装灾厄。该移植部分版权归 Azafure, LLC，许可证见 [Portal/Calamity-LICENSE.md](Portal/Calamity-LICENSE.md)。
+| 共享生命 | 形态 | 行为 |
+| --- | --- | --- |
+| 100%～70% | 一条完整长虫 | 追猎上挑、锁线贯穿、追猎上挑、大弧折返循环 |
+| 70%～35% | 两条等长虫 | 轮换领攻，两个头瞄准同一点，按固定节拍先后贯穿并分担折返 |
+| 35% 以下 | 三条等长虫 | 两头轮流贯穿，第三头从侧翼接下一轮；普通异象在本阶段结束 |
+| Ultra 10% | 一次性转场 | 旧虫链进入裂隙，紫色腐化冲击波出现，重组为 60 节长虫和十条 3 节短虫。共享生命在 120 帧内对数缓出恢复到最大生命的 50% |
+| Ultra 50%～25% | 长虫开口围猎＋十条短虫横列 | 长虫沿固定圆心盘绕。短虫在缺口两肩排直、预警并贯穿，随后退回可攻击的位置 |
+| Ultra 25% 以下 | 原形态，下一列改为接力 | 每组五条，第二拨比第一拨晚 46 帧，缺口错开 52 像素，冲刺方向相差 0.24 弧度 |
 
-追踪 600 帧（10 秒）后请求一次传送，在完整单体与三条蠕虫之间交替。传送仍先撤离至玩家远处，满足最少 45 帧且全部头部离玩家至少 1100 像素后生成入口和出口；450 帧未能完成撤离则返回追踪并重新计时。出口固定在玩家移动方向前方 600 像素，裂隙蓄力 180 帧后复用原体节执行分合，以 34 速度出场。全部头部离出口至少 1200 像素且尾部展开后重新计时。保留现有裂隙视觉、同步与出场方向预警；传送视效来源见 [Portal/README.md](Portal/README.md)。
+第一次越过普通分裂阈值时会撤离、打开入口并为出口蓄力 180 帧。方向在蓄力开始时确定。重组复用原体节；出口附近的透明体节没有接触伤害。出场后等身体展开，再开始追猎。一次伤害跨过两条普通阈值时可以直接进入三虫。Ultra 10% 优先于普通分裂，致死伤害及从体尾传入的伤害受同一主头生命下限约束。转场中各节免伤、没有接触伤害。真正击杀时由主头统一清理与结算。
 
-保留共享生命 9000（灾厄启用时 12000）、普通 60 / Ultra 90 体节、头/体/尾接触伤害 108/66/54 和防御 8，以及现有多人缩放。删除原 50% 亚阶段及其血条标记。隐藏或未展开的体节不造成接触伤害，传送保护沿用原逻辑。
+追猎沿用从 CalamityMod `NPCs/VanillaNPCAIOverrides/Bosses/EaterOfWorldsAI.cs` 移植的穿地加速与转向，使用本项目共享生命比例、难度和特殊种子修正。移植代码版权归 Azafure, LLC。[灾厄许可](../../Licenses/Calamity-LICENSE.txt) · [裂隙资源来源](Portal/README.md)
 
-## 状态与分合
+## 预警、圆弧与网络
 
-- `ai[0]` 打包主头、局部头、局部前驱、局部后继索引；0 为空，其他为 NPC 索引 + 1。
-- `ai[1]` 是不可变的全局体节序号。主头身份不依赖分裂时会改变的局部前驱。
-- `ai[2]` 打包 Phase 和 Behavior，`ai[3]` 是行为内部步骤。具体步骤见 Phase1AI 内注释。
-- 额外 32 位槽：0 的 bit0 表示分裂、bit1 表示体节轨迹已初始化；1 为盘绕朝向；2/3 保留；4 为已完成的传送次数。
-- 额外 64 位槽：0 为出生盘绕中心/传送出口，1 为撤离集结点，2 保留，3 为各头传送锁定方向。Timer1 为当前步骤时钟。
-- 主头统一调度头部运动和攻击，服务器负责步骤推进、重组与弹幕生成。客户端从同步的主头关系恢复头部列表，不依赖服务器本地 AllSegments。
-- `EaterofWorldsTopology` 生成局部链，转换前验证体节数量、所属关系和顺序。转换复用 NPC，保留共享生命，同时更新 type 和 netID、清理轨迹缓存。传送步骤为 0 撤离、1 入口隐去与出口蓄力、3 出场；Timer1 由服务器在边界归零。死亡先清理子体节，让原版掉落和击杀记录只结算一次；退场直接清理，不触发奖励。
+主头在服务器选定目标、推进阶段、生成弹幕并保存路线。预警系统在独立的世界绘制入口画出屏外来袭的紫色细线，线束交于瞄准点，即将出手的一束更亮。常规贯穿锁线 46 帧，通常以 26 像素/帧冲刺 52 帧。极远的锁点按同一时长延长冲程，确保穿过锁点至少 320 像素。下一头按固定时钟发射。预警和发射共用起点、方向与冲程。预警使用普通 LDR SpriteBatch，在关闭着色器时同样可见。
 
-## 验证
+Ultra 长链沿实际体节弧长展开。半径取 700 像素与「弧长 / 200° 对应的弧度」中的较大值，切向速度为 12 像素/帧。以普通或特殊种子体节间距计算均保留开口。短虫各自按锁定方向排直头、体、尾，准备和收招时可以输出；仅在本组冲出的时段具有接触伤害。目标由开口跑出时完成当前波，圈内仍有活玩家则优先换目标，全员远离时在波间预告并移动圆心。
 
-自动验证命令：
+- 原版 `ai[0]` 打包主头、局部头、前驱和后继，`ai[1]` 是不可变全局序号。`ai[2]` 的 Byte0/Byte1 保存阶段与行为，`ai[3]` 为行为局部步骤。
+- 额外 32 位槽 0 保存分裂与轨迹初始化标志，1 为出口角度，2、3、5 分别为局部圆弧半径、角速度和头角，4 为攻击轮次。圆弧头角每 60 帧纠正一次。
+- 额外 64 位槽 0 为出生烟团或裂隙中心，1 为固定攻击中心，2 为局部圆心，3、4 分别为每个局部头锁定的方向、发射点。`Timer1` 是步骤时钟，转场的 `Timer2` 保存回血起值。客户端按同一份稀疏快照预测，不需要前几轮的路线历史。
+- [主入口](EaterofWorldsHead.AI.cs)、[状态与追踪运动](EaterofWorldsHead.State.cs)、[一阶段](EaterofWorldsHead.Phase1AI.cs)、[裂隙分裂](EaterofWorldsHead.Portals.cs)、[Ultra 转场](EaterofWorldsHead.PhaseChangeAI.cs)、[二阶段](EaterofWorldsHead.Phase2AI.cs)、[预警绘制](EaterofWorldsHead.Drawing.cs)。
+- [拓扑](EaterofWorldsTopology.cs)和[圆弧运动](EaterofWorldsHead.CircularMovement.cs)可单独使用。`TransformToWorms(amount)` 等分或合并，`TransformToUltraWorms()` 返回长头在前的 11 个头。`StartCircularMovement(center, radius, headAngle, angularSpeed)` 立即重排局部链，需在接触保护内启动；`StopCircularMovement()` 恢复基础跟随。
 
-- `dotnet build Anomalies/Anomalies.csproj --no-restore -m:1 -p:BuildMod=false`
-- `dotnet run --project Validation/Tests/Anomalies/Bosses/EaterofWorlds.Topology/EaterofWorlds.Topology.csproj`
-- `dotnet run --project Validation/Tests/Anomalies/Bosses/EaterofWorlds.Portals/EaterofWorlds.Portals.csproj`
-- `pwsh -NoProfile -File Validation/Tests/Anomalies/Bosses/BossIsolation/Verify.ps1`
-- `python Validation/Tests/Anomalies/Bosses/BossIsolation/verify_dependencies.py`
+## 验证入口
 
-拓扑测试覆盖 60/90 节反复分合、局部链双向一致性、不重复/不遗漏体节、非法分裂请求。传送测试调用实际编译出的裂隙类型，覆盖蓄力快照、中途加入、爆裂淡出、重复快照不累加裂纹缩放，以及绘制缓存不进入额外同步载荷。
-
-仍需游戏内验证：普通/Ultra 至少两次分合循环、低机动装备躲避空间、各血量区间移动、地表/地下/平台/狭窄场地、两次同时召唤、死亡/退场奖励、客户端中途加入、分合时延迟，以及有/无灾厄时的实际伤害和资源加载。静态编译与拓扑测试不能代替这些检查。
+独立验证资料包中的 `EaterofWorlds.Topology`、`EaterofWorlds.CircularMovement`、`EaterofWorlds.Portals` 分别检查拓扑、圆弧和裂隙快照。`Validation/Tests/Anomalies/Bosses/EaterofWorlds.Combat/Verify.ps1` 打包并在独立 tModLoader 世界驱动实际 NPC 更新，检查普通与 Ultra 的攻击轮换、回血、分组、重选圆心与击杀。加 `-Render` 可将专服记录的锁线帧通过实际绘制入口回放为 PNG。联机网络回归入口为 `Validation/Tests/Anomalies/Integration/NetworkSync`，Boss 模块排除编译入口为 `Validation/Tests/Anomalies/Bosses/BossIsolation/Verify.ps1`。

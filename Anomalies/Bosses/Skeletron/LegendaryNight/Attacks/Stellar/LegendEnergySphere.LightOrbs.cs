@@ -1,11 +1,12 @@
 using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Parameters;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.SkeletronLegendHead.Mechanic6Timeline;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class LegendEnergySphere
 {
-    /// <summary>小球抵达球心时仅由服务器/单人端触发一次；不含拦截或退场取消。</summary>
+    /// <summary>
+    /// 小球抵达球心时仅由服务器/单人端触发一次；不含拦截或退场取消。
+    /// </summary>
     public event Action<LegendLightOrb> LightOrbAbsorbed;
 
     internal struct LightOrbBonuses

@@ -35,7 +35,14 @@ Developer: {
 		EventideReunionSunExplosion.DisplayName: Coronal Flare
 		EventideReunionDeathWave.DisplayName: Extinction Scythe Wave
 		EventideReunionDeathSoul.DisplayName: Reaped Soul
+		EventideReunionSacrednessSkill.DisplayName: Sacred Judgment
 		EventideReunionSamsaraEcho.DisplayName: Karmic Echo
+		EventideReunionLifeFruit.DisplayName: Fruit of Renewal
+
+		EventideReunionLifeBlessing: {
+			DisplayName: Sacred Renewal
+			Description: Each Fruit of Renewal collected increases maximum life by 10%, up to 30% total, and refreshes the 15-second duration
+		}
 
 		EventideReunionResonance: {
 			DisplayName: Samsara Resonance
@@ -58,7 +65,7 @@ Contributor: {
 
 		MeguminExhaustion: {
 			DisplayName: Mana Exhaustion
-			Description: Explosion has drained your strength; movement is slowed and you cannot cast it again yet
+			Description: Explosion has drained your strength; you cannot cast the magic again yet
 		}
 	}
 
@@ -81,5 +88,21 @@ DeveloperItemIdentifier: - Developer Item -
 DeveloperItemOwnerIdentifier: Developer: {0}
 ContributorItemIdentifier: - Contributor Item -
 ContributorItemOwnerIdentifier: Contributor: {0}
+
+Donor: {
+	SnowHareValkyrie: {
+		DisplayName: Snow Hare Valkyrie
+		Tooltip:
+			'''
+			Left click fires an explosive red carrot. Right click marks an enemy or tile for a shower of marching hares.
+			A yellow missile sticks for up to 10 seconds. When your next yellow missile sticks, the previous one explodes.
+			The Lord of a frozen world vs. one cute bunny. Who would win?
+			'''
+		MarchHare.DisplayName: March Hare
+		CarrotBlast.DisplayName: Carrot Missile Explosion
+		CarrotMissile.DisplayName: Carrot Missile
+	}
+}
+
 DonorItemIdentifier: - Donor Item -
 DonorItemOwnerIdentifier: Donor: {0}

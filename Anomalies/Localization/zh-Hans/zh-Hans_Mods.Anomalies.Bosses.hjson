@@ -20,6 +20,7 @@ EyeofCthulhu: {
 }
 
 EaterofWorlds: {
+	CorruptionShockwave.DisplayName: 腐化冲击波
 	EaterCursedFlame.DisplayName: 吞噬咒焰
 	// EaterEntryPortal.DisplayName: Eater Entry Portal
 	// EaterTeleportRift.DisplayName: Eater Teleport Rift
@@ -62,7 +63,6 @@ Skeletron: {
 	SkeletronSkullWarning.DisplayName: 骷髅头预警
 
 	LegendaryNight: {
-		SummonFailed: 传说之夜未能开始。它需要一个超凡的夜晚。
 		Summon: 传说之夜开始了！
 		AstralBlessingAnnouncement: 神秘的星神之力祝福着你，你获得了自由翱翔的能力。
 		InterceptStarPower: 拦截向它飘去的星神之力！
@@ -95,25 +95,6 @@ Skeletron: {
 		SkullWarning.DisplayName: 骷髅预警
 		LegendUmbrellaSlime.DisplayName: 雨伞史莱姆
 		SlimeMount.DisplayName: 史莱姆鞍
-
-		AncientBattlefieldAltarItem: {
-			DisplayName: 古战场祭坛
-			Tooltip: 复现传说之夜所必须的祭坛
-		}
-
-		FallenStarEssence: {
-			DisplayName: 坠星精华
-			Tooltip:
-				'''
-				复现传说之夜所必需的材料
-				它曾经历无数次的坠落
-				'''
-		}
-
-		MemoryofAstraeus: {
-			DisplayName: 星星之神的记忆
-			Tooltip: 放置在祭坛上即可复现传说之夜
-		}
 
 		AstralBlessing: {
 			DisplayName: 星神祝福

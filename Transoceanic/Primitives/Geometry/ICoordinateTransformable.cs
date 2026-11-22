@@ -12,12 +12,12 @@ public interface ICoordinateTransformable<TSelf> where TSelf : ICoordinateTransf
     /// </summary>
     /// <param name="localSystem">目标局部坐标系。</param>
     /// <returns>在 <paramref name="localSystem"/> 坐标系下表示的几何对象。</returns>
-    public abstract TSelf WorldToLocal(PlaneCoordinateSystem localSystem);
+    TSelf WorldToLocal(PlaneCoordinateSystem localSystem);
 
     /// <summary>
     /// 将当前对象（位于指定的局部坐标系）转换到世界坐标系。
     /// </summary>
     /// <param name="localSystem">当前对象所在的局部坐标系。</param>
     /// <returns>在世界坐标系中表示的几何对象。</returns>
-    public abstract TSelf LocalToWorld(PlaneCoordinateSystem localSystem);
+    TSelf LocalToWorld(PlaneCoordinateSystem localSystem);
 }

@@ -1,4 +1,3 @@
-using Anomalies.Assets.Effects;
 using Anomalies.Visuals.BossBar;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
@@ -11,13 +10,19 @@ public sealed partial class SkeletronLegendHead
     public override void BossHeadRotation(ref float rotation) =>
         rotation = IsSpinning ? NPC.rotation : 0f;
 
-    /// <summary>星体化身拖尾长度。</summary>
+    /// <summary>
+    /// 星体化身拖尾长度。
+    /// </summary>
     private const int StarAvatarTrailLength = 50;
 
-    /// <summary>史莱姆化身贴图。</summary>
+    /// <summary>
+    /// 史莱姆化身贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Head/SlimeAvatar")]
     private static Asset<Texture2D> _SlimeAvatarTexture;
-    /// <summary>史莱姆化身贴图。</summary>
+    /// <summary>
+    /// 史莱姆化身贴图。
+    /// </summary>
     public static Texture2D SlimeAvatarTexture => _SlimeAvatarTexture.Value;
 
     private float AvatarFadeIn => MathHelper.Clamp(AvatarTimer / 10f, 0f, 1f);

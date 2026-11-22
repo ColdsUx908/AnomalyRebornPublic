@@ -2,161 +2,295 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead
 {
-    /// <summary>机制 2 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 2 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。
+    /// </summary>
     public static class Mechanic2Timeline
     {
-        /// <summary>本机制开始的音乐绝对帧（包含此帧）。</summary>
+        /// <summary>
+        /// 本机制开始的音乐绝对帧（包含此帧）。
+        /// </summary>
         public const int StartMusicTime = Mechanic1Timeline.EndMusicTime;
-        /// <summary>本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。</summary>
+        /// <summary>
+        /// 本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。
+        /// </summary>
         public const int EndMusicTime = Mechanic3Timeline.StartMusicTime;
-        /// <summary>场地制动开始的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 场地制动开始的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int ArenaBrakeStartMusicTime = Mechanic1Timeline.PlatinumCoinEndMusicTime;
-        /// <summary>场地制动结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 场地制动结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int ArenaBrakeEndMusicTime = Mechanic1Timeline.StarRainEndMusicTime;
-        /// <summary>首次拍击的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 首次拍击的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int FirstStrikeMusicTime = 52 * 60;
-        /// <summary>第二次拍击的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 第二次拍击的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int SecondStrikeMusicTime = 55 * 60 + 8;
-        /// <summary>第三次拍击的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 第三次拍击的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int ThirdStrikeMusicTime = 58 * 60 + 16;
-        /// <summary>回归的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 回归的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int ReturnMusicTime = 59 * 60 + 50;
     }
 
-    /// <summary>机制 2 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 2 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。
+    /// </summary>
     public static class Mechanic2Parameters
     {
         #region 时长、运动与攻击参数
 
-        /// <summary>场地制动持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 场地制动持续时间，单位为游戏帧。
+        /// </summary>
         public const int ArenaBrakeDuration = Mechanic2Timeline.ArenaBrakeEndMusicTime - Mechanic2Timeline.ArenaBrakeStartMusicTime;
-        /// <summary>场地重新定位延迟，单位为游戏帧。</summary>
+        /// <summary>
+        /// 场地重新定位延迟，单位为游戏帧。
+        /// </summary>
         public const int ArenaRepositionDelay = 15;
-        /// <summary>场地重新定位制动持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 场地重新定位制动持续时间，单位为游戏帧。
+        /// </summary>
         public const int ArenaRepositionBrakeDuration = 30;
-        /// <summary>场地重新定位高度，单位为世界像素。</summary>
+        /// <summary>
+        /// 场地重新定位高度，单位为世界像素。
+        /// </summary>
         public const float ArenaRepositionHeight = 320f;
-        /// <summary>场地重新定位速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 场地重新定位速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float ArenaRepositionSpeed = 40f;
-        /// <summary>蓄力粒子最小存活时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 蓄力粒子最小存活时间，单位为游戏帧。
+        /// </summary>
         public const int ChargeParticleMinLifetime = 60;
-        /// <summary>蓄力粒子最大存活时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 蓄力粒子最大存活时间，单位为游戏帧。
+        /// </summary>
         public const int ChargeParticleMaxLifetime = 72;
-        /// <summary>蓄力粒子最小半径，单位为世界像素。</summary>
+        /// <summary>
+        /// 蓄力粒子最小半径，单位为世界像素。
+        /// </summary>
         public const float ChargeParticleMinRadius = 310f;
-        /// <summary>蓄力粒子最大半径，单位为世界像素。</summary>
+        /// <summary>
+        /// 蓄力粒子最大半径，单位为世界像素。
+        /// </summary>
         public const float ChargeParticleMaxRadius = 380f;
-        /// <summary>蓄力粒子范围增长量。</summary>
+        /// <summary>
+        /// 蓄力粒子范围增长量。
+        /// </summary>
         public const float ChargeParticleRangeGrowth = 0.5f;
-        /// <summary>蓄力粒子缩放增长量。</summary>
+        /// <summary>
+        /// 蓄力粒子缩放增长量。
+        /// </summary>
         public const float ChargeParticleScaleGrowth = 0.9f;
-        /// <summary>场地离场持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 场地离场持续时间，单位为游戏帧。
+        /// </summary>
         public const int ArenaDepartureDuration = 60;
-        /// <summary>手部入场持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部入场持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandEntryDuration = 45;
-        /// <summary>非拍击手下垂时相对本体的横向距离，给骨节保留自然展开空间，单位为世界像素。</summary>
+        /// <summary>
+        /// 非拍击手下垂时相对本体的横向距离，给骨节保留自然展开空间，单位为世界像素。
+        /// </summary>
         public const float PassingHandHorizontalOffset = 200f;
-        /// <summary>非拍击手下垂时相对本体的高度，单位为世界像素；前冲时从玩家侧方掠过。</summary>
+        /// <summary>
+        /// 非拍击手下垂时相对本体的高度，单位为世界像素；前冲时从玩家侧方掠过。
+        /// </summary>
         public const float PassingHandVerticalOffset = 160f;
-        /// <summary>第一次拍击相对机制二起点的帧数。</summary>
+        /// <summary>
+        /// 第一次拍击相对机制二起点的帧数。
+        /// </summary>
         public const int FirstStrikeAge = Mechanic2Timeline.FirstStrikeMusicTime - Mechanic2Timeline.StartMusicTime;
-        /// <summary>最后一次拍击相对机制二起点的帧数。</summary>
+        /// <summary>
+        /// 最后一次拍击相对机制二起点的帧数。
+        /// </summary>
         public const int LastStrikeAge = Mechanic2Timeline.ThirdStrikeMusicTime - Mechanic2Timeline.StartMusicTime;
-        /// <summary>拍击数量。</summary>
+        /// <summary>
+        /// 拍击数量。
+        /// </summary>
         public const int StrikeCount = 3;
-        /// <summary>拍击间隔，单位为游戏帧。</summary>
+        /// <summary>
+        /// 拍击间隔，单位为游戏帧。
+        /// </summary>
         public const int StrikeInterval = Mechanic2Timeline.SecondStrikeMusicTime - Mechanic2Timeline.FirstStrikeMusicTime;
-        /// <summary>后撤持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 后撤持续时间，单位为游戏帧。
+        /// </summary>
         public const int RetreatDuration = 60;
-        /// <summary>手部抬起提前量，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部抬起提前量，单位为游戏帧。
+        /// </summary>
         public const int HandRaiseLeadTime = HalfFieldWarningDuration;
-        /// <summary>手部抬起持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部抬起持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandRaiseDuration = HandRaiseLeadTime - BodyRushDuration;
-        /// <summary>手部拍下持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部拍下持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandSlamDuration = BodyRushDuration;
-        /// <summary>手部恢复持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部恢复持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandRecoverDuration = 30;
         private const int HandTurnHalfDuration = 5;
         private const int HandImpactHoldDuration = 6;
         private const float HandWindupDepthOffset = 650f;
         internal const float HandImpactDepth = -450f;
-        /// <summary>主体前冲持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 主体前冲持续时间，单位为游戏帧。
+        /// </summary>
         public const int BodyRushDuration = 24;
-        /// <summary>主体后撤提前量，单位为游戏帧。</summary>
+        /// <summary>
+        /// 主体后撤提前量，单位为游戏帧。
+        /// </summary>
         public const int BodyRetreatLeadTime = RetreatDuration + BodyRushDuration;
-        /// <summary>主体惯性前冲持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 主体惯性前冲持续时间，单位为游戏帧。
+        /// </summary>
         public const int BodyFollowThroughDuration = 12;
-        /// <summary>主体恢复持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 主体恢复持续时间，单位为游戏帧。
+        /// </summary>
         public const int BodyRecoverDuration = 60;
-        /// <summary>主体惯性前冲阻尼系数。</summary>
+        /// <summary>
+        /// 主体惯性前冲阻尼系数。
+        /// </summary>
         public const float BodyFollowThroughDamping = 2f;
-        /// <summary>主体撞击高度，单位为世界像素。</summary>
+        /// <summary>
+        /// 主体撞击高度，单位为世界像素。
+        /// </summary>
         public const float BodyImpactHeight = 420f;
-        /// <summary>主体头部间隙，单位为世界像素。</summary>
+        /// <summary>
+        /// 主体头部间隙，单位为世界像素。
+        /// </summary>
         public const float BodyHeadClearance = 8f;
-        /// <summary>主体回归弧高，单位为世界像素。</summary>
+        /// <summary>
+        /// 主体回归弧高，单位为世界像素。
+        /// </summary>
         public const float BodyReturnArcHeight = 1200f;
-        /// <summary>主体离场深度。</summary>
+        /// <summary>
+        /// 主体离场深度。
+        /// </summary>
         public const float BodyExitZ = AnomalyDepthDrawSystem.MinimumZ - 250f;
-        /// <summary>激光持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 激光持续时间，单位为游戏帧。
+        /// </summary>
         public const int LaserDuration = 24;
         // 下一次预警在前一次拍击伤害窗口结束后开始，避免连续拍击的提示重叠。
-        /// <summary>半场预警持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 半场预警持续时间，单位为游戏帧。
+        /// </summary>
         public const int HalfFieldWarningDuration = StrikeInterval - LaserDuration;
-        /// <summary>激光预警持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 激光预警持续时间，单位为游戏帧。
+        /// </summary>
         public const int LaserWarningDuration = HalfFieldWarningDuration;
-        /// <summary>激光淡入持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 激光淡入持续时间，单位为游戏帧。
+        /// </summary>
         public const int LaserFadeInDuration = 12;
-        /// <summary>激光淡出持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 激光淡出持续时间，单位为游戏帧。
+        /// </summary>
         public const int LaserFadeOutDuration = 18;
-        /// <summary>雨幕持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 雨幕持续时间，单位为游戏帧。
+        /// </summary>
         public const int RainDuration = 80;
-        /// <summary>回归动作相对机制二起点的帧数。</summary>
+        /// <summary>
+        /// 回归动作相对机制二起点的帧数。
+        /// </summary>
         public const int ReturnStartAge = LastStrikeAge + BodyFollowThroughDuration;
-        /// <summary>回归持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 回归持续时间，单位为游戏帧。
+        /// </summary>
         public const int ReturnDuration = Mechanic2Timeline.ReturnMusicTime - Mechanic2Timeline.StartMusicTime - ReturnStartAge;
-        /// <summary>机制二总持续帧数。</summary>
+        /// <summary>
+        /// 机制二总持续帧数。
+        /// </summary>
         public const int Duration = Mechanic2Timeline.EndMusicTime - Mechanic2Timeline.StartMusicTime;
-        /// <summary>扇形星体数量。</summary>
+        /// <summary>
+        /// 扇形星体数量。
+        /// </summary>
         public const int FanStarCount = 15;
-        /// <summary>扇形星体展开角。</summary>
+        /// <summary>
+        /// 扇形星体展开角。
+        /// </summary>
         public const float FanStarSpread = TOMathUtils.PiOver3;
-        /// <summary>扇形星体快速持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 扇形星体快速持续时间，单位为游戏帧。
+        /// </summary>
         public const int FanStarFastDuration = 20;
-        /// <summary>扇形星体减速持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 扇形星体减速持续时间，单位为游戏帧。
+        /// </summary>
         public const int FanStarDecelerationDuration = 12;
-        /// <summary>扇形星体快速半径比例。</summary>
+        /// <summary>
+        /// 扇形星体快速半径比例。
+        /// </summary>
         public const float FanStarFastRadiusRatio = 0.35f;
 
-        /// <summary>星体数量。</summary>
+        /// <summary>
+        /// 星体数量。
+        /// </summary>
         public const int StarCount = 300;
-        /// <summary>星体拖尾长度。</summary>
+        /// <summary>
+        /// 星体拖尾长度。
+        /// </summary>
         public const int StarTrailLength = 12;
-        /// <summary>星体速度，以世界像素和游戏帧计量。</summary>
+        /// <summary>
+        /// 星体速度，以世界像素和游戏帧计量。
+        /// </summary>
         public const float StarSpeed = 32f;
-        /// <summary>背景深度。</summary>
+        /// <summary>
+        /// 背景深度。
+        /// </summary>
         public const float BackgroundZ = 1800f;
-        /// <summary>前景深度。</summary>
+        /// <summary>
+        /// 前景深度。
+        /// </summary>
         public const float ForegroundZ = -350f;
-        /// <summary>玩家上方高度。</summary>
+        /// <summary>
+        /// 玩家上方高度。
+        /// </summary>
         public const float HeightAbovePlayer = 650f;
         #endregion
 
         #region 时间窗口、轨迹与表现查询
 
-        /// <summary>计算手部入场进度。</summary>
+        /// <summary>
+        /// 计算手部入场进度。
+        /// </summary>
         public static float HandEntryProgress(int age) => MathHelper.SmoothStep(0f, 1f,
             MathHelper.Clamp(age / (float)HandEntryDuration, 0f, 1f));
-        /// <summary>从入场实际偏移和初速度平滑停靠到待机点，保留两端位置和速度连续性。</summary>
+        /// <summary>
+        /// 从入场实际偏移和初速度平滑停靠到待机点，保留两端位置和速度连续性。
+        /// </summary>
         public static Vector2 GetHandEntryOffset(Vector2 origin, Vector2 initialVelocity, Vector2 destination, int age) =>
             Vector2.Hermite(origin, initialVelocity * HandEntryDuration, destination, Vector2.Zero,
                 MathHelper.Clamp(age / (float)HandEntryDuration, 0f, 1f));
 
-        /// <summary>非拍击手保持下垂并随预警移至本体侧下方，为骨节保留展开空间，恢复后回到待机位置。</summary>
+        /// <summary>
+        /// 非拍击手保持下垂并随预警移至本体侧下方，为骨节保留展开空间，恢复后回到待机位置。
+        /// </summary>
         public static Vector2 GetPassingHandOffset(int side, Vector2 idleOffset, int age) =>
             Vector2.Lerp(idleOffset, new Vector2(side * PassingHandHorizontalOffset, PassingHandVerticalOffset), HandAttackProgress(age));
 
-        /// <summary>常态衔接前臂；拍击手抬起时朝上、前冲拍下时朝下，回收时恢复相对位置决定的朝向。</summary>
+        /// <summary>
+        /// 常态衔接前臂；拍击手抬起时朝上、前冲拍下时朝下，回收时恢复相对位置决定的朝向。
+        /// </summary>
         public static float GetHandRotation(int relativeAge, int side, bool selected, float restingRotation)
         {
             if (!selected || relativeAge < -HandRaiseLeadTime || relativeAge >= LaserDuration + HandRecoverDuration)
@@ -174,18 +308,26 @@ public sealed partial class SkeletronLegendHead
             return MathHelper.Lerp(raisedRotation, 0f, turn) + restingRotation * HandRecoveryProgress(relativeAge);
         }
 
-        /// <summary>计算指定拍击相对机制二起点的帧数；strike 为从零开始的拍击编号。</summary>
+        /// <summary>
+        /// 计算指定拍击相对机制二起点的帧数；strike 为从零开始的拍击编号。
+        /// </summary>
         public static int GetStrikeTime(int index) => FirstStrikeAge + index * StrikeInterval;
 
-        /// <summary>抬手与红色遮罩同步；后退独立采用较短的60帧时长。</summary>
+        /// <summary>
+        /// 抬手与红色遮罩同步；后退独立采用较短的60帧时长。
+        /// </summary>
         public static float HandRaiseProgress(int relativeAge) => MathHelper.SmoothStep(0f, 1f,
             MathHelper.Clamp((relativeAge + HandRaiseLeadTime) / (float)HandRaiseDuration, 0f, 1f));
 
-        /// <summary>前冲前短暂后退，结束后立即前冲。</summary>
+        /// <summary>
+        /// 前冲前短暂后退，结束后立即前冲。
+        /// </summary>
         public static float BodyRetreatProgress(int relativeAge) => MathHelper.SmoothStep(0f, 1f,
             MathHelper.Clamp((relativeAge + BodyRetreatLeadTime) / (float)RetreatDuration, 0f, 1f));
 
-        /// <summary>每次拍击独立完成后退、穿过观察者和上方回程；各次动作之间回到正常平面。</summary>
+        /// <summary>
+        /// 每次拍击独立完成后退、穿过观察者和上方回程；各次动作之间回到正常平面。
+        /// </summary>
         public static float BodyStrikeDepth(int relativeAge)
         {
             if (relativeAge is < -BodyRetreatLeadTime or > (BodyFollowThroughDuration + BodyRecoverDuration))
@@ -199,7 +341,9 @@ public sealed partial class SkeletronLegendHead
             return MathHelper.Lerp(BodyExitZ, 0f, recovery);
         }
 
-        /// <summary>先快速走完35%半径，再减速至匀速；一个拍击间隔累计走完完整半径。</summary>
+        /// <summary>
+        /// 先快速走完35%半径，再减速至匀速；一个拍击间隔累计走完完整半径。
+        /// </summary>
         public static float GetFanStarSpeed(float radius, int age)
         {
             float fastSpeed = radius * FanStarFastRadiusRatio / FanStarFastDuration;
@@ -210,7 +354,9 @@ public sealed partial class SkeletronLegendHead
             return MathHelper.Lerp(fastSpeed, slowSpeed, progress);
         }
 
-        /// <summary>以等面积半径和低差异角度铺满半圆，留下24像素边缘余量，避免跨越安全半场。</summary>
+        /// <summary>
+        /// 以等面积半径和低差异角度铺满半圆，留下24像素边缘余量，避免跨越安全半场。
+        /// </summary>
         public static Vector2 GetStarSpawnOffset(int index, float radius, int side)
         {
             const float Inset = 24f;
@@ -219,7 +365,9 @@ public sealed partial class SkeletronLegendHead
             float angle = MathHelper.Pi * (index * GoldenRatioFraction % 1f) - MathHelper.PiOver2;
             return new Vector2(side * (Inset + Math.Max(0f, MathF.Cos(angle)) * distance), MathF.Sin(angle) * distance);
         }
-        /// <summary>计算拍击索引。</summary>
+        /// <summary>
+        /// 计算拍击索引。
+        /// </summary>
         public static int GetStrikeIndex(int age)
         {
             for (int i = 0; i < StrikeCount - 1; i++)
@@ -228,7 +376,9 @@ public sealed partial class SkeletronLegendHead
             return StrikeCount - 1;
         }
 
-        /// <summary>查询主体后撤、冲刺或回收窗口内的拍击编号；窗口外返回 -1。主体回收比手部回收更长。</summary>
+        /// <summary>
+        /// 查询主体后撤、冲刺或回收窗口内的拍击编号；窗口外返回 -1。主体回收比手部回收更长。
+        /// </summary>
         public static int GetBodyStrikeIndex(int age)
         {
             for (int strike = 0; strike < StrikeCount; strike++)
@@ -240,7 +390,9 @@ public sealed partial class SkeletronLegendHead
             return -1;
         }
 
-        /// <summary>本体冲刺的路径进度和前景权重；拍击后越过观察者，再沿上方弧线退回背景。权重可大于1。</summary>
+        /// <summary>
+        /// 本体冲刺的路径进度和前景权重；拍击后越过观察者，再沿上方弧线退回背景。权重可大于1。
+        /// </summary>
         public static (float Advance, float Foreground) BodyStrikeMotion(int relativeAge)
         {
             if (relativeAge is < -BodyRushDuration or > (BodyFollowThroughDuration + BodyRecoverDuration))
@@ -265,7 +417,9 @@ public sealed partial class SkeletronLegendHead
                 MathHelper.Lerp(1f, exitWeight, exitProgress) * (1f - recovery));
         }
 
-        /// <summary>计算手部攻击进度。</summary>
+        /// <summary>
+        /// 计算手部攻击进度。
+        /// </summary>
         public static float HandAttackProgress(int age)
         {
             int relativeAge = age - GetStrikeTime(GetStrikeIndex(age));
@@ -276,7 +430,9 @@ public sealed partial class SkeletronLegendHead
         private static float HandRecoveryProgress(int relativeAge) =>
             MathHelper.SmoothStep(0f, 1f, (relativeAge - LaserDuration) / (float)HandRecoverDuration);
 
-        /// <summary>前冲初段留在头后，随后加速越过头部，并在触击深度收住。</summary>
+        /// <summary>
+        /// 前冲初段留在头后，随后加速越过头部，并在触击深度收住。
+        /// </summary>
         public static float HandSlamProgress(int relativeAge)
         {
             float progress = MathHelper.Clamp((relativeAge + HandSlamDuration) / (float)HandSlamDuration, 0f, 1f);
@@ -303,7 +459,9 @@ public sealed partial class SkeletronLegendHead
         private const int HalfFieldFadeInDuration = 5;
         private const int HalfFieldFadeOutDuration = 24;
 
-        /// <summary>计算半场火焰透明度，拍击伤害帧达到峰值。</summary>
+        /// <summary>
+        /// 计算半场火焰透明度，拍击伤害帧达到峰值。
+        /// </summary>
         public static float HalfFieldOpacity(int relativeAge)
         {
             if (relativeAge < -HalfFieldFadeInDuration)
@@ -313,7 +471,9 @@ public sealed partial class SkeletronLegendHead
             return HalfFieldMaxOpacity * fadeIn * fadeOut;
         }
 
-        /// <summary>判断当前帧是否处于激光伤害窗口。</summary>
+        /// <summary>
+        /// 判断当前帧是否处于激光伤害窗口。
+        /// </summary>
         public static bool LasersActive(int age)
         {
             for (int i = 0; i < StrikeCount; i++)
@@ -322,7 +482,9 @@ public sealed partial class SkeletronLegendHead
             return false;
         }
 
-        /// <summary>计算激光预警。</summary>
+        /// <summary>
+        /// 计算激光预警。
+        /// </summary>
         public static float LaserWarning(int age)
         {
             for (int i = 0; i < StrikeCount; i++)
@@ -334,7 +496,9 @@ public sealed partial class SkeletronLegendHead
             return 0f;
         }
 
-        /// <summary>在伤害窗口前淡入、结束后淡出；实际碰撞仍精确锁定拍击帧。</summary>
+        /// <summary>
+        /// 在伤害窗口前淡入、结束后淡出；实际碰撞仍精确锁定拍击帧。
+        /// </summary>
         public static float LaserIntensity(int age)
         {
             float intensity = 0f;
@@ -361,7 +525,7 @@ public sealed partial class SkeletronLegendHead
         EnsureStrikePattern();
         if (Mechanic2HandPattern == 0)
         {
-            // 阶段预测可能早于服务器的随机位图；未收到时既不猜测拍击侧，也不结算半场伤害。
+            // 阶段预测可能早于服务器的随机位图；未收到时等待。
             NPC.velocity = Vector2.Zero;
             return;
         }
@@ -422,10 +586,6 @@ public sealed partial class SkeletronLegendHead
 
         void ApplyHalfFieldStrike(LegendaryNightPhase2Arena arena)
         {
-            if (Main.dedServ || !Mechanic2Active || Mechanic2HandPattern == 0)
-                return;
-
-            int age = Mechanic2Age;
             int strike = Mechanic2Parameters.GetStrikeIndex(age);
             if (age != Mechanic2Parameters.GetStrikeTime(strike))
                 return;
@@ -435,11 +595,33 @@ public sealed partial class SkeletronLegendHead
                 return;
             AnomalyNPC.Skeletron_LegendaryNightHalfFieldHits |= hitMask;
 
-            Player player = Main.LocalPlayer;
-            player.SetScreenshake(10f);
-            if (new Circle(arena.Projectile.Center, arena.Radius).Collides(player.Hitbox)
-                && (Mechanic2StrikeSide(strike) < 0 ? player.Hitbox.Left < arena.Projectile.Center.X : player.Hitbox.Right > arena.Projectile.Center.X))
-                LegendaryNightDamage.HurtLocalPlayer(arena.Projectile, SlapDamage, true);
+            if (!Main.dedServ)
+                Main.LocalPlayer.SetScreenshake(10f);
+            if (!TONetworkEnvironment.NotClient)
+                return;
+
+            // 服务器使用拍击时刻的位置选择受击者；客户端收到事件后结算自己的伤害和减益。
+            Circle field = new(arena.Projectile.Center, arena.Radius);
+            bool left = Mechanic2StrikeSide(strike) < 0;
+            foreach (Player player in Main.ActivePlayers)
+            {
+                if (player.dead || player.ghost || !field.Collides(player.Hitbox)
+                    || (left ? player.Hitbox.Left >= arena.Projectile.Center.X : player.Hitbox.Right <= arena.Projectile.Center.X))
+                    continue;
+
+                if (Main.netMode == NetmodeID.SinglePlayer)
+                {
+                    LegendaryNightDamage.HurtLocalPlayer(arena.Projectile, SlapDamage, true);
+                    break;
+                }
+
+                ProjectileNetReference arenaReference = new();
+                arenaReference.Set(arena.Projectile);
+                ModPacket packet = AnomalySynchronization.GetCAPacket();
+                packet.Write(AnomalySynchronization.ID.LegendaryNightHalfFieldHit);
+                arenaReference.Write(packet);
+                packet.Send(player.whoAmI);
+            }
         }
 
         bool EnsureStrikeLock(int strike)

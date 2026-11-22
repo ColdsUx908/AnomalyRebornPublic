@@ -7,10 +7,14 @@ internal static class SkeletronArenaDrawing
     private const int VertexCount = Hexadecagon.VertexCount;
     private const string TexturePath = "Anomalies/Bosses/Skeletron/";
 
-    /// <summary>骨节绘制贴图。</summary>
+    /// <summary>
+    /// 骨节绘制贴图。
+    /// </summary>
     [LoadTexture(TexturePath + "BoneStick")]
     private static Asset<Texture2D> _BoneStick;
-    /// <summary>关节绘制贴图。</summary>
+    /// <summary>
+    /// 关节绘制贴图。
+    /// </summary>
     [LoadTexture(TexturePath + "BoneBall")]
     private static Asset<Texture2D> _BoneBall;
 

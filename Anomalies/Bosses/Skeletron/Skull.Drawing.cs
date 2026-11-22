@@ -1,5 +1,3 @@
-using Anomalies.Assets.Effects;
-
 namespace Anomalies.Bosses.Skeletron;
 
 public sealed partial class Skull
@@ -81,7 +79,7 @@ public sealed partial class Skull
                 }
             }
 
-            Texture2D bloom = BloomParticle.BloomCircleLarge;
+            Texture2D bloom = BloomParticle.BloomCircleLargeEmission;
             spriteBatch.Draw(bloom, center, null, (headColor with { A = 0 }) * 0.65f, 0f,
                 bloom.Size() * 0.5f, GlowPadding * 2f / bloom.Width, SpriteEffects.None, 0f);
         }

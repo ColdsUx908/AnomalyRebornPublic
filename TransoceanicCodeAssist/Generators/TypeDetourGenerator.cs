@@ -1,6 +1,8 @@
 namespace TransoceanicCodeAssist.Generators;
 
-/// <summary>为指定目标类型生成 Detour 委托、默认转发及注册入口。</summary>
+/// <summary>
+/// 为指定目标类型生成 Detour 委托、默认转发及注册入口。
+/// </summary>
 [Generator]
 public class TypeDetourGenerator : IIncrementalGenerator
 {
@@ -103,10 +105,14 @@ public class TypeDetourGenerator : IIncrementalGenerator
         }
     }
 
-    /// <summary>获取写入生成源码的 GeneratedCode 特性标记。</summary>
+    /// <summary>
+    /// 获取写入生成源码的 GeneratedCode 特性标记。
+    /// </summary>
     public static string GeneratedCodeMarker => SourceGeneratorHelper.GetGeneratedCodeMarker("TypeDetourGenerator");
 
-    /// <summary>注册增量生成管线；从当前编译中的目标类型生成源码。</summary>
+    /// <summary>
+    /// 注册增量生成管线；从当前编译中的目标类型生成源码。
+    /// </summary>
     /// <param name="context">Roslyn 提供的增量生成器初始化上下文。</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

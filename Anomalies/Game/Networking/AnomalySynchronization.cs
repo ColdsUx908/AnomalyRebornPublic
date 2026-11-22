@@ -1,0 +1,156 @@
+using Anomalies.DataStructures;
+
+namespace Anomalies.Common;
+
+public sealed partial class AnomalySynchronization : ILoadable
+{
+    public static class ID
+    {
+        public const byte SyncAnomalyMode = 0;
+        public const byte SyncAnomalyModeFromServer = 1;
+        public const byte SyncWorldState = 2;
+        public const byte BrainIllusionHit = 3;
+        public const byte EventideResonance = 4;
+        public const byte PlayerDownedBossKill = 5;
+        public const byte LegendaryNightHalfFieldHit = 6;
+        public const byte EventideSacredPulse = 7;
+    }
+
+    internal static ModPacket GetCAPacket() => AnomalyMain.Instance.GetPacket();
+
+    internal static bool ReceivingWorldState { get; private set; }
+
+    public static void RequestAnomalyMode(bool enabled)
+    {
+        if (Main.netMode != NetmodeID.MultiplayerClient)
+            return;
+        ModPacket packet = GetCAPacket();
+        packet.Write(ID.SyncAnomalyMode);
+        packet.Write(enabled);
+        packet.Send();
+    }
+
+    public static void SyncAnomalyMode(int ignoreClient = -1)
+    {
+        if (Main.netMode != NetmodeID.Server || ReceivingWorldState)
+            return;
+
+        ModPacket packet = GetCAPacket();
+        packet.Write(ID.SyncWorldState);
+        WriteWorldState(packet);
+        packet.Send(-1, ignoreClient);
+    }
+
+    public static void SyncAnomalyModeFromServer(int toClient = -1)
+    {
+        if (Main.netMode == NetmodeID.SinglePlayer)
+            return;
+
+        ModPacket packet = GetCAPacket();
+        packet.Write(Main.netMode == NetmodeID.Server ? ID.SyncWorldState : ID.SyncAnomalyModeFromServer);
+        if (Main.netMode == NetmodeID.Server)
+            WriteWorldState(packet);
+        packet.Send(toClient);
+    }
+
+    static partial void ApplyBrainIllusionHit(int illusionIndex, int playerIndex);
+    static partial void ApplyLegendaryNightHalfFieldHit(ProjectileNetReference arenaReference);
+
+    public static void HandlePacket(AnomalyMain mod, BinaryReader reader, int whoAmI)
+    {
+        byte id = reader.ReadByte();
+        switch (id)
+        {
+            case ID.EventideSacredPulse:
+#if SPECIAL_CONTENTS
+                if (Main.netMode == NetmodeID.MultiplayerClient && SpecialContents.AnomalySpecialContentToggler.EventideReunion)
+                    SpecialContents.Developer.EventideReunion.EventideReunionSacrednessPulse.ApplyToLocalPlayer();
+#endif
+                break;
+            case ID.LegendaryNightHalfFieldHit:
+                ProjectileNetReference arenaReference = ProjectileNetReference.Read(reader);
+                if (Main.netMode == NetmodeID.MultiplayerClient)
+                    ApplyLegendaryNightHalfFieldHit(arenaReference);
+                break;
+            case ID.PlayerDownedBossKill:
+                int npcType = reader.ReadInt32();
+                if (Main.netMode == NetmodeID.MultiplayerClient)
+                    SingleBehaviors.AnomalyPlayerDownedBossUpdate_System.RecordKill(npcType);
+                break;
+            case ID.EventideResonance:
+#if SPECIAL_CONTENTS
+                SpecialContents.Developer.EventideReunion.EventideReunionResonancePlayer.Receive(reader, whoAmI);
+#else
+                // Player index, resonance mask, remaining ticks.
+                _ = reader.ReadByte();
+                _ = reader.ReadByte();
+                _ = reader.ReadUInt16();
+#endif
+                break;
+            case ID.BrainIllusionHit:
+                int illusionIndex = reader.ReadByte();
+                if (Main.netMode == NetmodeID.Server)
+                    ApplyBrainIllusionHit(illusionIndex, whoAmI);
+                break;
+            case ID.SyncAnomalyMode:
+                bool requested = reader.ReadBoolean();
+                if (Main.netMode == NetmodeID.Server && (uint)whoAmI < Main.maxPlayers && Main.player[whoAmI].active)
+                {
+                    if (!TOBossChallenge.BossActive && (!requested || TOWorldState.MasterMode))
+                        AnomalySharedData.Anomaly = requested;
+                    // Always reply, including when the request was rejected or was a no-op.
+                    SyncAnomalyModeFromServer(whoAmI);
+                }
+                break;
+            case ID.SyncAnomalyModeFromServer:
+                if (Main.netMode == NetmodeID.Server)
+                    SyncAnomalyModeFromServer(whoAmI);
+                break;
+            case ID.SyncWorldState:
+                if (Main.netMode == NetmodeID.MultiplayerClient)
+                    ReadWorldState(reader);
+                break;
+        }
+    }
+
+    internal static void WriteWorldState(BinaryWriter writer)
+    {
+        BitsByte flags = new();
+        flags[0] = AnomalySharedData.Anomaly;
+        flags[1] = AnomalySharedData.AnomalyUltramundane;
+        flags[2] = AnomalySharedData.StoryMode;
+        flags[3] = AnomalySharedData.EXMode;
+        writer.Write((byte)flags);
+    }
+
+    internal static void ReadWorldState(BinaryReader reader)
+    {
+        ApplyWorldState(reader.ReadByte());
+    }
+
+    internal static void ApplyWorldState(BitsByte flags)
+    {
+        bool wasReceiving = ReceivingWorldState;
+        ReceivingWorldState = true;
+        try
+        {
+            AnomalySharedData.Anomaly = flags[0];
+            AnomalySharedData.AnomalyUltramundane = flags[0] && flags[1];
+            AnomalySharedData.StoryMode = flags[2];
+            AnomalySharedData.EXMode = flags[3];
+        }
+        finally
+        {
+            ReceivingWorldState = wasReceiving;
+        }
+    }
+
+    /// <summary>
+    /// 在内容自动加载时无条件登记同步消费方；不依赖尚未进入 Mod.Load 的主实例。
+    /// </summary>
+    /// <param name="mod">由 tML 提供的所属异象模组。</param>
+    void ILoadable.Load(Mod mod) => TONetworkEnvironment.EnableSync(mod);
+
+    // 同步启用登记由框架在卸载时统一重置。
+    void ILoadable.Unload() { }
+}

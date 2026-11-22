@@ -5,6 +5,11 @@ namespace Transoceanic.Graphics.Particles.BuiltIn;
 /// </summary>
 public class OrbParticle : Particle
 {
+    /// <summary>
+    /// 缩放为 1 时粒子贴图在世界中的直径，单位为像素。
+    /// </summary>
+    public const float LogicalDiameter = 72f;
+
     /// <inheritdoc/>
     /// <remarks>此实现返回 <c>ParticleHandler.BaseParticleTexturePath + &quot;OrbParticle&quot;</c>。</remarks>
     public override string TexturePath => ParticleHandler.BaseParticleTexturePath + "OrbParticle";
@@ -89,7 +94,7 @@ public class OrbParticle : Particle
     public override bool PreDraw(SpriteBatch spriteBatch, Vector2 drawOffset = default)
     {
         Texture2D texture = Texture;
-        Vector2 scale = new(Scale);
+        Vector2 scale = new(Scale * LogicalDiameter / texture.Width);
 
         spriteBatch.DrawFromCenter_VectorScale(texture, Center + drawOffset - Main.screenPosition, null, Color, Rotation, scale);
         if (GlowCenter)

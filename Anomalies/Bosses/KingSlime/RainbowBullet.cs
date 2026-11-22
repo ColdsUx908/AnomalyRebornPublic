@@ -131,6 +131,11 @@ public class RainbowBullet : AnomalyModProjectile
         return false;
     }
 
-    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, 8f * Projectile.scale).Collides(targetHitbox);
+    private float DamageRadius => 8f * Projectile.scale;
+
+    public override bool? CanHitNPC(NPC target) => (target.friendly || Projectile.friendly) && GetType() == typeof(RainbowBullet)
+        ? ProjectileDamageBounds.Around(Projectile.Center, DamageRadius).CanHitNPC(Type, target) : null;
+
+    public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => new Circle(Projectile.Center, DamageRadius).Collides(targetHitbox);
 }
 

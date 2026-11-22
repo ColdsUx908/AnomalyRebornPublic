@@ -1,5 +1,3 @@
-using Anomalies.Assets.Effects;
-
 namespace Anomalies.Bosses.Skeletron;
 
 public sealed partial class SkeletronHead
@@ -40,7 +38,7 @@ public sealed partial class SkeletronHead
         // 稳定、连续的中心 Bloom；不生成逐帧叠加的光环粒子，关闭着色器也保留包裹感。
         spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
             DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-        Texture2D bloom = BloomParticle.BloomCircleLarge;
+        Texture2D bloom = BloomParticle.BloomCircleLargeEmission;
         float breath = 1f + 0.035f * MathF.Sin(Timer * 0.15f);
         float bloomScale = 1f - 0.45f * collapse;
         spriteBatch.DrawFromCenter(bloom, NPC.Center - Main.screenPosition, null,

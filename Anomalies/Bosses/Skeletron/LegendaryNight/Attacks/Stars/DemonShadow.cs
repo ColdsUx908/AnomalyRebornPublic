@@ -11,13 +11,21 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 public sealed class DemonShadow : AnomalyModProjectile
 {
     private int ShotInterval => HorizontalTracking ? SkeletronLegendHead.Mechanic1Parameters.AttackAnimationDuration : 12;
-    /// <summary>发射速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 发射速度，以世界像素和游戏帧计量。
+    /// </summary>
     private const float ShotSpeed = 14f;
-    /// <summary>追踪最大速度，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 追踪最大速度，以世界像素和游戏帧计量。
+    /// </summary>
     private const float TrackingMaxSpeed = 24f;
-    /// <summary>追踪加速。</summary>
+    /// <summary>
+    /// 追踪加速。
+    /// </summary>
     private const float TrackingAcceleration = 0.6f;
-    /// <summary>追踪响应。</summary>
+    /// <summary>
+    /// 追踪响应。
+    /// </summary>
     private const float TrackingResponse = 0.08f;
 
     private Player _DrawPlayer;

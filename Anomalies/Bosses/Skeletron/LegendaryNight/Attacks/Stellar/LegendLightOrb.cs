@@ -24,7 +24,9 @@ public sealed class LegendLightOrb : AnomalyModProjectile
         Incorrect
     }
 
-    /// <summary>半径，单位为世界像素。</summary>
+    /// <summary>
+    /// 半径，单位为世界像素。
+    /// </summary>
     public const float Radius = 32f;
     private ProjectileNetReference _SphereReference;
     private Resolution _Resolution;

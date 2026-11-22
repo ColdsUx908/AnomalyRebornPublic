@@ -1,6 +1,8 @@
 namespace Anomalies.SpecialContents.Developer.EventideReunion;
 
-/// <summary>物品栏专用：沿矛身闪烁的星芒与向矛尖逸散的金色火花。</summary>
+/// <summary>
+/// 物品栏专用：沿矛身闪烁的星芒与向矛尖逸散的金色火花。
+/// </summary>
 public sealed class EventideReunionParticleSet : ParticleSet
 {
     public override int ParticleLifetime => 42;

@@ -1,5 +1,3 @@
-using CalamityMod.UI.DialogueDisplay.TextEffects;
-
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead

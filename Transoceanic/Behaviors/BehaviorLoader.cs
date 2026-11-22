@@ -21,11 +21,15 @@ internal sealed class BehaviorLoader : IContentLoader
         GlobalProjectileBehaviorHandler._BehaviorSet.FillSet(_AllBehaviors.OfType<GlobalProjectileBehavior>());
         GlobalItemBehaviorHandler._BehaviorSet.FillSet(_AllBehaviors.OfType<GlobalItemBehavior>());
     }
+
+    void IContentLoader.PostAddRecipes() => GlobalProjectileBehaviorHandler.IndexCollisionHooks();
+
     void IContentLoader.OnModUnload()
     {
         PlayerBehaviorHandler._BehaviorSet.Clear();
         GlobalNPCBehaviorHandler._BehaviorSet.Clear();
         GlobalProjectileBehaviorHandler._BehaviorSet.Clear();
+        GlobalProjectileBehaviorHandler.ClearCollisionHooks();
         GlobalItemBehaviorHandler._BehaviorSet.Clear();
 
         _AllBehaviors = null;

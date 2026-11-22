@@ -17,6 +17,58 @@ public class SingleEntityBehaviorSet<TEntity, TBehavior>
     /// 值为对应实体类型的行为集合。
     /// </summary>
     private readonly Dictionary<int, SimpleEntityBehaviorSet<TEntity, TBehavior>> _Data = [];
+    private readonly Dictionary<string, MethodGroup> _MethodGroups = [];
+
+    /// <summary>
+    /// 单个回调按实体类型建立的候选索引。句柄随所属集合的填充和清理刷新。
+    /// </summary>
+    public sealed class MethodGroup
+    {
+        private readonly Dictionary<int, TBehavior[]> _Candidates = [];
+
+        internal MethodGroup() { }
+
+        /// <summary>
+        /// 检查注册候选，不绑定实体或求值 ShouldProcess。
+        /// </summary>
+        public bool HasCandidates(int type) => _Candidates.ContainsKey(type);
+
+        /// <summary>
+        /// 绑定传入实体，并按优先级逐个检查 ShouldProcess。调用返回的行为时须使用 LockEntity。
+        /// </summary>
+        public bool TryGetBehavior(TEntity entity, [NotNullWhen(true)] out TBehavior behavior)
+        {
+            behavior = entity is not null && _Candidates.TryGetValue(entity.EntityType, out TBehavior[] candidates)
+                ? SimpleEntityBehaviorSet<TEntity, TBehavior>.GetFirstOrDefault(entity, candidates)
+                : null;
+            return behavior is not null;
+        }
+
+        internal void Refresh(Dictionary<int, SimpleEntityBehaviorSet<TEntity, TBehavior>> sets, string methodName)
+        {
+            _Candidates.Clear();
+            foreach ((int type, SimpleEntityBehaviorSet<TEntity, TBehavior> set) in sets)
+            {
+                TBehavior[] candidates = set.GetCandidates(methodName);
+                if (candidates.Length != 0)
+                    _Candidates.Add(type, candidates);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取可复用的单方法查询句柄，适合在高频回调外获取一次。
+    /// </summary>
+    public MethodGroup GetMethodGroup(string methodName)
+    {
+        if (!_MethodGroups.TryGetValue(methodName, out MethodGroup group))
+        {
+            group = new();
+            group.Refresh(_Data, methodName);
+            _MethodGroups.Add(methodName, group);
+        }
+        return group;
+    }
 
     private int _LastType;
     private SimpleEntityBehaviorSet<TEntity, TBehavior> _LastSet;
@@ -80,6 +132,7 @@ public class SingleEntityBehaviorSet<TEntity, TBehavior>
             _Data[group.Key] = new();
             _Data[group.Key].Initialize(group);
         }
+        RefreshMethodGroups();
     }
 
     /// <summary>
@@ -92,5 +145,12 @@ public class SingleEntityBehaviorSet<TEntity, TBehavior>
         foreach (SimpleEntityBehaviorSet<TEntity, TBehavior> set in _Data.Values)
             set.Clear();
         _Data.Clear();
+        RefreshMethodGroups();
+    }
+
+    private void RefreshMethodGroups()
+    {
+        foreach ((string methodName, MethodGroup group) in _MethodGroups)
+            group.Refresh(_Data, methodName);
     }
 }

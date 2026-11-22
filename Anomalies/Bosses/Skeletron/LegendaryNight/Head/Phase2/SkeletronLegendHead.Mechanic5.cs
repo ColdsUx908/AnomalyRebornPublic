@@ -2,72 +2,124 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class SkeletronLegendHead
 {
-    /// <summary>机制 5 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 5 的音乐绝对帧节点；从转场音乐开始累计，单位为游戏帧。
+    /// </summary>
     public static class Mechanic5Timeline
     {
-        /// <summary>本机制开始的音乐绝对帧（包含此帧）。</summary>
+        /// <summary>
+        /// 本机制开始的音乐绝对帧（包含此帧）。
+        /// </summary>
         public const int StartMusicTime = 86 * 60 + 40;
-        /// <summary>本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。</summary>
+        /// <summary>
+        /// 本机制结束的音乐绝对帧（不包含此帧），与下一机制的开始帧衔接。
+        /// </summary>
         public const int EndMusicTime = Mechanic6Timeline.StartMusicTime;
-        /// <summary>第四次星爆的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 第四次星爆的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int FourthStarburstMusicTime = 97 * 60 + 45;
-        /// <summary>第五次星爆的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 第五次星爆的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int FifthStarburstMusicTime = 100 * 60 + 55;
-        /// <summary>星爆结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 星爆结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int StarburstEndMusicTime = 112 * 60;
-        /// <summary>公转恢复开始的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 公转恢复开始的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int OrbitRecoveryStartMusicTime = StarburstEndMusicTime
             + LegendaryNightStarburstParameters.StarburstDamageDuration + LegendaryNightStarburstParameters.StarburstFadeDuration;
-        /// <summary>第三次星爆后的组合攻击起点（1:28:15）。</summary>
+        /// <summary>
+        /// 第三次星爆后的组合攻击起点（1:28:15）。
+        /// </summary>
         public const int InterludeStartMusicTime = FourthStarburstMusicTime - 3 * Mechanic5Parameters.JudgmentInterval;
-        /// <summary>雨幕结束的音乐绝对帧，从转场音乐开始累计。</summary>
+        /// <summary>
+        /// 雨幕结束的音乐绝对帧，从转场音乐开始累计。
+        /// </summary>
         public const int RainEndMusicTime = FourthStarburstMusicTime - 30;
-        /// <summary>机制五手部挥击收尾的音乐绝对帧；可跨过机制六开始帧，不作为转机制边界。</summary>
+        /// <summary>
+        /// 机制五手部挥击收尾的音乐绝对帧；可跨过机制六开始帧，不作为转机制边界。
+        /// </summary>
         public const int HandRecoveryEndMusicTime = StarburstEndMusicTime
             + Mechanic5Parameters.HandStrikeDelay + Mechanic5Parameters.HandStrikeDuration + Mechanic5Parameters.HandReturnDuration;
     }
 
-    /// <summary>机制 5 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。</summary>
+    /// <summary>
+    /// 机制 5 的攻击、运动和表现参数及纯计算；时长单位为游戏帧。
+    /// </summary>
     public static class Mechanic5Parameters
     {
-        /// <summary>雨幕间隔，单位为游戏帧。</summary>
+        /// <summary>
+        /// 雨幕间隔，单位为游戏帧。
+        /// </summary>
         public const int RainInterval = 45;
         public const int UmbrellaSlimeInterval = 45;
         public const int JudgmentInterval = 190;
         public const float SlimeWaveCoverage = 1.2f;
         public const float UmbrellaSlimeSpawnMargin = 80f;
         public const float SlimeWaveSpawnMargin = 200f;
-        /// <summary>雨幕存活时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 雨幕存活时间，单位为游戏帧。
+        /// </summary>
         public const int RainLifetime = Mechanic1Parameters.ProjectileLifetime;
-        /// <summary>星爆初始星体数量。</summary>
+        /// <summary>
+        /// 星爆初始星体数量。
+        /// </summary>
         public const int StarburstInitialStarCount = 10;
-        /// <summary>星爆星体数量增量。</summary>
+        /// <summary>
+        /// 星爆星体数量增量。
+        /// </summary>
         public const int StarburstStarCountIncrement = 2;
-        /// <summary>计算星爆星体数量。</summary>
+        /// <summary>
+        /// 计算星爆星体数量。
+        /// </summary>
         public static int GetStarburstStarCount(int starburstIndex) => StarburstInitialStarCount + (starburstIndex - 4) * StarburstStarCountIncrement;
 
-        /// <summary>手部重新出现持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部重新出现持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandReappearanceDuration = 45;
-        /// <summary>手部攻击数量。</summary>
+        /// <summary>
+        /// 手部攻击数量。
+        /// </summary>
         public const int HandAttackCount = 8;
-        /// <summary>手部拍击延迟，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部拍击延迟，单位为游戏帧。
+        /// </summary>
         public const int HandStrikeDelay = 47;
-        /// <summary>手部蓄势持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部蓄势持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandWindupDuration = HandStrikeDelay;
-        /// <summary>手部拍击持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部拍击持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandStrikeDuration = 32;
-        /// <summary>手部回归持续时间，单位为游戏帧。</summary>
+        /// <summary>
+        /// 手部回归持续时间，单位为游戏帧。
+        /// </summary>
         public const int HandReturnDuration = 60;
-        /// <summary>手部蓄势距离，单位为世界像素。</summary>
+        /// <summary>
+        /// 手部蓄势距离，单位为世界像素。
+        /// </summary>
         public const float HandWindupDistance = 80f;
-        /// <summary>手部越界余量，单位为世界像素。</summary>
+        /// <summary>
+        /// 手部越界余量，单位为世界像素。
+        /// </summary>
         public const float HandOvershoot = 48f;
 
         // 星爆采用0-based索引；第5至12次星爆各延后47帧开始前挥。
-        /// <summary>计算指定手部挥击的音乐绝对帧；attack 为从零开始的攻击编号。</summary>
+        /// <summary>
+        /// 计算指定手部挥击的音乐绝对帧；attack 为从零开始的攻击编号。
+        /// </summary>
         public static int GetHandStrikeTime(int attack) => LegendaryNightStarburstTimeline.GetStarburstTime(4 + attack) + HandStrikeDelay;
 
-        /// <summary>计算手部攻击索引。</summary>
+        /// <summary>
+        /// 计算手部攻击索引。
+        /// </summary>
         public static int GetHandAttackIndex(int musicTime, int handSide)
         {
             for (int attack = handSide < 0 ? 0 : 1; attack < HandAttackCount; attack += 2)
@@ -87,7 +139,9 @@ public sealed partial class SkeletronLegendHead
             return Math.Clamp(recoveryEnd, Mechanic6Timeline.HandPrepareStartMusicTime, Mechanic6Timeline.StartMusicTime - 16);
         }
 
-        /// <summary>沿锁定玩家的方向挥到法阵外沿，并留出越过边缘的余量。</summary>
+        /// <summary>
+        /// 沿锁定玩家的方向挥到法阵外沿，并留出越过边缘的余量。
+        /// </summary>
         public static Vector2 GetHandStrikeDestination(Vector2 origin, Vector2 target, Vector2 center, float radius)
         {
             Vector2 direction = (target - origin).SafeNormalize(Vector2.UnitY);

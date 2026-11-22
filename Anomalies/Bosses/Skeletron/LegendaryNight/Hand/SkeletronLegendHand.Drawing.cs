@@ -23,7 +23,9 @@ public sealed partial class SkeletronLegendHand
         && SkeletronLegendHead.GetInstance(master) is SkeletronLegendHead { Mechanic7Active: true } head
         && head.Phase2MusicElapsedTime >= SkeletronLegendHead.Mechanic7Timeline.CircleStartMusicTime;
 
-    /// <summary>匹配原版 type 36 的贴图底部对齐；调用方负责绘制作用域中的网络偏移。</summary>
+    /// <summary>
+    /// 匹配原版 type 36 的贴图底部对齐；调用方负责绘制作用域中的网络偏移。
+    /// </summary>
     internal static Vector2 GetAttachedHandDrawCenter(NPC hand) =>
         new(hand.Center.X, hand.Bottom.Y - hand.frame.Height * hand.scale * 0.5f + 4f + hand.gfxOffY);
 
@@ -33,7 +35,8 @@ public sealed partial class SkeletronLegendHand
         if (DetachedFromArms(NPC))
             return false;
         // 原版骨节与血尘生成先执行；血尘由独立列表在本体的 Z 投影作用域内绘制。
-        AnomalyNPC.Skeletron_HandBloodDust?.UpdateAndDraw(spriteBatch, -screenPos, NPC.Opacity);
+        if (AnomalyNPC.Skeletron_HandBloodDust is LocalDustState blood)
+            SkeletronHandBloodDust.UpdateAndDraw(blood, spriteBatch, -screenPos, NPC.Opacity);
         if (!NPC.TryGetMaster(NPCID.SkeletronHead, out NPC master) || !LegendaryNightHandler.IsLegendaryNightHead(master))
             return true;
         SkeletronLegendHead head = SkeletronLegendHead.GetInstance(master);
@@ -134,7 +137,7 @@ public sealed partial class SkeletronLegendHand
         float size = NPC.scale * MathHelper.Lerp(90f, 170f, flash);
         if (!SkeletronLegendHead.GetInstance(Master).Mechanic2Active)
         {
-            Texture2D bloom = BloomParticle.BloomCircleLarge;
+            Texture2D bloom = BloomParticle.BloomCircleLargeEmission;
             Color gold = (LegendaryNightHandler.StarColor with { A = 0 }) * (flash * NPC.Opacity);
             spriteBatch.DrawFromCenter(bloom, position, null, gold * 0.65f, 0f, size / bloom.Width);
         }

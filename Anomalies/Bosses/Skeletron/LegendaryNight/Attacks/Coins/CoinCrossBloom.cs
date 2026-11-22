@@ -1,9 +1,10 @@
 using Anomalies.Assets.Effects;
-using Transoceanic.Graphics.Rendering;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>钱币十字的 LDR 双尺度柔光，不使用浮点渲染目标。</summary>
+/// <summary>
+/// 钱币十字的 LDR 双尺度柔光，不使用浮点渲染目标。
+/// </summary>
 internal static class CoinCrossBloom
 {
     public static void Draw(SpriteBatch batch, Effect body, bool enabled, in CoinCrossVisuals.Textures textures,

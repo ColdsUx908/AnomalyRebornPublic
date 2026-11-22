@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron;
 
-/// <summary>骷髅王发射的旋转加速十字骨。</summary>
+/// <summary>
+/// 骷髅王发射的旋转加速十字骨。
+/// </summary>
 /// <remarks>ai[0] 为加速上限，由生成方指定。ai[1] 为所属头部索引（1-based）。</remarks>
 public sealed class Crossbone : AnomalyModProjectile
 {
@@ -24,7 +26,7 @@ public sealed class Crossbone : AnomalyModProjectile
         if ((uint)headIndex < Main.maxNPCs
             && Main.npc[headIndex] is { active: true, type: NPCID.SkeletronHead }
             && SkeletronHead.GetInstance(Main.npc[headIndex]) is
-                { ShouldProcess: true, CurrentBehavior: SkeletronHead.Behavior.Despawn })
+            { ShouldProcess: true, CurrentBehavior: SkeletronHead.Behavior.Despawn })
         {
             if (TONetworkEnvironment.NotClient)
                 Projectile.Kill();

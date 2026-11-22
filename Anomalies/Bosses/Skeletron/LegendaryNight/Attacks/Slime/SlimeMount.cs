@@ -10,12 +10,18 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class SlimeMount : AnomalyModProjectile
 {
-    /// <summary>释放史莱姆坐骑的音效。</summary>
+    /// <summary>
+    /// 释放史莱姆坐骑的音效。
+    /// </summary>
     public static readonly SoundStyle SummonSound = SoundID.Item81 with { MaxInstances = 0 };
 
-    /// <summary>预警最大长度，单位为世界像素。</summary>
+    /// <summary>
+    /// 预警最大长度，单位为世界像素。
+    /// </summary>
     private const float WarningMaxLength = 1600f;
-    /// <summary>预警增长量时刻。</summary>
+    /// <summary>
+    /// 预警增长量时刻。
+    /// </summary>
     private const float WarningGrowthTime = 30f;
 
     // 所属骷髅王索引（1-based），用于清场和准备状态有效性检查；下落后不再依赖主人。

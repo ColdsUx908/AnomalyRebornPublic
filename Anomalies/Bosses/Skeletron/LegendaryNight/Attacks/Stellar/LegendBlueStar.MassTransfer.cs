@@ -2,21 +2,33 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class LegendBlueStar
 {
-    /// <summary>物质喷发间隔，单位为游戏帧。</summary>
+    /// <summary>
+    /// 物质喷发间隔，单位为游戏帧。
+    /// </summary>
     private const int MatterEmissionInterval = 3;
-    /// <summary>物质流。</summary>
+    /// <summary>
+    /// 物质流。
+    /// </summary>
     private const int MatterStreams = 3;
-    /// <summary>物质最大存活时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 物质最大存活时间，单位为游戏帧。
+    /// </summary>
     private const int MatterMaximumLifetime = 300;
-    /// <summary>物质重力，以世界像素和游戏帧计量。</summary>
+    /// <summary>
+    /// 物质重力，以世界像素和游戏帧计量。
+    /// </summary>
     private const float MatterGravity = 650000f;
-    /// <summary>物质角动量损失。</summary>
+    /// <summary>
+    /// 物质角动量损失。
+    /// </summary>
     private const float MatterAngularMomentumLoss = 0.012f;
     private List<StellarMatterTrack> _CompanionMatter;
 
     private sealed record StellarMatterTrack(int BirthAge, Vector3[] Positions);
 
-    /// <summary>计算物质轨迹。</summary>
+    /// <summary>
+    /// 计算物质轨迹。
+    /// </summary>
     internal static Vector3[] CreateMatterTrajectory(float birthAge, int lane)
     {
         const float SurfaceRadius = SkeletronLegendHead.Mechanic6Parameters.SphereRadius;

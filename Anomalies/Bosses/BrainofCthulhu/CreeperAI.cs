@@ -76,7 +76,9 @@ public sealed partial class CreeperAI : AnomalyNPCBehavior<CreeperAI>
         NPC.netUpdate = true;
     }
 
-    /// <summary>幻影仅保留用于维持实体的生命值，不贡献混合血条的剩余生命值。</summary>
+    /// <summary>
+    /// 幻影仅保留用于维持实体的生命值，不贡献混合血条的剩余生命值。
+    /// </summary>
     public int CombinedLifeContribution => IsPhantom ? 0 : Math.Max(0, NPC.life);
 
     public const int PhantomFadeDuration = 45;
@@ -85,12 +87,9 @@ public sealed partial class CreeperAI : AnomalyNPCBehavior<CreeperAI>
     public float PhantomAppearance => IsPhantom
         ? MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp(NPC.localAI[1] / PhantomAppearDuration, 0f, 1f))
         : 0f;
-    public float PhantomVisualOpacity => (IsPhantom
+    public float GetVisualOpacity(float fadeOpacity) => (IsPhantom
         ? (0.4f + 0.1f * MathF.Sin(Main.GlobalTimeWrappedHourly * 6f + CreeperID)) * PhantomAppearance
-        : 1f) * PhantomFadeOpacity * NPC.Opacity;
-    public float PhantomFadeOpacity => CurrentPhase is Phase.Transition or Phase.Phase2
-        ? 1f - MathHelper.Clamp(BossCounter / PhantomFadeDuration, 0f, 1f)
-        : 1f;
+        : 1f) * fadeOpacity * NPC.Opacity;
 
     public override bool PreAI()
     {

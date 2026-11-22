@@ -125,13 +125,24 @@ public static partial class TOTerrariaExtensions
         /// <param name="tiltFloat">倾斜浮动值。</param>
         /// <param name="lightPet">是否为光源宠物。</param>
         public void FloatingPetAI(bool reverseDitection, float tiltFloat, bool lightPet = false)
+            => projectile.FloatingPetAI(reverseDitection, tiltFloat, lightPet, null);
+
+        /// <summary>
+        /// 使用指定的玩家朝向计算飞行宠物的停驻位置和近距离朝向。
+        /// </summary>
+        /// <param name="reverseDitection">是否反转宠物朝向。</param>
+        /// <param name="tiltFloat">倾斜浮动值。</param>
+        /// <param name="lightPet">是否为光源宠物。</param>
+        /// <param name="ownerDirection">跟随使用的玩家朝向，为 null 时直接读取玩家朝向。</param>
+        public void FloatingPetAI(bool reverseDitection, float tiltFloat, bool lightPet, int? ownerDirection)
         {
             Player player = Main.player[projectile.owner];
+            int followDirection = ownerDirection ?? player.direction;
 
             projectile.tileCollide = false;
 
             // 保留原有停驻偏移，使用原版小光之女皇的跟随移动逻辑。
-            Vector2 idleOffset = new(60f * (lightPet ? player.direction : -player.direction), -60f);
+            Vector2 idleOffset = new(60f * (lightPet ? followDirection : -followDirection), -60f);
             Vector2 idlePosition = player.Center + idleOffset;
             float distance = Vector2.Distance(projectile.Center, idlePosition);
             if (distance > 1000f)
@@ -144,7 +155,7 @@ public static partial class TOTerrariaExtensions
             // 到达目标时也必须清零速度，避免残余速度让宠物反复偏离并返回。
             projectile.velocity = displacement.Length() < 4f ? displacement : displacement * 0.1f;
 
-            projectile.direction = player.direction;
+            projectile.direction = followDirection;
             if (distance > 50f)
                 projectile.direction = projectile.velocity.X < 0f ? -1 : 1;
             if (reverseDitection)

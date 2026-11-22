@@ -1,11 +1,10 @@
-using Transoceanic.Graphics.Drawing;
-using Transoceanic.Graphics.Rendering;
-using Transoceanic.Primitives.Mathematics;
-using static Anomalies.Bosses.Skeletron.LegendaryNight.LegendStarburstVisuals;
+using static Anomalies.Visuals.Starburst.StarburstVisuals;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>钱币十字的光流、束身消融和独立星尘；游戏与 FNA 预览共用。</summary>
+/// <summary>
+/// 钱币十字的光流、束身消融和独立星尘；游戏与 FNA 预览共用。
+/// </summary>
 internal static class CoinCrossVisuals
 {
     public const int EndAge = 72;
@@ -50,7 +49,7 @@ internal static class CoinCrossVisuals
 
     public static bool CoversWarning(float age) => age >= WarningHandoffAge;
 
-    public static bool IsVisible(float age) => age > 0f && age < EndAge;
+    public static bool IsVisible(float age) => age is > 0f and < EndAge;
 
     public static float Envelope(float age) => !IsVisible(age) ? 0f : age < PeakAge ? OutCubic(age / PeakAge)
         : age < 28f ? Lerp(1f, 0.26f, Smooth((age - PeakAge) / 20f))

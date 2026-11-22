@@ -1,4 +1,5 @@
 using Anomalies.Assets.Effects;
+using Anomalies.Visuals.Starburst;
 
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
@@ -10,9 +11,13 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// <para>localAI：未使用；框架 Timer1..5：未使用；主体消失后由 timeLeft 接续生命周期。</para>
 /// <para>无实体专属 ExtraAI；普通伤害路径关闭，两个实现分别执行本地单次伤害或试炼失败判定。</para>
 /// </remarks>
-public abstract class LegendStellarShockwave : AnomalyModProjectile
+public abstract class LegendStellarShockwave : AnomalyModProjectile, IStarburstImpactSource
 {
-    /// <summary>伴星爆炸持续时间，单位为游戏帧。</summary>
+    bool IStarburstImpactSource.TryGetImpactFrame(bool includeCross, out StarburstVisuals.Burst frame) => TryGetImpactFrame(out frame);
+
+    /// <summary>
+    /// 伴星爆炸持续时间，单位为游戏帧。
+    /// </summary>
     internal const int CompanionExplosionDuration = 72;
     internal static float CompanionShockwaveRadiusRatio(int count) => count == 0 ? 0.9f : 1.2f;
     internal static float CompanionShockwaveProgress(int age) => BlastExpansion(age);
@@ -62,8 +67,8 @@ public abstract class LegendStellarShockwave : AnomalyModProjectile
     protected virtual float ImpactStrength => 1f;
     protected virtual int ImpactDuration => 32;
 
-    internal bool TryGetImpactFrame(out LegendStarburstVisuals.Burst frame) =>
-        LegendStarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, Projectile.ai[1], Age,
+    internal bool TryGetImpactFrame(out StarburstVisuals.Burst frame) =>
+        StarburstPostProcessing.TryCreateShockwaveFrame(Projectile.Center, Projectile.ai[1], Age,
             ImpactStrength, ImpactDuration, out frame);
 
     protected abstract bool YellowPalette { get; }

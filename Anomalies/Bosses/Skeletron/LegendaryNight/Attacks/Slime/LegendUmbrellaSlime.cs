@@ -1,6 +1,8 @@
 namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
-/// <summary>机制五中缓慢下坠的雨伞史莱姆。</summary>
+/// <summary>
+/// 机制五中缓慢下坠的雨伞史莱姆。
+/// </summary>
 /// <remarks>
 /// <para>ai、localAI 和框架 Timer 均未使用，无实体专属 ExtraAI。</para>
 /// </remarks>

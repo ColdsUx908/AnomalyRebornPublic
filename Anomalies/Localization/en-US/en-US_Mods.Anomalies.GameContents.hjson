@@ -1,7 +1,24 @@
-AnomalyItems: {
-	AnomalyLoot: Anomaly Mode Loot
-	AnomalyUltramundaneLoot: Anomaly Ultramundane Loot
-	LegendaryNightLoot: Anomaly Ultramundane Legendary Night Skeletron Loot
+LegendaryNight: {
+	SummonFailed: Legendary night has failed to begin. It requires an Ultramundane night.
+
+	AncientBattlefieldAltarItem: {
+		DisplayName: Altar of the Ancient Battlefield
+		Tooltip: The altar required to recreate the legendary night
+	}
+
+	FallenStarEssence: {
+		DisplayName: Fallen Star Essence
+		Tooltip:
+			'''
+			The material required to recreate the legendary night
+			It has fallen countless times
+			'''
+	}
+
+	MemoryofAstraeus: {
+		DisplayName: Memory of Astraeus
+		Tooltip: Place it on the altar to recreate the legendary night
+	}
 
 	CoinBag: {
 		DisplayName: Coin Bag
@@ -12,6 +29,25 @@ AnomalyItems: {
 			“You didn't let history repeat itself”
 			'''
 	}
+}
+
+StarfallKnockerHoldout.DisplayName: Starfall Knocker
+StarfallKnockerBurst.DisplayName: Starfall Knocker Starburst
+
+StarfallKnocker: {
+	DisplayName: Starfall Knocker
+	Tooltip:
+		'''
+		Hold left click for 4.5 seconds, then release to slam the hammer forward
+		Releasing early cancels the attack; you can move freely while charging
+		The impact always creates a starburst; enemies struck by the hammer take an additional hit of equal base damage
+		'''
+}
+
+AnomalyItems: {
+	AnomalyLoot: Anomaly Mode Loot
+	AnomalyUltramundaneLoot: Anomaly Ultramundane Loot
+	LegendaryNightLoot: Anomaly Ultramundane Legendary Night Skeletron Loot
 
 	HoneyedWildbloom: {
 		DisplayName: Honeyed Wildbloom
@@ -41,6 +77,28 @@ Drinks: {
 		DisplayName: Raspberry Black Tea
 		Tooltip: A delightful beverage from another world
 		BuffDescription: Energy Overload
+	}
+}
+
+MusicBoxes: {
+	PathwaytoReverieMusicBox: {
+		DisplayName: Music Box (Rainpath — Pathway to Reverie)
+		Tooltip: ""
+	}
+
+	EchoesoftheAzureMusicBox: {
+		DisplayName: Music Box (Deep Blue — Echoes of the Azure)
+		Tooltip: ""
+	}
+
+	ForsakenBloodlandMusicBox: {
+		DisplayName: Music Box (Godforsaken — Forsaken Bloodland)
+		Tooltip: ""
+	}
+
+	DivineLamentMusicBox: {
+		DisplayName: Music Box (Gods Weep — Divine Lament)
+		Tooltip: ""
 	}
 }
 

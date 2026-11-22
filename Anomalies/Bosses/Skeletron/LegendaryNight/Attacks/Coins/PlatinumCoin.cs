@@ -9,17 +9,27 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 /// </remarks>
 public sealed class PlatinumCoin : AnomalyModProjectile
 {
-    /// <summary>抛掷音效。</summary>
+    /// <summary>
+    /// 抛掷音效。
+    /// </summary>
     public static readonly SoundStyle TossSound = SoundID.Item11 with { Volume = 0.75f };
-    /// <summary>无限抛掷音效。</summary>
+    /// <summary>
+    /// 无限抛掷音效。
+    /// </summary>
     public static readonly SoundStyle UnlimitedTossSound = TossSound with { MaxInstances = 0 };
 
     // ai[0]：目标玩家索引（1-based，0 表示未指定目标）。ai[1]：重力加速度，0 保持匀速。
-    /// <summary>动画帧数量。</summary>
+    /// <summary>
+    /// 动画帧数量。
+    /// </summary>
     private const int FrameCount = 8;
-    /// <summary>每动画帧游戏帧数。</summary>
+    /// <summary>
+    /// 每动画帧游戏帧数。
+    /// </summary>
     private const int TicksPerFrame = 6;
-    /// <summary>点金持续时间，单位为游戏帧。</summary>
+    /// <summary>
+    /// 点金持续时间，单位为游戏帧。
+    /// </summary>
     private const int MidasDuration = 300;
 
     // 原版铂金币物品在世界中的动画贴图，区别于背包内的静态 Item_74。

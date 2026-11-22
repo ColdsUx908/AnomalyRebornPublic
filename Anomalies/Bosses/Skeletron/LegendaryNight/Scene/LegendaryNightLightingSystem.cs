@@ -6,7 +6,9 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed class LegendaryNightLightingSystem : ModSystem
 {
-    /// <summary>实体照明绘制层深度。</summary>
+    /// <summary>
+    /// 实体照明绘制层深度。
+    /// </summary>
     [ThreadStatic]
     private static int _EntityDrawDepth;
 

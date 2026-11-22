@@ -1,4 +1,3 @@
-#if ANOMALY_MODE && GAME_CONTENTS
 using Terraria.GameContent.ItemDropRules;
 
 namespace Anomalies.GameContents.AnomalyItems;
@@ -15,4 +14,3 @@ public sealed class AnomalyItemLoot : AnomalyGlobalNPCBehavior
         }
     }
 }
-#endif

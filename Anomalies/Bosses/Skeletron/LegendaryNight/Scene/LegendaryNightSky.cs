@@ -4,25 +4,37 @@ namespace Anomalies.Bosses.Skeletron.LegendaryNight;
 
 public sealed partial class LegendaryNightSky : CustomSky, IContentLoader
 {
-    /// <summary>天空注册键。</summary>
+    /// <summary>
+    /// 天空注册键。
+    /// </summary>
     public const string SkyKey = "Anomalies:SkeletronLegendSky";
 
-    /// <summary>蓝色天空贴图。</summary>
+    /// <summary>
+    /// 蓝色天空贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Scene/LegendaryNightSkyBlue")]
     private static Asset<Texture2D> _BlueSkyTexture;
-    /// <summary>蓝色天空贴图。</summary>
+    /// <summary>
+    /// 蓝色天空贴图。
+    /// </summary>
     public static Texture2D BlueSkyTexture => _BlueSkyTexture.Value;
 
-    /// <summary>橙色天空贴图。</summary>
+    /// <summary>
+    /// 橙色天空贴图。
+    /// </summary>
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Scene/LegendaryNightSkyOrange")]
     private static Asset<Texture2D> _OrangeSkyTexture;
-    /// <summary>橙色天空贴图。</summary>
+    /// <summary>
+    /// 橙色天空贴图。
+    /// </summary>
     public static Texture2D OrangeSkyTexture => _OrangeSkyTexture.Value;
 
     [LoadTexture(LegendaryNightHandler.LegendaryNightPath + "Scene/LegendaryNightSkyRed")]
     private static Asset<Texture2D> _RedSkyTexture;
 
-    /// <summary>当前天空实例，卸载时清空。</summary>
+    /// <summary>
+    /// 当前天空实例，卸载时清空。
+    /// </summary>
     public static LegendaryNightSky Instance { get; private set; }
 
     private List<Star> _Stars = [];

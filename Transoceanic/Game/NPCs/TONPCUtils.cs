@@ -10,7 +10,9 @@ public static class TONPCUtils
 {
     private static readonly Lazy<Action<NPC, int, float, float, float>> _VanillaMultiplayerScaling = new(CreateVanillaMultiplayerScaling);
 
-    /// <summary>检查宿主 NPC 缩放方法及 IL 结构并创建隔离委托；框架原生加载时执行，也可离线调用。</summary>
+    /// <summary>
+    /// 检查宿主 NPC 缩放方法及 IL 结构并创建隔离委托；框架原生加载时执行，也可离线调用。
+    /// </summary>
     /// <exception cref="InvalidOperationException">宿主签名、缩放钩子结构或动态方法生成不兼容；消息包含宿主版本和目标。</exception>
     public static void ValidateHostCompatibility() => _ = _VanillaMultiplayerScaling.Value;
 
