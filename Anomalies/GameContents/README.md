@@ -17,7 +17,7 @@
 
 ## 依赖与资源
 
-音乐盒及图格还要求加载 AnomaliesMusic；音乐绑定、微光转换与图格交互由 [BaseMusicBox.cs](../BaseContents/BaseMusicBox.cs) 提供。其他共享抽象基类位于 `BaseContents/`，不属于本目录的具体内容注册。
+四种音乐盒物品与图格在客户端和服务端始终注册，以保持联机物品与图格 ID 一致。客户端加载 AnomaliesMusic 的对应曲目后可播放、录制；雨径曲目可用时才提供出生赠送与微光旁合成。音乐绑定、微光转换与图格交互由 [BaseMusicBox.cs](../BaseContents/BaseMusicBox.cs) 提供。其他共享抽象基类位于 `BaseContents/`，不属于本目录的具体内容注册。
 
 中英文本地化位于 `Localization/` 的 GameContents 分组。变更物品、宠物或音乐盒时一起核对主材质、图格材质、Buff、音轨名称与文本键。
 

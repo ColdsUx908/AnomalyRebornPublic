@@ -64,7 +64,7 @@ public sealed class Crossbone : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D texture = TextureAssets.Projectile[Type].Value;
+        Texture2D texture = Projectile.Texture;
         Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, Projectile.GetAlpha(lightColor),
             Projectile.rotation, texture.Size() / 2f, Projectile.scale,
             Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None);

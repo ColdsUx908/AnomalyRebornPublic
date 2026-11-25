@@ -154,7 +154,7 @@ public class FalseBrain : AnomalyModNPC
     {
         // This sheet contains seven subtly different exposed-brain variants.
         // Boss texture/config overrides must not replace them with closed-brain frames.
-        Texture2D tex = TextureAssets.Npc[Type].Value;
+        Texture2D tex = NPC.Texture;
         Rectangle frame = tex.Frame(7, 4, Variant, (int)NPC.frameCounter);
         Vector2 scaleDistort = new((float)Math.Cos(Main.GlobalTimeWrappedHourly * MathHelper.TwoPi * 2) / 2f, (float)Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.TwoPi * 2) / 2f);
         float endLerp = MathHelper.Clamp(AttackTime / 60f, 0f, 1f);

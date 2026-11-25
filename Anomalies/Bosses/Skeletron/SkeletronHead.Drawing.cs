@@ -21,7 +21,7 @@ public sealed partial class SkeletronHead
 
             for (int i = 0; i < 2; i++)
             {
-                spriteBatch.Draw(TextureAssets.Npc[NPC.type].Value, NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY), NPC.frame,
+                spriteBatch.Draw(NPC.Texture, NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY), NPC.frame,
                     telegraphColor, NPC.rotation, halfSize, NPC.scale, spriteEffects, 0f);
             }
         }

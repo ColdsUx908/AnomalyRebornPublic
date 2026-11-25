@@ -36,12 +36,6 @@ public sealed class AnomalyClientConfig : ModConfig
     [Header("Visuals")]
 
     /// <summary>
-    /// 是否使用灾厄模组风格的纹理。
-    /// </summary>
-    [DefaultValue(false)]
-    public bool UseCalamityStyleTextures;
-
-    /// <summary>
     /// 是否启用 Anomalies 的着色器。
     /// </summary>
     [DefaultValue(true)]

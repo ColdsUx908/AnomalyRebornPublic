@@ -358,7 +358,7 @@ public sealed class SkeletronHand : AnomalyNPCBehavior<SkeletronHand>
             Vector2 glowOffset = Vector2.UnitY * 8f;
             for (int i = 0; i < 2; i++)
             {
-                spriteBatch.Draw(TextureAssets.Npc[NPC.type].Value, NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY) - glowOffset, NPC.frame,
+                spriteBatch.Draw(NPC.Texture, NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY) - glowOffset, NPC.frame,
                     telegraphColor, NPC.rotation, halfSize, NPC.scale, spriteEffects, 0f);
             }
         }

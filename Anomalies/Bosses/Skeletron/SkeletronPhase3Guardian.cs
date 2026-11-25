@@ -253,7 +253,7 @@ public sealed class SkeletronPhase3Guardian : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D texture = TextureAssets.Projectile[Type].Value;
+        Texture2D texture = Projectile.Texture;
         Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null,
             SkeletronCombatVisuals.BoneColor * Projectile.Opacity, Projectile.rotation, texture.Size() * 0.5f, Projectile.scale,
             SpriteEffects.None);

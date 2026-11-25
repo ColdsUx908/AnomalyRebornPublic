@@ -5,7 +5,7 @@ public sealed partial class BrainofCthulhu
     public override void FindFrame(int frameHeight)
     {
         if (BoCFrame == Rectangle.Empty)
-            BoCFrame = TextureAssets.Npc[NPCID.BrainofCthulhu].Frame(verticalFrames: 8);
+            BoCFrame = NPC.Texture.Frame(verticalFrames: 8);
         if (NPC.frameCounter == 0)
             BoCFrame.Y += frameHeight;
         if (CurrentBehavior <= Behavior.Phase2TransitionClosed)
@@ -86,14 +86,15 @@ public sealed partial class BrainofCthulhu
             foreach (NPC creeper in creepers)
             {
                 CreeperAI creeperAI = creeper.GetCreeperBehavior();
+                Texture2D creeperTexture = creeper.Texture;
                 bool phantom = creeperAI.IsPhantom;
                 float appearance = creeperAI.PhantomAppearance;
                 float opacity = creeperAI.GetVisualOpacity(fadeOpacity);
                 float glowIntensity = creeperAI.ConnectionOpacity;
                 if (phantom)
-                    spriteBatch.Draw(BrainOfCthulhuSystem.GetCreeperGlow(), creeper.Center - Main.screenPosition, null, Color.MediumPurple * 0.45f * appearance * fadeOpacity, creeper.rotation, TextureAssets.Npc[NPCID.Creeper].Size() * 0.5f, creeper.scale * 1.3f, 0, 0);
-                spriteBatch.Draw(BrainOfCthulhuSystem.GetCreeperGlow(), creeper.Center - Main.screenPosition, null, (phantom ? Color.MediumPurple : Color.Orange) * glowIntensity * opacity, creeper.rotation, TextureAssets.Npc[NPCID.Creeper].Size() * 0.5f, creeper.scale * 1.15f, 0, 0);
-                spriteBatch.Draw(TextureAssets.Npc[NPCID.Creeper].Value, creeper.Center - Main.screenPosition, null, Lighting.GetColor(creeper.Center.ToTileCoordinates()).MultiplyRGB(Color.Lerp(Color.White, new Color(255, 180, 180), glowIntensity)) * opacity, creeper.rotation, TextureAssets.Npc[NPCID.Creeper].Size() * 0.5f, creeper.scale, 0, 0);
+                    spriteBatch.Draw(BrainOfCthulhuSystem.GetCreeperGlow(), creeper.Center - Main.screenPosition, null, Color.MediumPurple * 0.45f * appearance * fadeOpacity, creeper.rotation, creeperTexture.Size() * 0.5f, creeper.scale * 1.3f, 0, 0);
+                spriteBatch.Draw(BrainOfCthulhuSystem.GetCreeperGlow(), creeper.Center - Main.screenPosition, null, (phantom ? Color.MediumPurple : Color.Orange) * glowIntensity * opacity, creeper.rotation, creeperTexture.Size() * 0.5f, creeper.scale * 1.15f, 0, 0);
+                spriteBatch.Draw(creeperTexture, creeper.Center - Main.screenPosition, null, Lighting.GetColor(creeper.Center.ToTileCoordinates()).MultiplyRGB(Color.Lerp(Color.White, new Color(255, 180, 180), glowIntensity)) * opacity, creeper.rotation, creeperTexture.Size() * 0.5f, creeper.scale, 0, 0);
             }
         }
         else
@@ -147,11 +148,11 @@ public sealed partial class BrainofCthulhu
                 p.Draw(spriteBatch);
             //Color glowColor = Color.White * (teleportCounter / 30f);
             scale = Vector2.Lerp(Vector2.One, new Vector2(0.5f + ((float)Math.Cos(ai.Time / (ai.TeleportDuration / 2f) * MathHelper.TwoPi) / 2f + 0.5f), 0.5f + ((float)Math.Sin(ai.Time / (ai.TeleportDuration / 2f) * MathHelper.TwoPi) / 2f + 0.5f)), TOMathUtils.Interpolation.SineEaseInOut(ai.TeleportTime / (ai.TeleportDuration / 2f), clamped: false));
-            spriteBatch.Draw(TextureAssets.Npc[NPCID.BrainofCthulhu].Value, drawPos, ai.BoCFrame, Lighting.GetColor(brain.Center.ToTileCoordinates()) * brain.Opacity, brain.rotation, ai.BoCFrame.Size() * 0.5f, scale * brain.scale, 0, 0);
+            spriteBatch.Draw(brain.Texture, drawPos, ai.BoCFrame, Lighting.GetColor(brain.Center.ToTileCoordinates()) * brain.Opacity, brain.rotation, ai.BoCFrame.Size() * 0.5f, scale * brain.scale, 0, 0);
             //spriteBatch.Draw(GetBrainGlow(), drawPos, NPC.frame, glowColor, NPC.rotation, NPC.frame.Size() * 0.5f, scale, 0, 0);
         }
         else
-            spriteBatch.Draw(TextureAssets.Npc[NPCID.BrainofCthulhu].Value, drawPos, ai.BoCFrame, Lighting.GetColor(brain.Center.ToTileCoordinates()) * brain.Opacity, brain.rotation, ai.BoCFrame.Size() * 0.5f, scale * brain.scale, 0, 0);
+            spriteBatch.Draw(brain.Texture, drawPos, ai.BoCFrame, Lighting.GetColor(brain.Center.ToTileCoordinates()) * brain.Opacity, brain.rotation, ai.BoCFrame.Size() * 0.5f, scale * brain.scale, 0, 0);
     }
 
     private static void DrawBrainLikeFakes(SpriteBatch spriteBatch, NPC brain)
@@ -168,6 +169,6 @@ public sealed partial class BrainofCthulhu
         }
         else
             scaleDistort = Vector2.Zero;
-        spriteBatch.Draw(TextureAssets.Npc[NPCID.BrainofCthulhu].Value, brain.Center + (Vector2.UnitY * 16) - Main.screenPosition, ai.BoCFrame, drawColor, brain.rotation, ai.BoCFrame.Size() * 0.5f, (Vector2.One + scaleDistort) * brain.scale, 0, 0);
+        spriteBatch.Draw(brain.Texture, brain.Center + (Vector2.UnitY * 16) - Main.screenPosition, ai.BoCFrame, drawColor, brain.rotation, ai.BoCFrame.Size() * 0.5f, (Vector2.One + scaleDistort) * brain.scale, 0, 0);
     }
 }

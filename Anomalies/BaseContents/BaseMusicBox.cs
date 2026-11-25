@@ -7,8 +7,6 @@ namespace Anomalies.BaseContents;
 
 public abstract class BaseMusicBox<TTile> : AnomalyModItem where TTile : BaseMusicBoxTile
 {
-    public override bool IsLoadingEnabled(Mod mod) => ModLoader.HasMod("AnomaliesMusic");
-
     public override string LocalizationCategory => "GameContents.MusicBoxes";
     public int TileType => ModContent.TileType<TTile>();
     public abstract string MusicFileName { get; }
@@ -22,9 +20,11 @@ public abstract class BaseMusicBox<TTile> : AnomalyModItem where TTile : BaseMus
         if (!Obtainable)
             Item.ResearchUnlockCount = 0;
 
-        // Register Music Box if the music path exists
-        if (!string.IsNullOrEmpty(MusicFileName) && AnomalyModReferences.AnomaliesMusic.IsLoaded)
-            MusicLoader.AddMusicBox(Mod, MusicLoader.GetMusicSlot(AnomalyModReferences.AnomaliesMusic.Mod, "Music/" + MusicFileName), Type, TileType);
+        // The music pack is client-side. Items and tiles must have the same IDs on every peer.
+        // tML accepts slot 0 on a dedicated server so switches and wiring still recognize the tile.
+        int musicSlot = MusicLoader.GetMusicSlot($"AnomaliesMusic/Music/{MusicFileName}");
+        if (Main.dedServ || musicSlot > 0)
+            MusicLoader.AddMusicBox(Mod, musicSlot, Type, TileType);
     }
 
     public override void SetDefaults() => Item.DefaultToMusicBox(TileType, 0);
@@ -32,8 +32,6 @@ public abstract class BaseMusicBox<TTile> : AnomalyModItem where TTile : BaseMus
 
 public abstract class BaseMusicBoxTile : ModTile
 {
-    public override bool IsLoadingEnabled(Mod mod) => ModLoader.HasMod("AnomaliesMusic");
-
     public override string LocalizationCategory => "GameContents.MusicBoxes";
     public override void SetStaticDefaults()
     {

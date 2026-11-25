@@ -132,114 +132,47 @@ public abstract class EaterofWorldsSegment<TBehavior> : AnomalyNPCBehavior<TBeha
         return false;
     }
 
-    protected int GetContactDamage()
+    protected void UpdateCombatState()
     {
-        if (!ValidHead)
-            return 0;
+        // All links read one owner pose for visibility, protection and contact during this tick.
         EaterofWorldsHead owner = HeadBehavior;
-        if (owner.ContactSuppressed || !ValidLocalHead || !owner.ChainCanHit(EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex))
-            return 0;
-        if (IsUnderCoilMask)
-            return 0;
-        if (PortalOpacity < 1f)
-            return 0;
-        return SegmentType switch
-        {
-            EaterofWorldsSegmentType.Head when owner.UltraCombat && !IsFirstSegment => EaterofWorldsHead.BodyContactDamage,
-            EaterofWorldsSegmentType.Head => EaterofWorldsHead.HeadContactDamage,
-            EaterofWorldsSegmentType.Body => EaterofWorldsHead.BodyContactDamage,
-            _ => EaterofWorldsHead.TailContactDamage,
-        };
-    }
+        int localOrdinal = ValidLocalHead ? EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex : 0;
+        float opacity = GetOpacity();
+        bool concealed = opacity < 1f || owner.CoilMaskStrength > 0f && NPC.Distance(owner.CoilingCenter) < 180f;
+        NPC.Opacity = opacity;
+        NPC.dontTakeDamage = owner.InUltraTransition;
+        AnomalyNPC.DR = concealed ? 0.95f : 0f;
+        NPC.damage = concealed || localOrdinal == 0 || !owner.NPC.HasValidTarget || owner.ContactSuppressed || !owner.ChainCanHit(localOrdinal)
+            ? 0 : SegmentType switch
+            {
+                EaterofWorldsSegmentType.Head when owner.UltraCombat && !IsFirstSegment => EaterofWorldsHead.BodyContactDamage,
+                EaterofWorldsSegmentType.Head => EaterofWorldsHead.HeadContactDamage,
+                EaterofWorldsSegmentType.Body => EaterofWorldsHead.BodyContactDamage,
+                _ => EaterofWorldsHead.TailContactDamage,
+            };
 
-    protected float PortalOpacity
-    {
-        get
+        float GetOpacity()
         {
-            if (!ValidHead)
-                return 1f;
-            EaterofWorldsHead owner = HeadBehavior;
             if (owner.InUltraTransition)
             {
-                if (owner.CurrentLocalPhase == 1)
-                    return Utils.GetLerpValue(0f, 24f, owner.Timer1, true);
-                return 1f - Utils.GetLerpValue(10f, 80f, owner.Timer1, true);
+                return owner.CurrentLocalPhase == 1 ? Utils.GetLerpValue(0f, 24f, owner.Timer1, true)
+                    : 1f - Utils.GetLerpValue(10f, 80f, owner.Timer1, true);
             }
             if (owner.CurrentBehavior != EaterofWorldsHead.Behavior.Phase1_Split)
                 return 1f;
             if (owner.CurrentLocalPhase == 1)
             {
-                int offset = ValidLocalHead ? SegmentIndex - EaterofWorldsHead.GetInstance(LocalHead).SegmentIndex : 0;
+                int offset = localOrdinal == 0 ? 0 : SegmentIndex - localOrdinal;
                 return 1f - Utils.GetLerpValue(offset * 1.5f + 4f, offset * 1.5f + 16f, owner.Timer1, true);
             }
-            if (owner.CurrentLocalPhase == 3)
-            {
-                // Visibility follows actual emergence, including FTW spacing and scaled segments.
-                return Utils.GetLerpValue(0f, 60f, NPC.Distance(owner.CoilingCenter), true);
-            }
-            return 1f;
+            return owner.CurrentLocalPhase == 3 ? Utils.GetLerpValue(0f, 60f, NPC.Distance(owner.CoilingCenter), true) : 1f;
         }
     }
 
-    protected bool IsUnderCoilMask => ValidHead && HeadBehavior.CoilMaskStrength > 0f
-        && NPC.Distance(HeadBehavior.CoilingCenter) < 180f;
-
-    protected void UpdateCoilDR()
+    protected void PrepareFollower()
     {
-        NPC.dontTakeDamage = ValidHead && HeadBehavior.InUltraTransition;
-        NPC.Opacity = PortalOpacity;
-        AnomalyNPC.DR = PortalOpacity < 1f || IsUnderCoilMask ? 0.95f : 0f;
-    }
-
-    protected void BodyAndTailMovementAI()
-    {
-        NPC.damage = GetContactDamage();
+        UpdateCombatState();
         NPC.defense = 8;
-        if (ValidLocalHead && EaterofWorldsHead.GetInstance(LocalHead).CircularMovementActive)
-        {
-            // The encounter owner places the entire local chain on its common circle.
-            NPC.velocity = Vector2.Zero;
-            return;
-        }
-        if (ValidHead && ValidLocalHead && SegmentIndex > EaterofWorldsHead.UltraLongWormSegmentCount
-            && (HeadBehavior.UltraCombat || HeadBehavior.InUltraTransition && HeadBehavior.CurrentLocalPhase == 1))
-        {
-            // A three-link lane stays straight, including its tail while staging or recovering.
-            EaterofWorldsHead local = EaterofWorldsHead.GetInstance(LocalHead);
-            float linkSpacing = Main.getGoodWorld ? 62f : NPC.width * NPC.scale;
-            NPC.Center = LocalHead.Center - local.LaunchDirection * ((SegmentIndex - local.SegmentIndex) * linkSpacing);
-            NPC.rotation = local.LaunchDirection.ToRotation() + MathHelper.PiOver2;
-            NPC.velocity = Vector2.Zero;
-            return;
-        }
-        Vector2 delta = Previous.Center - NPC.Center;
-        float spacing = Main.getGoodWorld ? 62f : NPC.width * NPC.scale;
-        Vector2 direction = delta.SafeNormalize(Vector2.UnitY);
-        // Pull only: pushing compressed segments apart unfolds a coil instantly, even with a stationary head.
-        NPC.velocity = direction * Math.Max(0f, delta.Length() - spacing);
-        if (HeadBehavior.CurrentBehavior == EaterofWorldsHead.Behavior.Phase1_Split
-            && delta.Length() <= spacing + Previous.velocity.Length() + 8f)
-        {
-            // Follow the predecessor's travelled arc, not a chord cutting across its tight orbit.
-            // Otherwise the inner segments stop moving and the distant tail can never enter the coil.
-            Vector2 point = Previous.Center;
-            float remaining = spacing;
-            foreach (Vector2 oldPosition in Previous.oldPos)
-            {
-                Vector2 past = oldPosition + Previous.Size * 0.5f;
-                float distance = Vector2.Distance(point, past);
-                if (distance >= remaining && distance > 0.001f)
-                {
-                    Vector2 destination = Vector2.Lerp(point, past, remaining / distance);
-                    Vector2 movement = destination - NPC.Center;
-                    float speed = movement.Length();
-                    NPC.velocity = movement.SafeNormalize(Vector2.Zero) * Math.Min(speed, 40f);
-                    break;
-                }
-                remaining -= distance;
-                point = past;
-            }
-        }
-        NPC.rotation += MathHelper.WrapAngle(direction.ToRotation() + MathHelper.PiOver2 - NPC.rotation) * 0.28f;
+        NPC.velocity = Vector2.Zero;
     }
 }

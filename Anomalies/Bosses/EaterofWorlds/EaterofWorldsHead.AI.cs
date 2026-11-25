@@ -6,35 +6,38 @@ public sealed partial class EaterofWorldsHead
 
     public override bool PreAI()
     {
-        using BossNetUpdateScope netUpdate = new(NPC);
         NPC.alpha = 0;
         NPC.noGravity = true;
         NPC.noTileCollide = true;
         NPC.boss = IsFirstSegment;
+        if (IsFirstSegment && CurrentPhase == Phase.Initialize && CurrentBehavior != Behavior.Despawn)
+            InitializeEncounter();
+        if (!ValidHead)
+        {
+            NPC.damage = 0;
+            if (!IsFirstSegment && TONetworkEnvironment.NotClient)
+                NPC.active = false;
+            return false;
+        }
         if (!IsFirstSegment)
         {
-            if (!ValidHead)
-            {
-                NPC.damage = 0;
-                if (TONetworkEnvironment.NotClient)
-                    NPC.active = false;
-                return false;
-            }
             NPC.realLife = Head.whoAmI;
             NPC.lifeMax = Head.lifeMax;
             NPC.life = Head.life;
             NPC.target = Head.target;
-            UpdateCoilDR();
-            // The owner drives all heads once, so NPC slot order cannot advance the attack twice.
-            NPC.damage = GetContactDamage();
-            if (CircularMovementActive)
-                NPC.velocity = Vector2.Zero;
-            else
-                SmoothHeadRotation(NPC);
-            OnRunningPreAI?.Invoke(this);
-            return false;
         }
+        UpdateCombatState();
+        if (IsFirstSegment)
+            SpawnCoilDust();
+        OnRunningPreAI?.Invoke(this);
+        return false;
+    }
 
+    // Schedule motion before Terraria integrates any NPC. A split head in a lower slot now
+    // receives its new velocity in the same frame as a head allocated after the owner.
+    internal void AdvanceEncounter()
+    {
+        using BossNetUpdateScope netUpdate = new(NPC);
         if (CurrentBehavior != Behavior.Despawn && !NPC.TargetClosestIfInvalid(true, DespawnDistance))
         {
             if (TONetworkEnvironment.NotClient)
@@ -45,7 +48,7 @@ public sealed partial class EaterofWorldsHead
             else
             {
                 NPC.damage = 0;
-                return false;
+                return;
             }
         }
         if (CurrentBehavior == Behavior.Despawn)
@@ -55,7 +58,7 @@ public sealed partial class EaterofWorldsHead
             NPC.velocity = Vector2.Lerp(NPC.velocity, new Vector2(0f, 18f), 0.04f);
             if (++Timer1 >= 90 && TONetworkEnvironment.NotClient)
                 RemoveEncounter();
-            return false;
+            return;
         }
 
         if (TONetworkEnvironment.NotClient && ShouldEnterUltra)
@@ -87,80 +90,78 @@ public sealed partial class EaterofWorldsHead
             ChangeAttack(Behavior.Phase1_Split);
         }
 
+        List<NPC> heads = GetEncounterHeads();
         switch (CurrentPhase)
         {
-            case Phase.Initialize:
-                InitializeEncounter();
-                break;
             case Phase.Phase1:
             case Phase.Phase1_Duet:
             case Phase.Phase1_Trio:
-                Phase1CombatAI(GetEncounterHeads());
+                Phase1CombatAI(heads);
                 break;
             case Phase.PhaseChange_1To2:
-                UltraTransitionAI(GetEncounterHeads());
+                UltraTransitionAI(heads);
                 break;
             case Phase.Phase2:
             case Phase.Phase2_Relay:
-                Phase2CombatAI(GetEncounterHeads());
+                Phase2CombatAI(heads);
                 break;
         }
-        NPC.damage = GetContactDamage();
-        UpdateCoilDR();
-        SpawnCoilDust();
-        SmoothHeadRotation(NPC);
-        OnRunningPreAI?.Invoke(this);
-        UpdateCircularMovement();
-        return false;
+        UpdateCircularMovement(heads);
+    }
 
-        void InitializeEncounter()
+    private void InitializeEncounter()
+    {
+        NPC.damage = 0;
+        if (!TONetworkEnvironment.NotClient)
+            return;
+        if (!NPC.TargetClosestIfInvalid(true, DespawnDistance))
         {
-            NPC.damage = 0;
-            if (!TONetworkEnvironment.NotClient)
-                return;
-            Head = LocalHead = NPC;
-            SegmentIndex = 1;
-            Previous = Next = null;
-            NPC.realLife = -1;
-            AllSegments.Clear();
-            AllSegments.Add(NPC);
-            const float SpawnRadius = 140f;
-            Vector2 coilCenter = NPC.Center - new Vector2(SpawnRadius, 0f);
-            CoilingCenter = coilCenter;
-            float coilAngle = 0f;
-            NPC.velocity = Vector2.Zero;
-            for (int i = 1; i < TotalSegmentCount; i++)
-            {
-                int ordinal = i;
-                NPC.NewNPCAction(SourceAI, NPC.Center,
-                    i == TotalSegmentCount - 1 ? NPCID.EaterofWorldsTail : NPCID.EaterofWorldsBody,
-                    action: segment =>
-                    {
-                        IEaterofWorldsSegment behavior = EaterofWorldsHandler.TryGetSegment(segment);
-                        behavior.Head = behavior.LocalHead = NPC;
-                        behavior.SegmentIndex = ordinal + 1;
-                        segment.realLife = NPC.whoAmI;
-                        segment.lifeMax = NPC.lifeMax;
-                        segment.life = NPC.life;
-                        segment.damage = 0;
-                        float spacing = Main.getGoodWorld ? 62f : segment.width * segment.scale;
-                        coilAngle -= 2f * MathF.Asin(Math.Clamp(spacing / (2f * SpawnRadius), 0f, 1f));
-                        segment.Center = coilCenter + new Vector2(SpawnRadius, 0f).RotatedBy(coilAngle);
-                        segment.rotation = coilAngle + MathHelper.Pi;
-                        segment.velocity = Vector2.Zero;
-                        AllSegments.Add(segment);
-                    });
-            }
-            if (TransformToWorms(1).Count != 1)
-            {
-                RemoveEncounter();
-                return;
-            }
-            CurrentPhase = Phase.Phase1;
-            CoilingStartAngle = (NPC.Center - Target.Center).ToRotation();
-            ChangeAttack(Behavior.Phase1_Hunt);
-            Phase1CombatAI(GetEncounterHeads());
+            CurrentBehavior = Behavior.Despawn;
+            Timer1 = 0;
+            return;
         }
+        Head = LocalHead = NPC;
+        SegmentIndex = 1;
+        Previous = Next = null;
+        NPC.realLife = -1;
+        AllSegments.Clear();
+        AllSegments.Add(NPC);
+        const float SpawnRadius = 140f;
+        Vector2 coilCenter = NPC.Center - new Vector2(SpawnRadius, 0f);
+        CoilingCenter = coilCenter;
+        float coilAngle = 0f;
+        NPC.velocity = Vector2.Zero;
+        for (int i = 1; i < TotalSegmentCount; i++)
+        {
+            int ordinal = i;
+            NPC.NewNPCAction(SourceAI, NPC.Center,
+                i == TotalSegmentCount - 1 ? NPCID.EaterofWorldsTail : NPCID.EaterofWorldsBody,
+                action: segment =>
+                {
+                    IEaterofWorldsSegment behavior = EaterofWorldsHandler.TryGetSegment(segment);
+                    behavior.Head = behavior.LocalHead = NPC;
+                    behavior.SegmentIndex = ordinal + 1;
+                    segment.realLife = NPC.whoAmI;
+                    segment.lifeMax = NPC.lifeMax;
+                    segment.life = NPC.life;
+                    segment.damage = 0;
+                    float spacing = LinkSpacing(AllSegments[^1], segment);
+                    coilAngle -= 2f * MathF.Asin(Math.Clamp(spacing / (2f * SpawnRadius), 0f, 1f));
+                    segment.Center = coilCenter + new Vector2(SpawnRadius, 0f).RotatedBy(coilAngle);
+                    segment.rotation = coilAngle + MathHelper.Pi;
+                    segment.velocity = Vector2.Zero;
+                    AllSegments.Add(segment);
+                });
+        }
+        if (TransformToWorms(1).Count != 1)
+        {
+            RemoveEncounter();
+            return;
+        }
+        CurrentPhase = Phase.Phase1;
+        CoilingStartAngle = (NPC.Center - Target.Center).ToRotation();
+        ChangeAttack(Behavior.Phase1_Hunt);
+        Phase1CombatAI(GetEncounterHeads());
     }
 
     private void RemoveEncounter()
@@ -182,6 +183,15 @@ public sealed partial class EaterofWorldsHead
     private List<NPC> GetEncounterHeads()
     {
         List<NPC> heads = [];
+        if (TONetworkEnvironment.NotClient && AllSegments.Count > 0)
+        {
+            foreach (NPC segment in AllSegments)
+            {
+                if (segment.active && segment.type == NPCID.EaterofWorldsHead && (segment == NPC || GetInstance(segment).Head == NPC))
+                    heads.Add(segment);
+            }
+            return heads;
+        }
         for (int i = 0; i < Main.maxNPCs; i++)
         {
             NPC candidate = Main.npc[i];

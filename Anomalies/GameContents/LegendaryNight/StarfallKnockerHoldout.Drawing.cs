@@ -101,7 +101,7 @@ public sealed partial class StarfallKnockerHoldout
     }
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D texture = TextureAssets.Projectile[Type].Value;
+        Texture2D texture = Projectile.Texture;
         DrawHeadTrail();
         Main.spriteBatch.End();
         try

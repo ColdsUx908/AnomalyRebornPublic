@@ -11,7 +11,7 @@ public sealed partial class SkeletronLegendHand
         float opacity = SkeletronLegendHead.Mechanic7Parameters.ElementOpacity(head.Phase2MusicElapsedTime, index);
         if (opacity <= 0f)
             return;
-        Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+        Texture2D texture = NPC.Texture;
         float scale = SkeletronLegendHead.Mechanic7Parameters.CircleRadius * 1.9f / NPC.frame.Size().Length();
         spriteBatch.Draw(texture, NPC.Center + NPC.netOffset - Main.screenPosition, NPC.frame,
             Color.White * opacity, NPC.rotation, NPC.frame.Size() * 0.5f, scale,
@@ -43,7 +43,7 @@ public sealed partial class SkeletronLegendHand
         if (!head.Mechanic2InBackground)
             return true;
         float size = GetMechanic2VisualScale(head);
-        Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+        Texture2D texture = NPC.Texture;
         // DrawNPCs 已将 netOffset 临时加入 NPC.position；骨节和手掌必须使用同一坐标。
         spriteBatch.Draw(texture, GetAttachedHandDrawCenter(NPC) - screenPos, NPC.frame, Color.White * NPC.Opacity,
             NPC.rotation, NPC.frame.Size() * 0.5f, NPC.scale * size,

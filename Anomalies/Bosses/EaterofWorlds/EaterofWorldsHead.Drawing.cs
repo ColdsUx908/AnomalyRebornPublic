@@ -65,8 +65,7 @@ public sealed partial class EaterofWorldsHead
         {
             case Behavior.Phase1_Split when CurrentLocalPhase == 1:
                 for (int i = 0; i < RegularHeadCount; i++)
-                    DrawLane(CoilingCenter, PortalExitDirection(i), OutwardChargeDistance, PortalExitDistance,
-                        Timer1, PortalChargeDuration - Timer1, true, false);
+                    DrawLane(NPC, CoilingCenter, PortalExitDirection(i), OutwardChargeDistance, PortalChargeDuration - Timer1, true);
                 break;
             case Behavior.Phase1_Charge:
                 foreach (NPC head in GetEncounterHeads())
@@ -81,8 +80,7 @@ public sealed partial class EaterofWorldsHead
                     Vector2 direction = locked ? worm.LaunchDirection : (focus - origin).SafeNormalize(Vector2.UnitY);
                     int remaining = locked ? LockDuration + rank * ChargeDuration - Timer1 : AimDuration;
                     float length = locked ? LockedChargeSpeed(origin) * ChargeDuration : ChargeSpeed * ChargeDuration;
-                    DrawLane(origin, direction, length, Vector2.Distance(origin, focus),
-                        Timer1, remaining, locked, false);
+                    DrawLane(head, origin, direction, length, remaining, locked);
                 }
                 break;
             case Behavior.ShortWormFormation when CurrentLocalPhase is 0 or 1:
@@ -93,60 +91,39 @@ public sealed partial class EaterofWorldsHead
                     EaterofWorldsHead worm = GetInstance(head);
                     bool locked = CurrentLocalPhase == 1;
                     int remaining = locked ? -WaveAge(ShortIndex(worm.SegmentIndex)) : FormationDuration;
-                    DrawLane(worm.LaunchOrigin, worm.LaunchDirection, WaveSpeed * WaveTravelDuration, WaveApproachDistance,
-                        Timer1, remaining, locked, true);
+                    DrawLane(head, worm.LaunchOrigin, worm.LaunchDirection, WaveSpeed * WaveTravelDuration, remaining, locked);
                 }
                 break;
         }
 
-        // Thin violet filaments cross at the aimed point. Only the luminous spine is the actual route.
-        void DrawLane(Vector2 start, Vector2 direction, float length, float focusDistance,
-            int elapsed, int remaining, bool locked, bool shortWorm)
+        void DrawLane(NPC attacker, Vector2 start, Vector2 direction, float length, int remaining, bool locked)
         {
             if (remaining <= 0 || direction.LengthSquared() < 0.5f)
                 return;
-            Vector2 normal = new(-direction.Y, direction.X);
-            float focus = Math.Clamp(focusDistance, 64f, length - 64f);
-            float appear = MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((elapsed + 1f) / 10f, 0f, 1f));
+            float width = ChargeWidth(attacker, direction);
+            float angle = direction.ToRotation();
+            float appear = MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((Timer1 + 1f) / 10f, 0f, 1f));
             float fade = MathHelper.Clamp(remaining / 5f, 0f, 1f);
             float nextBeat = MathHelper.SmoothStep(0f, 1f, MathHelper.Clamp((60f - remaining) / 20f, 0f, 1f));
-            float opacity = (locked ? MathHelper.Lerp(0.46f, 1f, nextBeat) : 0.48f * appear) * fade;
-            float tighten = locked ? MathHelper.Clamp(elapsed / 16f, 0f, 1f) : 0f;
-            float spread = (shortWorm ? 8f : 24f) * MathHelper.Lerp(1.4f, 0.65f, tighten);
-            Vector2 end = start + direction * length;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Texture2D glow = AnomalyTextures.Extra.LaserTelegraphBeam ?? pixel;
-            Color violet = new(155, 65, 225);
-            Color lilac = new(230, 187, 255);
-            float haloWidth = shortWorm ? 11f : 17f;
-            for (int layer = 0; layer < 6; layer++)
+            float opacity = (locked ? MathHelper.Lerp(0.54f, 1f, nextBeat) : 0.58f * appear) * fade;
+            if (EaterofWorldsWarningSystem.ChargeChannel is Texture2D texture)
             {
-                float inner = layer / 5f;
-                Stroke(start, end, MathHelper.Lerp(haloWidth, 3f, inner), glow,
-                    violet * (opacity * MathHelper.Lerp(0.025f, 0.14f, inner * inner)));
-            }
-            int pairs = shortWorm ? 1 : 2;
-            for (int i = -pairs; i <= pairs; i++)
-            {
-                float slope = i * Math.Min(spread / focus, 0.055f);
-                Vector2 a = start + normal * (slope * focus);
-                Vector2 b = end - normal * (slope * (length - focus));
-                Stroke(a, b, i == 0 ? 1.8f : 1.15f, pixel,
-                    (i == 0 ? lilac : new Color(190, 120, 249)) * (opacity * (i == 0 ? 0.96f : 0.66f)));
-            }
-            Vector2 intersection = start + direction * focus;
-            Stroke(intersection - direction * 16f, intersection + direction * 16f, 2.8f, glow, lilac * (opacity * 0.5f));
-            float pulse = (elapsed % 30) / 30f;
-            Vector2 glint = start + direction * (focus * pulse);
-            Stroke(glint, glint + direction * 23f, 3f, glow, lilac * (opacity * (1f - pulse)));
-
-            void Stroke(Vector2 a, Vector2 b, float width, Texture2D texture, Color color)
-            {
-                Vector2 edge = b - a;
-                spriteBatch.Draw(texture, a - screenPos, null, color, edge.ToRotation(),
-                    new Vector2(0f, texture.Height * 0.5f), new Vector2(edge.Length() / texture.Width, width / texture.Height),
+                // LinearWrap tiles the grain in world pixels. Both rails remain parallel through the target.
+                Rectangle source = new((-Timer1 * 2) % texture.Width, 0, Math.Max(1, (int)MathF.Ceiling(length)), texture.Height);
+                spriteBatch.Draw(texture, start - screenPos, source, Color.White * opacity, angle,
+                    new Vector2(0f, texture.Height * 0.5f), new Vector2(length / source.Width, width / EaterofWorldsWarningSystem.ChannelRailSpacing),
                     SpriteEffects.None, 0f);
+                return;
             }
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Vector2 normal = new(-direction.Y, direction.X);
+            Vector2 origin = new(0f, pixel.Height * 0.5f);
+            spriteBatch.Draw(pixel, start - screenPos, null, new Color(147, 91, 178) * (0.18f * opacity), angle,
+                origin, new Vector2(length / pixel.Width, width / pixel.Height), SpriteEffects.None, 0f);
+            for (int side = -1; side <= 1; side += 2)
+                spriteBatch.Draw(pixel, start - screenPos + normal * (side * width * 0.5f), null,
+                    new Color(221, 164, 237) * (opacity * 0.8f), angle, origin,
+                    new Vector2(length / pixel.Width, 2f / pixel.Height), SpriteEffects.None, 0f);
         }
     }
 }

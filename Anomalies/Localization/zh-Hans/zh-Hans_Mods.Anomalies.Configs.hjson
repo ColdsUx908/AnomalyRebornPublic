@@ -12,15 +12,6 @@ AnomalyClientConfig: {
 		BaseBoosts: 基础属性加成
 	}
 
-	UseCalamityStyleTextures: {
-		Label: 使用灾厄风格纹理
-		Tooltip:
-			'''
-			将模组中的某些纹理替换为更符合灾厄模组艺术风格的版本。
-			建议搭配灾厄纹理包使用。
-			'''
-	}
-
 	EnableShaders: {
 		Label: 启用着色器
 		Tooltip:

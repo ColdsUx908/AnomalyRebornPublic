@@ -29,9 +29,13 @@ public static class AnomalyBossChangeToggler
 
     public static bool LegendaryNight { get; private set; } = true;
 
+    public static bool Plantera { get; private set; } = EnableUnfinishedBossChange;
+
     public static bool QueenBee { get; private set; } = true;
 
     public static bool QueenSlime { get; private set; } = EnableUnfinishedBossChange;
 
     public static bool Skeletron { get; private set; } = true;
+
+    public static bool UnendingSpring { get; private set; } = EnableUnfinishedBossChange;
 }

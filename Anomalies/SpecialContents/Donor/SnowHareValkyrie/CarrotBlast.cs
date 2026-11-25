@@ -50,7 +50,7 @@ public sealed class CarrotBlast : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D atlas = TextureAssets.Projectile[Type].Value;
+        Texture2D atlas = Projectile.Texture;
         Vector2 position = Projectile.Center - Main.screenPosition;
         float age = Lifetime - Projectile.timeLeft;
         float progress = Progress;

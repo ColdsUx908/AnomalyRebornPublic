@@ -167,7 +167,7 @@ public class BloodBomb : AnomalyModNPC
         float deathRatio = 1f - NPC.life / (float)NPC.lifeMax;
         float time = Main.GlobalTimeWrappedHourly * (10f + (10f * deathRatio));
         float lerp = MathF.Sin(time) / 2f + 0.5f;
-        Texture2D baseTex = TextureAssets.Npc[Type].Value;
+        Texture2D baseTex = NPC.Texture;
         Texture2D overlayTex = BloodBombYellow.Value;
         Vector2 drawPos = NPC.Center - Main.screenPosition + Main.rand.NextVector2CircularEdge(2 * deathRatio, 2 * deathRatio);
         float scale = 1.5f + (MathF.Sin(time) * 0.25f);
@@ -227,7 +227,7 @@ public class BloodBombRTS : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D tex = TextureAssets.Projectile[Type].Value;
+        Texture2D tex = Projectile.Texture;
         Texture2D overlayTex = BloodBomb.BloodBombYellow.Value;
         for (int i = 0; i < (true ? Projectile.oldPos.Length : 1); ++i)
         {

@@ -105,6 +105,8 @@ public sealed partial class EaterofWorldsHead
     // An unusually fast target may leave the gathering area. Even then the announced line crosses the lock point.
     private float LockedChargeSpeed(Vector2 origin) => Math.Max(ChargeSpeed, (Vector2.Distance(origin, AttackCenter) + 320f) / ChargeDuration);
 
+    private static float ChargeWidth(NPC head, Vector2 direction) => Math.Abs(direction.Y) * head.width + Math.Abs(direction.X) * head.height;
+
     private void ChangeStep(int step)
     {
         if (!TONetworkEnvironment.NotClient)
@@ -127,11 +129,40 @@ public sealed partial class EaterofWorldsHead
         NPC.netUpdate = true;
     }
 
+    private static void SteerVelocity(NPC head, Vector2 desired, float acceleration)
+    {
+        Vector2 change = desired - head.velocity;
+        float length = change.Length();
+        head.velocity += length <= acceleration ? change : change * (acceleration / length);
+    }
+
     private static void FlyTo(NPC head, Vector2 destination, float speed)
     {
         Vector2 delta = destination - head.Center;
-        float distance = delta.Length();
-        head.velocity = distance <= speed ? delta : delta * (speed / distance);
+        Vector2 desired = delta * Math.Min(0.13f, speed / Math.Max(1f, delta.Length()));
+        SteerVelocity(head, desired, 2.8f);
+    }
+
+    // Take one step on the cubic that meets a waypoint with the desired outgoing tangent.
+    // Reconstructing from the current pose also works after a network correction.
+    private static void ArriveOnTangent(NPC head, Vector2 destination, Vector2 exitVelocity, int framesLeft)
+    {
+        head.velocity = Vector2.Hermite(Vector2.Zero, head.velocity * framesLeft, destination - head.Center,
+            exitVelocity * framesLeft, 1f / framesLeft);
+    }
+
+    private void WindUpCharge(float speed, int framesLeft, int side)
+    {
+        const int RunInFrames = 18;
+        Vector2 direction = LaunchDirection;
+        if (framesLeft > RunInFrames)
+        {
+            Vector2 normal = new(-direction.Y * side, direction.X * side);
+            Vector2 bend = LaunchOrigin - direction * (speed * 7f) + normal * 46f;
+            ArriveOnTangent(NPC, bend, -normal * 4f, framesLeft - RunInFrames);
+        }
+        else
+            ArriveOnTangent(NPC, LaunchOrigin, direction * speed, framesLeft);
     }
 
     private static void MoveTowards(NPC head, Vector2 point, float speed, float acceleration = 0.65f)
@@ -166,13 +197,12 @@ public sealed partial class EaterofWorldsHead
             segmentAcceleration += 0.05f;
         }
         Vector2 destination = Target.Center + (speedStage == 4 ? Target.velocity * 20f : Vector2.Zero);
-        float targetPosX = (int)(destination.X / 16f) * 16 - (int)(head.Center.X / 16f) * 16;
-        float targetPosY = (int)(destination.Y / 16f) * 16 - (int)(head.Center.Y / 16f) * 16;
+        float targetPosX = destination.X - head.Center.X;
+        float targetPosY = destination.Y - head.Center.Y;
         float absoluteTargetX = Math.Abs(targetPosX);
         float absoluteTargetY = Math.Abs(targetPosY);
         float targetDistance = MathF.Sqrt(targetPosX * targetPosX + targetPosY * targetPosY);
-        // Preserve momentum when the snapped positions coincide instead of dividing by zero.
-        if (targetDistance <= 0f)
+        if (targetDistance <= 0.001f)
             return;
         targetPosX *= segmentVelocity / targetDistance;
         targetPosY *= segmentVelocity / targetDistance;
@@ -242,7 +272,10 @@ public sealed partial class EaterofWorldsHead
     {
         Vector2 facing = head.velocity;
         if (facing.LengthSquared() > 0.1f)
-            head.rotation += MathHelper.WrapAngle(facing.ToRotation() + MathHelper.PiOver2 - head.rotation) * 0.2f;
+        {
+            float turn = MathHelper.WrapAngle(facing.ToRotation() + MathHelper.PiOver2 - head.rotation);
+            head.rotation += Math.Clamp(turn * 0.55f, -0.32f, 0.32f);
+        }
     }
 
 }

@@ -82,7 +82,7 @@ public class BrainBloodShot : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D texture = TextureAssets.Projectile[Type].Value;
+        Texture2D texture = Projectile.Texture;
         Vector2 origin = texture.Size() / 2f;
         Vector2 offset = Projectile.Size / 2f - Main.screenPosition + new Vector2(0, Projectile.gfxOffY);
         SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;

@@ -28,7 +28,6 @@ public sealed class EaterofWorldsTail : EaterofWorldsSegment<EaterofWorldsTail>
     public override bool PreAI()
     {
         NPC.alpha = 0;
-        UpdateCoilDR();
         NPC.boss = false;
         if (!ValidHead || !ValidPrevious)
         {
@@ -48,7 +47,7 @@ public sealed class EaterofWorldsTail : EaterofWorldsSegment<EaterofWorldsTail>
         NPC.realLife = Head.whoAmI;
         NPC.lifeMax = Head.lifeMax;
         NPC.life = Head.life;
-        BodyAndTailMovementAI();
+        PrepareFollower();
 
         OnRunningPreAI?.Invoke(this);
 
@@ -58,7 +57,7 @@ public sealed class EaterofWorldsTail : EaterofWorldsSegment<EaterofWorldsTail>
 
     public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
     {
-        spriteBatch.DrawFromCenter(NPC.Texture, NPC.Center - screenPos, NPC.frame, drawColor * PortalOpacity, NPC.rotation, NPC.scale);
+        spriteBatch.DrawFromCenter(NPC.Texture, NPC.Center - screenPos, NPC.frame, drawColor * NPC.Opacity, NPC.rotation, NPC.scale);
         return false;
     }
 

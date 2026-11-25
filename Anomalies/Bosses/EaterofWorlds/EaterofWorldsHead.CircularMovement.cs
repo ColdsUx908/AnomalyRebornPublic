@@ -2,7 +2,12 @@ namespace Anomalies.Bosses.EaterofWorlds;
 
 public sealed partial class EaterofWorldsHead
 {
-    // Per-local-head synchronized slots. Radius zero selects the unchanged basic follower.
+    // The vanilla frames extend 23 opaque source pixels to each side of a body joint.
+    // Scale the two anchors once, with extra overlap at the neck of every local head.
+    internal static float LinkSpacing(NPC front, NPC rear) =>
+        (front.type == NPCID.EaterofWorldsHead ? 15f : 18f) * front.scale + 17f * rear.scale;
+
+    // Per-local-head synchronized slots. Radius zero selects articulated following.
     public bool CircularMovementActive => AnomalyNPC.AnomalyAI32[2].F > 0f;
     public float CircularRadius => AnomalyNPC.AnomalyAI32[2].F;
     public float CircularAngularSpeed => AnomalyNPC.AnomalyAI32[3].F;
@@ -25,7 +30,7 @@ public sealed partial class EaterofWorldsHead
         // A full turn would erase the opening. Reject it instead of silently compressing the worm.
         float length = 0f;
         for (int i = 1; i < chain.Count; i++)
-            length += Main.getGoodWorld ? 62f : chain[i].width * chain[i].scale;
+            length += LinkSpacing(chain[i - 1], chain[i]);
         if (!float.IsFinite(length) || length <= 0f || length >= MathHelper.TwoPi * radius)
             return false;
 
@@ -70,11 +75,11 @@ public sealed partial class EaterofWorldsHead
             GetInstance(head).ClearCircularMovement();
     }
 
-    private void UpdateCircularMovement()
+    private void UpdateCircularMovement(List<NPC> heads)
     {
         // Only the encounter owner advances and places each local chain. Individual segments never
         // integrate a second velocity, so final geometry does not depend on NPC slot/update order.
-        foreach (NPC head in GetEncounterHeads())
+        foreach (NPC head in heads)
         {
             EaterofWorldsHead behavior = GetInstance(head);
             if (!behavior.CircularMovementActive || !behavior.TryGetCircularChain(out List<NPC> chain))
@@ -118,7 +123,7 @@ public sealed partial class EaterofWorldsHead
         {
             NPC segment = chain[i];
             if (i > 0)
-                distance += Main.getGoodWorld ? 62f : segment.width * segment.scale;
+                distance += LinkSpacing(chain[i - 1], segment);
             float angle = CircularHeadAngle - direction * distance / CircularRadius;
             Vector2 radial = new(MathF.Cos(angle), MathF.Sin(angle));
             segment.Center = CircularCenter + radial * CircularRadius;

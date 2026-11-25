@@ -14,6 +14,7 @@ public sealed partial class AnomalySynchronization : ILoadable
         public const byte PlayerDownedBossKill = 5;
         public const byte LegendaryNightHalfFieldHit = 6;
         public const byte EventideSacredPulse = 7;
+        public const byte RequestTestUnendingSpring = 8;
     }
 
     internal static ModPacket GetCAPacket() => AnomalyMain.Instance.GetPacket();
@@ -53,6 +54,7 @@ public sealed partial class AnomalySynchronization : ILoadable
         packet.Send(toClient);
     }
 
+    static partial void ApplyTestUnendingSpring(int playerIndex);
     static partial void ApplyBrainIllusionHit(int illusionIndex, int playerIndex);
     static partial void ApplyLegendaryNightHalfFieldHit(ProjectileNetReference arenaReference);
 
@@ -61,6 +63,10 @@ public sealed partial class AnomalySynchronization : ILoadable
         byte id = reader.ReadByte();
         switch (id)
         {
+            case ID.RequestTestUnendingSpring:
+                if (Main.netMode == NetmodeID.Server)
+                    ApplyTestUnendingSpring(whoAmI);
+                break;
             case ID.EventideSacredPulse:
 #if SPECIAL_CONTENTS
                 if (Main.netMode == NetmodeID.MultiplayerClient && SpecialContents.AnomalySpecialContentToggler.EventideReunion)

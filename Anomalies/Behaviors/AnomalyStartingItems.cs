@@ -15,7 +15,7 @@ public sealed class AnomalyStartingItems : AnomalyPlayerBehavior
 
         result.Add(Item.CreateItem<HeavenrendCrown>()); //用于在游戏初期即能开启异象模式
 
-        if (ModContent.GetModItem<PathwaytoReverieMusicBox>() is not null)
+        if (AnomaliesMusicHandler.PathwaytoReverie > 0)
             result.Add(Item.CreateItem<PathwaytoReverieMusicBox>());
 
 #if SPECIAL_CONTENTS

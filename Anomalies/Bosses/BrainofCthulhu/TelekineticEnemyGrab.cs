@@ -337,7 +337,7 @@ public class TelekineticEnemyGrab : AnomalyModProjectile
             if (_Curve != null)
             {
                 SpriteBatchSnapshot snapshot = Main.spriteBatch.ChangeState(blendState: BlendState.Additive);
-                Texture2D ring = TextureAssets.Projectile[Type].Value;
+                Texture2D ring = Projectile.Texture;
                 List<Vector2> points = _Curve.GetPoints(pCount);
                 for (int i = 1; i < pCount; i++)
                 {

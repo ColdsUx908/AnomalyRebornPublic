@@ -550,7 +550,7 @@ public partial class BloodlettingServant : AnomalyModNPC
     {
         if (NPC.ai[0] >= ChargeTelegraphGateValueZenith)
         {
-            Texture2D npcTexture = TextureAssets.Npc[NPC.type].Value;
+            Texture2D npcTexture = NPC.Texture;
             Color originalColor = Color.Red * 0.75f;
             Color newColor = EyeofCthulhuHandler.ChargeColor;
             Vector2 drawPosition = NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY);

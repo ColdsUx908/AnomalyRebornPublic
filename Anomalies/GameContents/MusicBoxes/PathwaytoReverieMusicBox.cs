@@ -6,10 +6,15 @@ public sealed class PathwaytoReverieMusicBox : BaseMusicBox<PathwaytoReverieMusi
 {
     public override string MusicFileName => "Rainpath — Pathway to Reverie";
 
-    public override void AddRecipes() => CreateRecipe()
-        .AddIngredient(ItemID.MusicBox)
-        .AddCondition(Condition.NearShimmer)
-        .Register();
+    public override void AddRecipes()
+    {
+        Recipe recipe = CreateRecipe()
+            .AddIngredient(ItemID.MusicBox)
+            .AddCondition(Condition.NearShimmer)
+            .Register();
+        if (!Main.dedServ && AnomaliesMusicHandler.PathwaytoReverie <= 0)
+            recipe.DisableRecipe();
+    }
 }
 
 public sealed class PathwaytoReverieMusicBoxTile : BaseMusicBoxTile;

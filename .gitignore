@@ -384,4 +384,6 @@ FodyWeavers.xsd
 /PUBLIC_SYNC.md
 /Sync-Public.bat
 /Sync-Public.ps1
+/Publish-Workshop.bat
+/Publish-Workshop.ps1
 /LegendaryNightExtraMusic/

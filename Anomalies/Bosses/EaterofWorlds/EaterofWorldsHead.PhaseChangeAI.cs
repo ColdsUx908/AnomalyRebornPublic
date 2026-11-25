@@ -38,6 +38,11 @@ public sealed partial class EaterofWorldsHead
                 ChangeStep(1);
                 break;
             case 1: // The owner heals from one saved value; a snapshot is sufficient to resume the curve.
+                foreach (NPC head in heads)
+                {
+                    if (head != NPC)
+                        GetInstance(head).SwimBesideLane(Timer1, -32f, 12f);
+                }
                 int healedLife = TransitionLife(Timer1);
                 NPC.life = healedLife;
                 if (!Main.dedServ && Timer1 % 15 == 0 && Timer1 <= UltraHealDuration)

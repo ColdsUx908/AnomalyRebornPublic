@@ -13,7 +13,7 @@ public sealed partial class EaterofWorldsHead
             return false;
         float length = 0f;
         for (int i = 1; i < chain.Count; i++)
-            length += Main.getGoodWorld ? 62f : chain[i].width * chain[i].scale;
+            length += LinkSpacing(chain[i - 1], chain[i]);
         float radius = Math.Max(700f, length / MathHelper.ToRadians(200f));
         int turn = CycleIndex % 2 == 0 ? 1 : -1;
         float openingAngle = Target.velocity.SafeNormalize(Vector2.UnitX).ToRotation();
@@ -37,7 +37,7 @@ public sealed partial class EaterofWorldsHead
             int lane = index % groupSize - groupSize / 2;
             Vector2 direction = Vector2.UnitY.RotatedBy(angle + group * 0.24f);
             Vector2 across = new(direction.Y, -direction.X);
-            float width = Math.Abs(across.X) * head.width + Math.Abs(across.Y) * head.height;
+            float width = ChargeWidth(head, direction);
             float side = lane < 0 ? -1f : 1f;
             float shoulder = side * (72f + width * 0.5f) + (lane < 0 ? lane + 1 : lane) * width;
             Vector2 gate = AttackCenter + across * (group * 52f * AttackSide);
@@ -59,23 +59,19 @@ public sealed partial class EaterofWorldsHead
             switch (CurrentLocalPhase)
             {
                 case 0: // Re-form two shoulders around the marked gap.
-                    FlyTo(head, worm.LaunchOrigin, 34f);
+                    worm.SwimBesideLane(Timer1, -32f, 34f);
                     break;
                 case 1: // First wave, then the second group on a fixed beat in the relay.
                     int age = WaveAge(ShortIndex(worm.SegmentIndex));
                     if (age <= 0)
-                    {
-                        head.Center = worm.LaunchOrigin;
-                        head.velocity = Vector2.Zero;
-                        head.rotation = worm.LaunchDirection.ToRotation() + MathHelper.PiOver2;
-                    }
+                        worm.WindUpCharge(WaveSpeed, 1 - age, ShortIndex(worm.SegmentIndex) < UltraShortWormCount / 2 ? -1 : 1);
                     else if (age <= WaveTravelDuration)
                         head.velocity = worm.LaunchDirection * WaveSpeed;
                     else
                         head.velocity *= 0.86f;
                     break;
                 case 2: // Vulnerable recovery along the two shoulders, within reach of the gap.
-                    FlyTo(head, worm.LaunchOrigin + worm.LaunchDirection * (WaveApproachDistance + 40f), 20f);
+                    worm.SwimBesideLane(Timer1, WaveApproachDistance + 40f, 20f);
                     break;
                 case 3: // Show the new center before moving the open arc.
                     head.velocity *= 0.86f;
@@ -132,5 +128,14 @@ public sealed partial class EaterofWorldsHead
             }
             return false;
         }
+    }
+
+    private void SwimBesideLane(int elapsed, float along, float speed)
+    {
+        Vector2 direction = LaunchDirection;
+        Vector2 normal = new(-direction.Y, direction.X);
+        float angle = elapsed * 0.045f + ShortIndex(SegmentIndex) * 0.65f;
+        Vector2 destination = LaunchOrigin + direction * (along + 21f * MathF.Cos(angle)) + normal * (28f * MathF.Sin(angle));
+        FlyTo(NPC, destination, speed);
     }
 }

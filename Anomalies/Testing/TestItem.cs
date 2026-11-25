@@ -35,7 +35,18 @@ public sealed partial class TestItem : AnomalyModItem
     public override bool CanUseItem(Player player)
     {
         bool available = false;
+        CanSummonUnendingSpring(player, ref available);
         return available;
+    }
+
+    static partial void CanSummonUnendingSpring(Player player, ref bool available);
+    static partial void UseUnendingSpring(Player player, ref bool used);
+
+    public override bool? UseItem(Player player)
+    {
+        bool used = false;
+        UseUnendingSpring(player, ref used);
+        return used;
     }
 
     public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

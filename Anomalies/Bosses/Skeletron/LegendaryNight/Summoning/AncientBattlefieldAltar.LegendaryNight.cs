@@ -10,6 +10,12 @@ public sealed partial class AncientBattlefieldAltar
     /// </summary>
     public static readonly SoundStyle LegendaryNightActivate = new(LegendaryNightHandler.LegendaryNightPath + "Summoning/LegendaryNightActivate");
 
+    public override void Load()
+    {
+        if (!Main.dedServ)
+            ModContent.Request<Microsoft.Xna.Framework.Audio.SoundEffect>(LegendaryNightActivate.SoundPath, ReLogic.Content.AssetRequestMode.AsyncLoad);
+    }
+
     partial void AnimateRitual(ref int frame, ref bool ritualExists)
     {
         foreach (Projectile projectile in Projectile.ActiveProjectiles)

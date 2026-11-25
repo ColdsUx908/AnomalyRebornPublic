@@ -15,7 +15,7 @@
 | [CosmicDischarge](Developer/CosmicDischarge/) | 未接入内容开关 | 纹理资源及纹理类骨架，尚无武器实现 |
 | [HiganbanaPyre](Developer/HiganbanaPyre/) | 未接入内容开关 | 仅武器图片，尚无内容实现 |
 
-[DonorInfo.cs](Donor/DonorInfo.cs) 维护捐赠者信息。开发者、贡献者和捐赠者是内容归属分类，不增加构建模块。
+在 [Donors.json](Donor/Donors.json) 中维护捐赠者信息。已有 ID 保持不变，同一捐赠者的新记录按日期追加到 Donations 数组。开发者、贡献者和捐赠者是内容归属分类，不增加构建模块。
 
 ## 公共接入与依赖
 

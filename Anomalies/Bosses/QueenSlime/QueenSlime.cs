@@ -404,7 +404,7 @@ public sealed partial class QueenSlime : AnomalyNPCBehavior<QueenSlime>, ILocali
 
         // --- 原 case 657 绘制逻辑 ---
         int type = NPC.type;
-        Texture2D bodyTexture = TextureAssets.Npc[type].Value;
+        Texture2D bodyTexture = NPC.Texture;
         Vector2 bodyPosition = NPC.Bottom - screenPos;
         bodyPosition.Y += 2f;
 

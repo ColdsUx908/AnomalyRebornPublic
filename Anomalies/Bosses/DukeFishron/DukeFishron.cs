@@ -272,10 +272,10 @@ public sealed partial class DukeFishron : AnomalyNPCBehavior<DukeFishron>
         // 基础偏移与纹理中心点
         float baseVerticalOffset = 0f;
         float addedHeight = Main.NPCAddHeight(NPC);
-        Vector2 origin = new(TextureAssets.Npc[type].Width() / 2, TextureAssets.Npc[type].Height() / Main.npcFrameCount[type] / 2);
+        Texture2D npcTexture = NPC.Texture;
+        Vector2 origin = new(npcTexture.Width / 2, npcTexture.Height / Main.npcFrameCount[type] / 2);
 
         // 主纹理、混合目标色与混合量
-        Texture2D npcTexture = TextureAssets.Npc[type].Value;
         Color blendTargetColor = Color.White;
         float colorBlendAmount = 0f;
 

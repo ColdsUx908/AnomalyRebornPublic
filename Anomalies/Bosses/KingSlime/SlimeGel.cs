@@ -11,10 +11,6 @@ public sealed class SlimeGel : AnomalyModProjectile
 
     public override string LocalizationCategory => "Bosses.KingSlime";
 
-    [LoadTextureWithCalamityStyle(JewelHandler.AnomalyKingSlimePath + "SlimeGel")]
-    private static TextureAssetWithCalamityStyle _Texture;
-    public static new Texture2D Texture => _Texture.Value;
-
     public bool IsRainbow => Projectile.ai[1] > 0f;
 
     public override void SetDefaults()
@@ -49,7 +45,7 @@ public sealed class SlimeGel : AnomalyModProjectile
 
     public override bool PreDraw(ref Color lightColor)
     {
-        Texture2D texture = Texture;
+        Texture2D texture = Projectile.Texture;
         Color color = Projectile.GetAlpha(lightColor);
         Main.spriteBatch.DrawFromCenter(texture, Projectile.Center - Main.screenPosition, null, color, Projectile.rotation, Projectile.scale, SpriteEffects.None, 0f);
         return false;
